@@ -3,8 +3,9 @@ import Background from '@/components/Background';
 import FAQS from '@/components/FAQS';
 import Licenses from '@/components/Licenses';
 import TrackListing from '@/components/track-listing';
-import Particles from '@/components/ui/ReactBits/Particles';
-import React, { useState } from 'react';
+// import Particles from '@/components/ui/ReactBits/Particles';
+import { useState } from 'react';
+import Contact from '@/components/Contact'
 const Home = ({ size }) => {
   const [searchTerm, setSearchTerm] = useState('');
   document.title = `Birdie Bands | Home`;
@@ -18,6 +19,7 @@ const Home = ({ size }) => {
       <Artists size={size} setSearchTerm={setSearchTerm} />
       <Licenses />
       <FAQS size={size} />
+      <Contact/>
     </div>
   );
 };
