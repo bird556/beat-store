@@ -8,6 +8,7 @@ import BirdieLogo from '/Images/logo.png';
 import Particles from './ui/ReactBits/Particles';
 import CartModal from './cart-modal';
 import { useCart } from '@/contexts/cart-context';
+
 const Navbar = () => {
   const { totalItems } = useCart();
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -15,7 +16,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-background sticky top-0 z-[500] border-b border-foreground/30 px-4 py-4 ">
+      <nav className="!sticky !top-0 z-[500] border-b border-foreground/30  backdrop-blur-sm bg-background/70">
         {/* <div className="fixed h-full w-full top-0 left-0 z-0">
           <Particles
             particleColors={['#ffffff', '#ffffff']}
@@ -31,7 +32,7 @@ const Navbar = () => {
         {/* <Marquee className=" !bg-transparent font-medium">
           15% OFF Code: BIRDIE15 🚀
         </Marquee> */}
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-4">
           {/* Logo */}
           <NavLink to="/" className="flex items-center">
             {/* <Image
@@ -44,18 +45,30 @@ const Navbar = () => {
           </NavLink>
 
           {/* Navigation Links - Hidden on mobile */}
-          <div className="hidden md:flex items-center space-x-5 list-none">
+          <div className="hidden md:flex items-center space-x-5 list-none mr-[6.5rem]">
             <NavLink
+              className={({ isActive }) =>
+                `!bg-transparent hover:!border-transparent ${
+                  isActive
+                    ? '!text-green-400 border-b-2 border-white/55 drop-shadow-[0_0_4px_white]'
+                    : 'text-foreground'
+                }`
+              }
               to="/"
-              className="!bg-transparent hover:!border-transparent"
             >
               <li className="text-foreground hover:text-green-400 transition-colors">
                 Home
               </li>
             </NavLink>
             <NavLink
+              className={({ isActive }) =>
+                `!bg-transparent hover:!border-transparent ${
+                  isActive
+                    ? '!text-green-400 border-b-2 border-white/55 drop-shadow-[0_0_4px_white]'
+                    : 'text-foreground'
+                }`
+              }
               to="/beats"
-              className="!bg-transparent hover:!border-transparent"
             >
               <li className="text-foreground hover:text-green-400 transition-colors">
                 Beats

@@ -22,7 +22,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
         placement="center"
         backdrop="blur"
         classNames={{
-          backdrop: 'bg-background/20 !backdrop-opacity-90',
+          backdrop: 'bg-background/20 !backdrop-opacity-10',
 
           closeButton:
             'right-1 top-2 z-[5000] hover:!text-white !text-gray-300',
@@ -53,7 +53,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
         }}
         onClose={onClose}
       >
-        <ModalContent className="flex flex-col relative z-50 w-full box-border outline-none mx-1 my-1 sm:mx-6 sm:my-16 !rounded-2xl shadow-small overflow-hidden max-w-3xl bg-zinc-900">
+        <ModalContent className=" flex flex-col relative z-50 w-full box-border outline-none mx-1 my-1 sm:mx-6 sm:my-16 !rounded-2xl shadow-small overflow-hidden max-w-3xl bg-zinc-900">
           {(onClose) => (
             <>
               {/* <ModalHeader className="flex flex-col gap-1 !bg-white/10 text-xl font-bold text-center">
@@ -76,7 +76,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                 </div>
               ) : (
                 <>
-                  <ModalBody className="p-6 space-y-4 ">
+                  <ModalBody className="p-6 space-y-4 overflow-y-scroll">
                     {/* Cart Items */}
                     {items.length === 0 ? (
                       <div className="text-center py-8">
@@ -87,10 +87,10 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                         {items.map((item) => (
                           <div
                             key={item.id}
-                            className="overflow-hidden flex items-center space-x-4 bg-zinc-800 rounded-lg"
+                            className=" overflow-hidden flex items-center space-x-4 bg-zinc-800 rounded-lg"
                           >
                             <img
-                              className=" h-24"
+                              className="h-24 aspect-square object-cover"
                               src={item.image}
                               alt={item.title}
                             />

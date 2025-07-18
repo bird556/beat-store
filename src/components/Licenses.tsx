@@ -153,7 +153,7 @@ export const projects = [
 
 const LicenseTemplate = (formattedDate: string, formattedTime: string) => {
   return (
-    <ModalBody className="bg-foreground whitespace-pre-line text-justify text-background">
+    <ModalBody className="bg-foreground whitespace-pre-line text-justify text-background overflow-y-scroll">
       {/* Introductory Paragraph */}
       <div>
         <p>

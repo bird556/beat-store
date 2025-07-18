@@ -96,7 +96,7 @@ export const HoverEffect = ({
                 ))}
               </ul>
               <button
-                className="hover:bg-green-700"
+                className="hover:bg-foreground hover:text-background  !transition-all !duration-600 bg-zinc-900"
                 onClick={() => handleOpen(size, idx)}
               >
                 Read Full License
@@ -105,13 +105,13 @@ export const HoverEffect = ({
                 placement="center"
                 backdrop="blur"
                 classNames={{
-                  backdrop: 'bg-background/20 !backdrop-opacity-90',
+                  backdrop: 'bg-background/20 !backdrop-opacity-10',
 
-                  closeButton: 'right-1 top-2',
+                  closeButton: 'right-1 top-2 z-[300] ',
                 }}
-                className="max-w-sm lg:max-w-4xl !overflow-auto max-h-1/2 md:max-h-4/6"
+                className="max-w-sm lg:max-w-3xl !overflow-auto max-h-1/2 md:max-h-4/6"
                 isOpen={isOpen}
-                size={'4xl'}
+                size={'3xl'}
                 scrollBehavior={'inside'}
                 motionProps={{
                   variants: {
@@ -138,15 +138,23 @@ export const HoverEffect = ({
                 <ModalContent className="flex flex-col relative z-50 w-full box-border outline-none mx-1 my-1 sm:mx-6 sm:my-16 !rounded-2xl shadow-small !overflow-y-auto max-w-4xl bg-black">
                   {(onClose) => (
                     <>
-                      <ModalHeader className="flex flex-col gap-1 !bg-white/10">
-                        {selectedItemIndex !== null
-                          ? items[selectedItemIndex].title
-                          : ''}
-                      </ModalHeader>
+                      <div className="flex w-full sticky top-0 bg-background z-50 py-2 px-4">
+                        <ModalHeader className="flex-1 text-center">
+                          {selectedItemIndex !== null
+                            ? items[selectedItemIndex].title
+                            : ''}
+                        </ModalHeader>
+                        {/* <button className="" onClick={onClose}>
+                          x
+                        </button> */}
+                      </div>
 
                       {item.licenseInfo()}
-                      <ModalFooter className="!bg-foreground !border-none">
-                        <button className="!text-white" onClick={onClose}>
+                      <ModalFooter className="  !border-none">
+                        <button
+                          className="hover:bg-transparent hover:text-foreground  !transition-all !duration-600 bg-foreground text-background"
+                          onClick={onClose}
+                        >
                           Close
                         </button>
                       </ModalFooter>
