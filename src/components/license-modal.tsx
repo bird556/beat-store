@@ -98,7 +98,7 @@ export default function LicenseModal({
           closeButton:
             'right-1 top-2 z-[5000] hover:!text-white !text-gray-300',
         }}
-        className="max-w-sm lg:max-w-3xl !overflow-auto max-h-4/6 md:max-h-[70vh]"
+        className="!max-w-2xl lg:max-w-3xl !overflow-auto !max-h-4/6 md:!max-h-2/3"
         isOpen={isOpen}
         size={'3xl'}
         scrollBehavior={'inside'}
