@@ -46,7 +46,7 @@ const MusicPlayer = () => {
   const nextTrackInfo = getNextTrack();
   if (!currentTrack) return null;
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-gray-800 px-4 py-3 z-[500]">
+    <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-gray-800 px-4 py-3 z-[500] w-full">
       {/* <div className="absolute h-full w-full top-0 left-0 z-0">
         <Particles
           particleColors={['#ffffff', '#ffffff']}

@@ -93,12 +93,12 @@ export default function LicenseModal({
         placement="center"
         backdrop="blur"
         classNames={{
-          backdrop: 'bg-background/20 !backdrop-opacity-90',
+          backdrop: 'bg-background/20 !backdrop-opacity-10',
 
           closeButton:
             'right-1 top-2 z-[5000] hover:!text-white !text-gray-300',
         }}
-        className="max-w-sm lg:max-w-3xl !overflow-auto max-h-4/6 md:max-h-9/12"
+        className="max-w-sm lg:max-w-3xl !overflow-auto max-h-4/6 md:max-h-[70vh]"
         isOpen={isOpen}
         size={'3xl'}
         scrollBehavior={'inside'}
@@ -130,13 +130,13 @@ export default function LicenseModal({
               {/* <ModalHeader className="flex flex-col gap-1 !bg-white/10 text-xl font-bold text-center">
                 Select License
               </ModalHeader> */}
-              <div className="relative flex w-full items-center pt-3 pb-6 overflow-hidden border-b-2 border-foreground/5">
+              <div className="relative  min-h-32 flex w-full items-center pt-3  overflow-hidden border-b-2 border-foreground/5">
                 <img
-                  className="h-40 object-contain"
+                  className="h-44 aspect-square object-cover"
                   src={track.image}
                   alt={track.artist}
                 />
-                <div className="">
+                <div className="!text-start">
                   <ModalHeader className="flex flex-col   !font-normal text-foreground/70">
                     <p className="text-2xl font-bold text-white">
                       {track.title}
@@ -149,7 +149,7 @@ export default function LicenseModal({
                 </div>
               </div>
 
-              <ModalBody className="p-6 space-y-4 ">
+              <ModalBody className="p-6 space-y-4 overflow-y-scroll">
                 {licenseOptions.map((license) => (
                   <div
                     key={license.id}

@@ -289,7 +289,7 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
           autoPlay
           loop
           muted
-          className="absolute h-screen scale-200 md:scale-125 z-0 opacity-10"
+          className="absolute h-screen lg:h-auto scale-200 md:scale-140 z-0 opacity-10"
           src={StudioVideo}
         ></video>
         <img
@@ -361,11 +361,15 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
       </div>
       {limitTrackCount ? (
         <NavLink to="/beats" className="z-50">
-          <button className="w-fit text-white">Browse All Beats</button>
+          <button className="w-fit text-white hover:bg-foreground hover:text-background  !transition-all !duration-600 bg-zinc-900">
+            Browse All Beats
+          </button>
         </NavLink>
       ) : (
         <NavLink to="/" className="z-50">
-          <button className="w-fit text-white">Back To Home</button>
+          <button className="w-fit text-white hover:bg-foreground hover:text-background  !transition-all !duration-600 bg-zinc-900">
+            Back To Home
+          </button>
         </NavLink>
       )}
     </div>

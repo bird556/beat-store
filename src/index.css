@@ -85,6 +85,8 @@ button {
 }
 button:hover {
   border-color: #646cff;
+  /* background-color: var(--color-foreground); */
+  /* color: var(--color-background); */
   border-color: var(--color-green-400);
   border-color: transparent;
 }

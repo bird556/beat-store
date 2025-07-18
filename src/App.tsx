@@ -44,7 +44,7 @@ function App() {
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <CartProvider>
           <PlayerProvider>
-            <div className="bg-background relative">
+            <div className="bg-background relative m-auto w-full">
               {/* <Marquee className="sticky top-0 !bg-transparent font-medium">
             15% OFF Code: BIRDIE15 🚀
           </Marquee> */}
@@ -63,14 +63,16 @@ function App() {
               <Router>
                 <ScrollToTop />
                 <Navbar />
-                <Routes>
-                  <Route path="/" element={<Home size={headerText} />} />
-                  <Route path="*" element={<Home size={headerText} />} />
-                  <Route path="/beats" element={<Beats />} />
-                  <Route path="/about" element={<About />} />
-                </Routes>
-                {/* <div className="py-10"></div> */}
-                <Footer />
+                <div className="overflow-x-hidden">
+                  <Routes>
+                    <Route path="/" element={<Home size={headerText} />} />
+                    <Route path="*" element={<Home size={headerText} />} />
+                    <Route path="/beats" element={<Beats />} />
+                    <Route path="/about" element={<About />} />
+                  </Routes>
+                  {/* <div className="py-10"></div> */}
+                  <Footer />
+                </div>
               </Router>
               {showButton && (
                 <button
