@@ -10,7 +10,7 @@ import {
   Share2,
   Pause,
 } from 'lucide-react';
-import BirdieLogo from '../../public/Images/logo.png';
+import BirdieLogo from '/src/Images/logo.png';
 import Particles from './ui/ReactBits/Particles';
 import { Link, NavLink } from 'react-router';
 import { usePlayer } from '@/contexts/PlayerContext';
@@ -160,6 +160,7 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
           ref={ref}
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
+          viewport={{ once: true }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
           className="z-50 grid grid-cols-10 gap-4 items-center py-3 px-2 rounded-lg hover:bg-foreground/15 transition-colors group"
         >
@@ -292,11 +293,17 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
           className="absolute h-screen lg:h-auto scale-200 md:scale-140 z-0 opacity-10"
           src={StudioVideo}
         ></video>
-        <img
-          className="w-xl mb-5 sm:mb-10 z-1"
-          src={BirdieLogo}
-          alt="Birdie Logo"
-        />
+        <motion.div
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+        >
+          <img
+            className="w-xl mb-5 sm:mb-10 z-[50] relative"
+            src={BirdieLogo}
+            alt="Birdie Logo"
+          />
+        </motion.div>
         <div className="w-full z-2">
           <p className="mb-10 sm:mb-2 font-medium text-sm text-center sm:text-lg dark:text-foreground text-black">
             Search Beats Here

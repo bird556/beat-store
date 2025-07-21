@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+
 import {
   IconBrandGithub,
   IconBrandGoogle,
@@ -12,8 +14,16 @@ const Contact = () => {
     e.preventDefault();
     console.log('Form submitted');
   };
+  const [truth, setTruth] = useState(false);
+
+  if (truth) return <h1>Contact</h1>;
   return (
-    <div className="shadow-input mx-auto w-full max-w-md rounded-none bg-transparent px-4 md:rounded-2xl md:px-8 ">
+    <motion.div
+      initial={{ y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="z-50 relative pb-48 shadow-input mx-auto w-full max-w-md rounded-none bg-transparent px-4 md:rounded-2xl md:px-8 h-screen flex flex-col justify-center"
+    >
       <h2 className="font-bold text-2xl">Contact</h2>
       <p className="mt-2 max-w-sm text-sm text-neutral-600 dark:text-neutral-300">
         Reach Out If You Have Any Inquires
@@ -54,7 +64,7 @@ const Contact = () => {
 
         <div className="mt-8 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
       </form>
-    </div>
+    </motion.div>
   );
 };
 

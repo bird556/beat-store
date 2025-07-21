@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Search, User, ShoppingCart, Menu, X } from 'lucide-react';
 import Marquee from 'react-fast-marquee';
 import { Link, NavLink } from 'react-router';
-import BirdieLogo from '/Images/logo.png';
+import BirdieLogo from '../../src/Images/logo.png';
 import Particles from './ui/ReactBits/Particles';
 import CartModal from './cart-modal';
 import { useCart } from '@/contexts/cart-context';

@@ -6,6 +6,7 @@ import About from '../pages/About';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import Particles from './components/ui/ReactBits/Particles';
+import Contact from './components/Contact';
 import MusicPlayer from './components/musicplayer';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router';
 import ScrollToTop from './components/helper/ScrollToTop';
@@ -68,6 +69,7 @@ function App() {
                     <Route path="/" element={<Home size={headerText} />} />
                     <Route path="*" element={<Home size={headerText} />} />
                     <Route path="/beats" element={<Beats />} />
+                    <Route path="/contact" element={<Contact />} />
                     <Route path="/about" element={<About />} />
                   </Routes>
                   {/* <div className="py-10"></div> */}
