@@ -1,5 +1,6 @@
 import React from 'react';
 import TiltedCard from './ui/ReactBits/TitledCard';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 const Artists = ({ size, setSearchTerm }) => {
   const navigate = useNavigate();
@@ -10,7 +11,12 @@ const Artists = ({ size, setSearchTerm }) => {
     <>
       <div className="flex flex-col gap-12">
         <h2 className={`font-bold ${size}`}>Artist Type Beats</h2>
-        <div className="flex gap-24 flex-wrap justify-center z-10">
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="flex gap-24 flex-wrap justify-center z-10"
+        >
           <div onClick={() => handleCardClick('Key Glock')}>
             <TiltedCard
               // imageSrc="https://i.pinimg.com/736x/a2/3b/a7/a23ba7a9cdb5d504d7e847f6bcbada7b.jpg"
@@ -79,7 +85,7 @@ const Artists = ({ size, setSearchTerm }) => {
               }
             />
           </div>
-        </div>
+        </motion.div>
       </div>
     </>
   );
