@@ -112,7 +112,3 @@ COINBASE_WEBHOOK_SECRET
 .env.production
 
 
-#IGNORE Whole BackEnd
-backend
-backend/api
-backend/server.js
