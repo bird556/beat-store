@@ -1,6 +1,6 @@
 import React from 'react';
-import TiltedCard from './ui/ReactBits/TitledCard';
 import { motion } from 'framer-motion';
+import TiltedCard from './ui/ReactBits/TitledCard';
 import { useNavigate } from 'react-router-dom';
 const Artists = ({ size, setSearchTerm }) => {
   const navigate = useNavigate();

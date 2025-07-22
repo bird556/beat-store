@@ -138,7 +138,7 @@ export const HoverEffect = ({
                 <ModalContent className="flex flex-col relative z-50 w-full box-border outline-none mx-1 my-1 sm:mx-6 sm:my-16 !rounded-2xl shadow-small !overflow-y-auto max-w-4xl bg-black">
                   {(onClose) => (
                     <>
-                      <div className="flex w-full sticky top-0 bg-background z-50 py-2 px-4">
+                      <div className="flex w-full sticky top-0 bg-zinc-900 z-50 py-2 px-4">
                         <ModalHeader className="flex-1 text-center">
                           {selectedItemIndex !== null
                             ? items[selectedItemIndex].title
@@ -150,7 +150,7 @@ export const HoverEffect = ({
                       </div>
 
                       {item.licenseInfo()}
-                      <ModalFooter className="  !border-none">
+                      <ModalFooter className="bg-zinc-900  !border-none">
                         <button
                           className="hover:bg-transparent hover:text-foreground  !transition-all !duration-600 bg-foreground text-background"
                           onClick={onClose}
