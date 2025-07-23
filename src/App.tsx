@@ -17,28 +17,8 @@ import { CartProvider } from './contexts/cart-context';
 import { Toaster } from 'react-hot-toast';
 function App() {
   const headerText = 'text-2xl';
-  const [showButton, setShowButton] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      // Calculate scroll position
-      const scrollPosition = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-
-      // Calculate 90% of the page height
-      const ninetyPercentHeight = 0.9 * documentHeight;
-
-      // Show button if scrolled past 90% of the page
-      setShowButton(scrollPosition + windowHeight >= ninetyPercentHeight);
-    };
-
-    // Add event listener
-    window.addEventListener('scroll', handleScroll);
-
-    // Clean up
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <>
