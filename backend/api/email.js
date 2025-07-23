@@ -28,27 +28,28 @@ router.post('/', async (req, res) => {
       to: email,
       subject: 'Thanks For Contacting Birdie Bands ✨🎶',
       html: `
-  <p>Hey there,</p>
+    <div style="font-family:Arial,sans-serif; color:#333; line-height:1.6;">
+    <p>Hey there,</p>
 
-  <p>Thank you for reaching out! I appreciate your interest in my work — whether it's about purchasing a beat, collaborating on a project, or anything in between.</p>
+    <p>Thank you for reaching out! I appreciate your interest in my work — whether it's about purchasing a beat, collaborating on a project, or anything in between.</p>
+    
+    <p>I’ll review your message and get back to you as soon as possible.</p>
 
-  <p>I’ll review your message and get back to you as soon as possible.</p>
+    <p>In the meantime, feel free to check out more of my catalog, stay connected on socials, or hit reply if you’ve got more details to share.</p>
 
-  <p>In the meantime, feel free to check out more of my catalog, stay connected on socials, or hit reply if you’ve got more details to share.</p>
+    <p style="font-size:15px;">Looking forward to building something dope together. 🤝💿</p>
 
-  <p>Looking forward to building something dope together.</p>
+    <p style="margin-top:20px; font-weight:bold;">Respect,<br/>Birdie Bands</p>
 
-  <br/>
-  <p>Respect,<br/>Birdie Bands</p>
+    <hr style="margin: 24px 0; border: none; border-top: 1px solid #ccc;" />
 
-  <hr style="margin: 24px 0; border: none; border-top: 1px solid #ccc;" />
-
-  <p>
-    🔗 <strong>Quick Links:</strong><br/>
-    🎧 <a href="https://open.spotify.com/artist/44CuCf1NgVzB4fPiAgpNoQ" target="_blank" rel="noopener noreferrer">Spotify Artist Page</a><br/>
-    📺 <a href="https://www.youtube.com/@birdiebands" target="_blank" rel="noopener noreferrer">YouTube Channel</a><br/>
-    🛒 <a href="https://www.birdiebands.com" target="_blank" rel="noopener noreferrer">Beat Store</a>
-  </p>
+    <p style="font-size:15px;">
+      🔗 <strong>Quick Links:</strong><br/>
+      🎧 <a href="https://open.spotify.com/artist/YOUR_SPOTIFY_ID" target="_blank" style="color:#1DB954;">Spotify Artist Page</a><br/>
+      📺 <a href="https://www.youtube.com/@YOUR_CHANNEL_NAME" target="_blank" style="color:#FF0000;">YouTube Channel</a><br/>
+      🛒 <a href="https://yourbeatstore.com" target="_blank" style="color:#FFA500;">Beat Store</a><br>
+      📸 <a href="https://instagram.com/birdiebands" target="_blank" style="color:#C13584;">Instagram</a>  </p>
+  </div>
 `,
     };
 
