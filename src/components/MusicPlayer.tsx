@@ -1,16 +1,3 @@
-import React from 'react';
-import { useState, useRef } from 'react';
-import {
-  Play,
-  Pause,
-  SkipBack,
-  SkipForward,
-  Shuffle,
-  Repeat,
-  Volume2,
-  VolumeX,
-} from 'lucide-react';
-import Particles from './ui/ReactBits/Particles';
 import { usePlayer } from '@/contexts/PlayerContext';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
@@ -21,9 +8,6 @@ import {
 } from '@/components/ui/tooltip';
 
 const MusicPlayer = () => {
-  //   const [isMuted, setIsMuted] = useState(false);
-  //   const [previousVolume, setPreviousVolume] = useState(volume);
-  //   const audioRef = useRef<HTMLAudioElement>(null);
   const {
     currentTrack,
     isPlaying,
@@ -47,19 +31,6 @@ const MusicPlayer = () => {
   if (!currentTrack) return null;
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-gray-800 px-4 py-3 z-[500] w-full">
-      {/* <div className="absolute h-full w-full top-0 left-0 z-0">
-        <Particles
-          particleColors={['#ffffff', '#ffffff']}
-          particleCount={50000}
-          particleSpread={70}
-          speed={0.1}
-          particleBaseSize={10}
-          moveParticlesOnHover={false}
-          alphaParticles={true}
-          disableRotation={true}
-        />
-      </div> */}
-
       <div className="xl:w-7xl mx-auto z-50">
         <div className="flex items-center justify-between text-start ">
           {/* Current Track Info */}

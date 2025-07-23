@@ -20,18 +20,40 @@ router.post('/', async (req, res) => {
       replyTo: email,
       to: process.env.GMAIL_EMAIL,
       subject: `${subject}`,
-      text: `You have a new message from:\n\n${email}\n\nMessage:\n${message}`,
+      text: `You have a new message from:\n${email}\n\nMessage:\n${message}`,
     };
 
     const mailToUser = {
       from: `"Birdie Bands" <${process.env.GMAIL_EMAIL}>`,
       to: email,
-      subject: 'Thank you for reaching out!',
-      text: `Hi there,\n\nThank you for your message. I'll get back to you soon!\n\nBest,\nRashaun`,
+      subject: 'Thanks For Contacting Birdie Bands ✨🎶',
+      html: `
+  <p>Hey there,</p>
+
+  <p>Thank you for reaching out! I appreciate your interest in my work — whether it's about purchasing a beat, collaborating on a project, or anything in between.</p>
+
+  <p>I’ll review your message and get back to you as soon as possible.</p>
+
+  <p>In the meantime, feel free to check out more of my catalog, stay connected on socials, or hit reply if you’ve got more details to share.</p>
+
+  <p>Looking forward to building something dope together.</p>
+
+  <br/>
+  <p>Respect,<br/>Birdie Bands</p>
+
+  <hr style="margin: 24px 0; border: none; border-top: 1px solid #ccc;" />
+
+  <p>
+    🔗 <strong>Quick Links:</strong><br/>
+    🎧 <a href="https://open.spotify.com/artist/44CuCf1NgVzB4fPiAgpNoQ" target="_blank" rel="noopener noreferrer">Spotify Artist Page</a><br/>
+    📺 <a href="https://www.youtube.com/@birdiebands" target="_blank" rel="noopener noreferrer">YouTube Channel</a><br/>
+    🛒 <a href="https://www.birdiebands.com" target="_blank" rel="noopener noreferrer">Beat Store</a>
+  </p>
+`,
     };
 
     await transporter.sendMail(mailToSelf);
-    // await transporter.sendMail(mailToUser);
+    await transporter.sendMail(mailToUser);
 
     res.status(200).json({ message: 'Emails sent successfully' });
   } catch (error) {

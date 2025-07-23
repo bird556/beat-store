@@ -29,9 +29,17 @@ const Navbar = () => {
             disableRotation={true}
           />
         </div> */}
-        {/* <Marquee className=" !bg-transparent font-medium">
-          15% OFF Code: BIRDIE15 🚀
-        </Marquee> */}
+        {/* <div className="max-w-xl mx-auto">
+          <Marquee
+            gradient={false}
+            gradientWidth={100}
+            gradientColor="#0a0a0a"
+            className="!bg-transparent font-medium"
+          >
+            15% OFF Code: BIRDIE15 🚀
+          </Marquee>
+        </div> */}
+
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-4">
           {/* Logo */}
           <NavLink to="/" className="flex items-center">

@@ -14,7 +14,7 @@ import { PlayerProvider } from './contexts/PlayerContext';
 import { MoveUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { CartProvider } from './contexts/cart-context';
-
+import { Toaster } from 'react-hot-toast';
 function App() {
   const headerText = 'text-2xl';
   const [showButton, setShowButton] = useState(false);
@@ -46,9 +46,6 @@ function App() {
         <CartProvider>
           <PlayerProvider>
             <div className="bg-background relative m-auto w-full">
-              {/* <Marquee className="sticky top-0 !bg-transparent font-medium">
-            15% OFF Code: BIRDIE15 🚀
-          </Marquee> */}
               <div className="fixed h-full w-full top-0 left-0 z-0">
                 <Particles
                   particleColors={['#ffffff', '#ffffff']}
@@ -69,23 +66,18 @@ function App() {
                     <Route path="/" element={<Home size={headerText} />} />
                     <Route path="*" element={<Home size={headerText} />} />
                     <Route path="/beats" element={<Beats />} />
-                    <Route path="/contact" element={<Contact />} />
+                    <Route
+                      path="/contact"
+                      element={<Contact fullscreen={true} />}
+                    />
                     <Route path="/about" element={<About />} />
                   </Routes>
                   {/* <div className="py-10"></div> */}
                   <Footer />
                 </div>
               </Router>
-              {showButton && (
-                <button
-                  onClick={() =>
-                    window.scrollTo({ top: 0, behavior: 'smooth' })
-                  }
-                  className="z-50 fixed bottom-35 lg:right-20 right-5 transition-all duration-300 transform"
-                >
-                  <MoveUp />
-                </button>
-              )}
+
+              <Toaster position="top-center" reverseOrder={false} />
               <MusicPlayer />
             </div>
           </PlayerProvider>
