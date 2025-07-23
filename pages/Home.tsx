@@ -42,7 +42,7 @@ const Home = ({ size }) => {
       <Artists size={size} setSearchTerm={setSearchTerm} />
       <Licenses />
       <FAQS size={size} />
-      <Contact fullscreen={false} />
+      {/* <Contact fullscreen={false} /> */}
       {showButton && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
