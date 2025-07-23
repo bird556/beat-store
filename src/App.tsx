@@ -73,8 +73,8 @@ function App() {
                     <Route path="/about" element={<About />} />
                   </Routes>
                   {/* <div className="py-10"></div> */}
-                  <Footer />
                 </div>
+                <Footer />
               </Router>
 
               <Toaster position="top-center" reverseOrder={false} />
