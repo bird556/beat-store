@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",
+    "@aws-sdk/s3-request-presigner": "^3.850.0",
     "@heroui/modal": "^2.2.19",
     "@heroui/navbar": "^2.2.21",
     "@heroui/progress": "^2.2.19",
