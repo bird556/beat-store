@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import emailRouter from './api/email.js';
 import { MongoClient } from 'mongodb';
-import { S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 dotenv.config();
 const app = express();
 const PORT = 3001;
@@ -18,6 +19,7 @@ const db = client.db('beatstore');
 const beats = db.collection('beats');
 const orders = db.collection('orders');
 const customers = db.collection('customers');
+
 const s3 = new S3Client({
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -25,6 +27,21 @@ const s3 = new S3Client({
   },
   region: process.env.AWS_REGION,
 });
+
+// Generate presigned URL for S3 file
+const getPresignedUrl = async (key, expires = 3600) => {
+  try {
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: key,
+    });
+    return await getSignedUrl(s3, command, { expiresIn: expires });
+  } catch (error) {
+    console.error('Error generating presigned URL:', error);
+    throw error;
+  }
+};
+
 async function startServer() {
   try {
     await client.connect();
@@ -42,25 +59,29 @@ startServer();
 // Route for sending email
 app.use('/api/email', emailRouter);
 
-// Fetch paginated beats
+// Fetch all beats with presigned URLs for previews and images
 app.get('/api/beats', async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+    const beatsList = await beats.find().sort({ created_at: -1 }).toArray();
 
-    const beatsList = await beats
-      .find()
-      .sort({ created_at: -1 })
-      .skip(skip)
-      .limit(limit)
-      .toArray();
+    // Add presigned URLs for previews and images
+    for (const beat of beatsList) {
+      beat.s3_mp3_url = await getPresignedUrl(
+        beat.s3_mp3_url.split('/').slice(3).join('/'),
+        300 // 5-min for previews
+      );
+      beat.s3_image_url = await getPresignedUrl(
+        beat.s3_image_url.split('/').slice(3).join('/'),
+        3600 // 1-hour for images
+      );
+      for (const license of beat.licenses) {
+        license.s3_file_url = null; // Hide download URLs
+      }
+    }
 
-    const totalBeats = await beats.countDocuments();
-    const totalPages = Math.ceil(totalBeats / limit);
-
-    res.json({ beats: beatsList, page, totalPages, totalBeats });
+    res.json({ beats: beatsList });
   } catch (error) {
+    console.error('Error fetching beats:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
