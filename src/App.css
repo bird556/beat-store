@@ -43,6 +43,10 @@
   color: #888;
 }
 
+.stripe-font {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+}
+
 /* REACT H5 Audio Player */
 .rhap_progress-filled {
   height: 100%;
