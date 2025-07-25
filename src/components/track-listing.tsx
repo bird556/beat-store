@@ -117,15 +117,6 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
     }
   };
 
-  // const handleSearch = (query: string) => {
-  //   setSearchQuery(query);
-  // };
-
-  // const handlePlayTrack = (track: Track) => {
-  //   // In demo mode, just select the track for UI demonstration
-  //   playTrack(track);
-  // };
-
   const handleBuyClick = (track: Track) => {
     setSelectedTrack(track);
     setIsLicenseModalOpen(true);
@@ -175,13 +166,6 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
             className="!bg-transparent !p-0 hover:!border-transparent z-50 !text-start col-span-5 md:col-span-4 flex items-center space-x-3 cursor-pointer"
           >
             <div className="relative aspect-square overflow-hidden rounded cursor-pointer">
-              {/* <Image
-                      src={track.image || '/placeholder.svg'}
-                      alt={track.title}
-                      width={64}
-                      height={64}
-                      className="rounded"
-                    /> */}
               <img className="w-20" src={track.image} alt={track.title} />
               <div
                 // onClick={() => handlePlayTrack(track)}

@@ -1,4 +1,3 @@
-import React from 'react';
 import { X, Trash2 } from 'lucide-react';
 import { useCart } from '@/contexts/cart-context';
 import {
@@ -8,12 +7,15 @@ import {
   ModalBody,
   ModalFooter,
 } from '@heroui/modal';
+import { useNavigate, useLocation } from 'react-router-dom';
 interface CartModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 export default function CartModal({ isOpen, onClose }: CartModalProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { items, removeFromCart, totalPrice, clearCart } = useCart();
   if (!isOpen) return null;
   return (
@@ -133,12 +135,24 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                     </div>
                     <div className="flex w-full gap-6">
                       <button
-                        onClick={onClose}
+                        onClick={() => {
+                          onClose();
+                          if (location.pathname != '/') {
+                            navigate('/beats');
+                          }
+                        }}
                         className="w-full !border-2 !border-white/10 hover:!border-white/50 px-6 py-2 !text-gray-300 hover:!text-white"
                       >
                         Continue Shopping
                       </button>
-                      <button className="w-full px-6 py-2 !bg-green-700 text-foreground font-medium rounded hover:!bg-green-600 transition-colors  disabled:cursor-not-allowed">
+                      <button
+                        onClick={() => {
+                          onClose();
+                          navigate('/checkout');
+                          return;
+                        }}
+                        className="w-full px-6 py-2 !bg-green-700 text-foreground font-medium rounded hover:!bg-green-600 transition-colors  disabled:cursor-not-allowed"
+                      >
                         Checkout
                       </button>
                     </div>
