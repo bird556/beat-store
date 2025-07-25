@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from 'react';
 
 export interface CartItem {
   id: string;
@@ -22,6 +28,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [hydrated, setHydrated] = useState(false);
   const addToCart = (item: CartItem) => {
     setItems((prev) => [...prev, { ...item, id: `${item.id}-${Date.now()}` }]);
   };
@@ -37,6 +44,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const totalItems = items.length;
 
   const totalPrice = items.reduce((sum, item) => sum + item.price, 0);
+
+  // 🧠 Load cart items from localStorage on initial render
+  useEffect(() => {
+    const stored = localStorage.getItem('cartItems');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) setItems(parsed);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    setHydrated(true);
+  }, []);
+
+  // 💾 Save cart items to localStorage whenever items change
+  useEffect(() => {
+    if (hydrated) {
+      localStorage.setItem('cartItems', JSON.stringify(items));
+      console.log('Saving to localStorage:', items);
+    }
+  }, [items, hydrated]);
 
   return (
     <CartContext.Provider

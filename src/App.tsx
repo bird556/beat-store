@@ -2,6 +2,7 @@ import './App.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import Home from '../pages/Home';
 import Beats from '../pages/Beats';
+import CartCheckOut from '../pages/CartCheckOut';
 import About from '../pages/About';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
@@ -51,6 +52,10 @@ function App() {
                       element={<Contact fullscreen={true} />}
                     />
                     <Route path="/about" element={<About />} />
+                    <Route
+                      path="/checkout"
+                      element={<CartCheckOut size={headerText} />}
+                    />
                   </Routes>
                   {/* <div className="py-10"></div> */}
                 </div>
