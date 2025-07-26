@@ -2,7 +2,7 @@ const sampleTracks: Track[] = [
   {
     id: '1',
     title: 'Top Down',
-    artist: 'Payroll Giovanni Type Beat',
+    artist: 'Payroll Giovanni',
     bpm: 93,
     key: 'A# Minor',
     dateAdded: 'May 31, 2025',
@@ -15,7 +15,7 @@ const sampleTracks: Track[] = [
   {
     id: '2',
     title: 'Concrete',
-    artist: 'Payroll Giovanni Type Beat',
+    artist: 'Payroll Giovanni',
     bpm: 93,
     key: 'C Minor',
     dateAdded: 'May 30, 2025',
@@ -28,7 +28,7 @@ const sampleTracks: Track[] = [
   {
     id: '3',
     title: 'Dreams & Nightmares',
-    artist: 'Larry June Type Beat',
+    artist: 'Larry June',
     bpm: 85,
     key: 'F# Minor',
     dateAdded: 'May 29, 2025',
@@ -41,7 +41,7 @@ const sampleTracks: Track[] = [
   {
     id: '4',
     title: 'Pimp Anthem',
-    artist: 'Larry June Type Beat',
+    artist: 'Larry June',
     bpm: 95,
     key: 'D Minor',
     dateAdded: 'May 28, 2025',
@@ -54,7 +54,7 @@ const sampleTracks: Track[] = [
   {
     id: '5',
     title: 'City Lights',
-    artist: 'Larry June Type Beat',
+    artist: 'Larry June',
     bpm: 87,
     key: 'G Minor',
     dateAdded: 'May 27, 2025',
@@ -68,7 +68,7 @@ const sampleTracks: Track[] = [
   {
     id: '6',
     title: 'Drip Too Hard',
-    artist: 'Gunna Type Beat',
+    artist: 'Gunna',
     bpm: 140,
     key: 'B Minor',
     dateAdded: 'May 26, 2025',
@@ -81,7 +81,7 @@ const sampleTracks: Track[] = [
   {
     id: '7',
     title: 'Skybox',
-    artist: 'Gunna Type Beat',
+    artist: 'Gunna',
     bpm: 132,
     key: 'F Minor',
     dateAdded: 'May 25, 2025',
@@ -94,7 +94,7 @@ const sampleTracks: Track[] = [
   {
     id: '8',
     title: 'Top Floor',
-    artist: 'Gunna Type Beat',
+    artist: 'Gunna',
     bpm: 128,
     key: 'G# Minor',
     dateAdded: 'May 24, 2025',
@@ -107,7 +107,7 @@ const sampleTracks: Track[] = [
   {
     id: '9',
     title: 'Oh Okay',
-    artist: 'Gunna Type Beat',
+    artist: 'Gunna',
     bpm: 136,
     key: 'D# Minor',
     dateAdded: 'May 23, 2025',
@@ -121,7 +121,7 @@ const sampleTracks: Track[] = [
   {
     id: '10',
     title: 'Russian Cream',
-    artist: 'Key Glock Type Beat',
+    artist: 'Key Glock',
     bpm: 150,
     key: 'A Minor',
     dateAdded: 'May 22, 2025',
@@ -134,7 +134,7 @@ const sampleTracks: Track[] = [
   {
     id: '11',
     title: 'Dough',
-    artist: 'Key Glock Type Beat',
+    artist: 'Key Glock',
     bpm: 145,
     key: 'E Minor',
     dateAdded: 'May 21, 2025',
@@ -148,7 +148,7 @@ const sampleTracks: Track[] = [
   {
     id: '12',
     title: "God's Plan",
-    artist: 'Drake Type Beat',
+    artist: 'Drake',
     bpm: 138,
     key: 'C# Minor',
     dateAdded: 'May 20, 2025',
@@ -162,7 +162,7 @@ const sampleTracks: Track[] = [
   {
     id: '13',
     title: 'Sicko Mode',
-    artist: 'Drake Type Beat',
+    artist: 'Drake',
     bpm: 142,
     key: 'B Minor',
     dateAdded: 'May 19, 2025',
@@ -175,7 +175,7 @@ const sampleTracks: Track[] = [
   {
     id: '14',
     title: 'Money Longer',
-    artist: 'Key Glock Type Beat',
+    artist: 'Key Glock',
     bpm: 148,
     key: 'F Minor',
     dateAdded: 'May 18, 2025',
@@ -188,7 +188,7 @@ const sampleTracks: Track[] = [
   {
     id: '15',
     title: 'Lemonade',
-    artist: 'Gunna Type Beat',
+    artist: 'Gunna',
     bpm: 134,
     key: 'G Minor',
     dateAdded: 'May 17, 2025',
@@ -201,7 +201,7 @@ const sampleTracks: Track[] = [
   {
     id: '16',
     title: 'Numbers',
-    artist: 'Key Glock Type Beat',
+    artist: 'Key Glock',
     bpm: 152,
     key: 'D Minor',
     dateAdded: 'May 16, 2025',
@@ -214,7 +214,7 @@ const sampleTracks: Track[] = [
   {
     id: '17',
     title: 'Never Recover',
-    artist: 'Gunna Type Beat',
+    artist: 'Gunna',
     bpm: 130,
     key: 'A# Minor',
     dateAdded: 'May 15, 2025',
@@ -227,7 +227,7 @@ const sampleTracks: Track[] = [
   {
     id: '18',
     title: 'Look Alive',
-    artist: 'Drake Type Beat',
+    artist: 'Drake',
     bpm: 136,
     key: 'E Minor',
     dateAdded: 'May 14, 2025',
@@ -240,7 +240,7 @@ const sampleTracks: Track[] = [
   {
     id: '19',
     title: 'Sold Out Dates',
-    artist: 'Gunna Type Beat',
+    artist: 'Gunna',
     bpm: 132,
     key: 'F# Minor',
     dateAdded: 'May 13, 2025',
@@ -253,7 +253,7 @@ const sampleTracks: Track[] = [
   {
     id: '20',
     title: 'One Call',
-    artist: 'Key Glock Type Beat',
+    artist: 'Key Glock',
     bpm: 146,
     key: 'C Minor',
     dateAdded: 'May 12, 2025',

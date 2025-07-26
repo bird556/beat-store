@@ -10,4 +10,7 @@ export interface Track {
   price: number;
   image: string;
   audioUrl: string;
+  licenses: object[];
+  s3_mp3_url: string;
+  s3_image_url: string;
 }

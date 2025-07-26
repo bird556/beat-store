@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { use } from 'react';
 import { PlaceholdersAndVanishInput } from './ui/placeholders-and-vanish-input';
 import { useState, useEffect } from 'react';
 import {
@@ -21,6 +21,16 @@ import { useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useCart } from '@/contexts/cart-context';
 import LicenseModal from './license-modal';
+import axios from 'axios';
+/**
+ * A track listing component that displays a list of tracks and allows the user to search
+ * through them. It also allows the user to play, download, and share tracks.
+ * @param {object} props - The component props.
+ * @prop {number} limitTrackCount - The number of tracks to display. If not provided, it will
+ * display all tracks.
+ * @prop {string} searchTerm - The search term to filter the tracks by.
+ * @prop {function} setSearchTerm - A function to set the search term.
+ */
 const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
   // const { playTrack, setQueue, currentTrack, isPlaying } = useMusic();
   const { items: cartItems } = useCart();
@@ -29,6 +39,7 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredTracks, setFilteredTracks] = useState<Track[]>(sampleTracks);
   const { playTrack, currentTrack, isPlaying, setQueue, queue } = usePlayer();
+  const [fetchedBeats, setFetchedBeats] = useState<Track[]>([]);
   const [searchParams] = useSearchParams();
   const defaultQuery = searchParams.get('search') || '';
 
@@ -42,36 +53,82 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
     'G-Funk?',
   ];
 
+  // const fetchBeats = async () => {
+  //   try {
+  //     const response = await axios.get(`http://localhost:3001/api/beats`);
+  //     console.log(response.data.beats);
+  //     setFilteredTracks(response.data.beats);
+  //     setQueue(response.data.beats);
+  //   } catch (error) {
+  //     console.error('Error fetching beats:', error);
+  //   }
+  // };
+
+  const fetchBeats = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3001/api/beats`);
+      console.log(response.data.beats);
+      setFetchedBeats(response.data.beats); // Store fetched beats separately
+      setFilteredTracks([...response.data.beats, ...sampleTracks]); // Combine fetched beats with sampleTracks
+      setQueue([...response.data.beats, ...sampleTracks]);
+    } catch (error) {
+      console.error('Error fetching beats:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBeats();
+    console.log(filteredTracks);
+  }, []);
+
+  // useEffect(() => {
+  //   if (!searchQuery.trim()) {
+  //     setFilteredTracks(sampleTracks);
+  //   } else {
+  //     const filtered = sampleTracks.filter(
+  //       (track) =>
+  //         track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //         track.artist.toLowerCase().includes(searchQuery.toLowerCase())
+  //     );
+  //     setFilteredTracks(filtered);
+  //   }
+  // }, [searchQuery]);
+  // Search effect
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setFilteredTracks(sampleTracks);
+      // If no search query, show all tracks (fetched beats first, then sampleTracks)
+      setFilteredTracks([...fetchedBeats, ...sampleTracks]);
+      setQueue([...fetchedBeats, ...sampleTracks]);
     } else {
-      const filtered = sampleTracks.filter(
+      // Search through both fetched beats and sampleTracks
+      const allTracks = [...fetchedBeats, ...sampleTracks];
+      const filtered = allTracks.filter(
         (track) =>
           track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           track.artist.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredTracks(filtered);
-    }
-  }, [searchQuery]);
-
-  useEffect(() => {
-    // setQueue(sampleTracks);
-    if (!searchQuery.trim()) {
-      setQueue(sampleTracks);
-    } else {
-      const filtered = sampleTracks.filter(
-        (track) =>
-          track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          track.artist.toLowerCase().includes(searchQuery.toLowerCase())
-      );
       setQueue(filtered);
     }
-  }, [searchQuery]);
+  }, [searchQuery, fetchedBeats]); // Add fetchedBeats as dependency
+
+  // useEffect(() => {
+  //   // setQueue(sampleTracks);
+  //   if (!searchQuery.trim()) {
+  //     setQueue(sampleTracks);
+  //   } else {
+  //     const filtered = sampleTracks.filter(
+  //       (track) =>
+  //         track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //         track.artist.toLowerCase().includes(searchQuery.toLowerCase())
+  //     );
+  //     setQueue(filtered);
+  //   }
+  // }, [searchQuery]);
 
   useEffect(() => {
     if (defaultQuery) {
-      const filtered = sampleTracks.filter(
+      const filtered = fetchedBeats.filter(
         (track) =>
           track.title.toLowerCase().includes(defaultQuery.toLowerCase()) ||
           track.artist.toLowerCase().includes(defaultQuery.toLowerCase())
@@ -89,6 +146,11 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
     console.log('submitted');
   };
 
+  /**
+   * Handles the download button click. For demo purposes, this shows an alert, but
+   * in production this would trigger a download of the track.
+   * @param {Track} track The track to download
+   */
   const handleDownloadClick = (track: Track) => {
     // For demo purposes, show an alert. In production, this would trigger a download
     alert(
@@ -166,7 +228,11 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
             className="!bg-transparent !p-0 hover:!border-transparent z-50 !text-start col-span-5 md:col-span-4 flex items-center space-x-3 cursor-pointer"
           >
             <div className="relative aspect-square overflow-hidden rounded cursor-pointer">
-              <img className="w-20" src={track.image} alt={track.title} />
+              <img
+                className="w-20 object-cover aspect-square"
+                src={track.image ? track.image : track.s3_image_url}
+                alt={track.title}
+              />
               <div
                 // onClick={() => handlePlayTrack(track)}
 
@@ -192,7 +258,7 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
                 {track.title}
               </div>
               <div className="text-gray-400 text-sm truncate">
-                {track.artist}
+                {track.artist} Type Beat
               </div>
             </div>
           </button>
@@ -248,7 +314,7 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
                 className="min-w-28 cursor-pointer !bg-foreground  text-background px-4 py-2 rounded font-medium text-sm hover:!bg-gray-300 transition-colors flex items-center space-x-1"
               >
                 <ShoppingCart className="w-4 h-4" />
-                <span>${track.price}</span>
+                <span>${track.price || track.licenses[0].price}</span>
               </button>
             )}
           </div>
@@ -298,7 +364,13 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
             onSubmit={onSubmit}
             onSearch={(query) => {
               // This does the actual filtering
-              const filtered = sampleTracks.filter(
+              // const filtered = sampleTracks.filter(
+              //   (track) =>
+              //     track.title.toLowerCase().includes(query.toLowerCase()) ||
+              //     track.artist.toLowerCase().includes(query.toLowerCase())
+              // );
+              const allTracks = [...fetchedBeats, ...sampleTracks];
+              const filtered = allTracks.filter(
                 (track) =>
                   track.title.toLowerCase().includes(query.toLowerCase()) ||
                   track.artist.toLowerCase().includes(query.toLowerCase())

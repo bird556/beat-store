@@ -81,6 +81,14 @@ export default function LicenseModal({
       price: license.price,
       license: license.name,
       image: track.image,
+      key: track.key,
+      bpm: track.bpm,
+      duration: track.duration,
+      audioUrl: track.audioUrl,
+      dateAdded: track.dateAdded,
+      licenses: track.licenses,
+      s3_mp3_url: track.s3_mp3_url,
+      s3_image_url: track.s3_image_url,
     });
 
     onClose();
