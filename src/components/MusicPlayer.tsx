@@ -34,18 +34,18 @@ const MusicPlayer = () => {
       <div className="xl:w-7xl mx-auto z-50">
         <div className="flex items-center justify-between text-start ">
           {/* Current Track Info */}
-          <div className="flex items-center gap-4 min-w-0">
+          <div className="flex items-center gap-4 min-w-0 relative">
             <img
-              src={currentTrack.image}
+              src={currentTrack.image || currentTrack.s3_image_url}
               alt={currentTrack.title}
-              className="rounded h-14 w-14 hidden sm:block"
+              className="rounded h-14 w-14 object-cover hidden sm:block"
             />
             <div className="min-w-0 flex-1">
               <div className=" sm:block text-white font-medium truncate md:max-w-64 ">
                 {currentTrack.title}
               </div>
               <div className=" sm:block text-gray-400 text-sm truncate">
-                {currentTrack.artist}
+                {currentTrack.artist} Type Beat
               </div>
               <div className=" sm:block text-gray-500 text-xs">
                 Key: {currentTrack.key} | {currentTrack.bpm} BPM
@@ -58,7 +58,7 @@ const MusicPlayer = () => {
             <AudioPlayer
               // autoPlay={isPlaying}
               autoPlay={true}
-              src={currentTrack.audioUrl}
+              src={currentTrack.audioUrl || currentTrack.s3_mp3_url}
               onPlay={togglePlay}
               onPause={togglePlay}
               onClickNext={nextTrack}
@@ -91,9 +91,9 @@ const MusicPlayer = () => {
                     className="relative bg-zinc-900 overflow-hidden !p-0 min-w-full hover:!border-transparent cursor-pointer hidden lg:flex items-center space-x-2  hover:!bg-green-400/50 rounded-lg "
                   >
                     <img
-                      src={nextTrackInfo.image}
+                      src={nextTrackInfo.image || nextTrackInfo.s3_image_url}
                       alt={nextTrackInfo.artist}
-                      className="rounded h-12 min-w-12"
+                      className="rounded h-12 min-w-12 object-cover"
                     />
                     <div className="min-w-0 w-full px-2">
                       <div className="text-xs text-gray-400">Next Up</div>

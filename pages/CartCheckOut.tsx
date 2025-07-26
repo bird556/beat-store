@@ -9,12 +9,13 @@ import { useNavigate } from 'react-router-dom';
 const CartCheckOut = ({ size }) => {
   const { items, removeFromCart, totalPrice, clearCart } = useCart();
   const { playTrack, currentTrack, isPlaying, setQueue, queue } = usePlayer();
+  console.log(items);
   const navigate = useNavigate();
   return (
     <motion.div
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className=" max-w-6xl mx-auto px-4 py-8 z-5 !min-h-3/4"
+      className=" max-w-6xl mx-auto px-4 py-8 z-5 !min-h-3/4 h-[60vh]"
     >
       <h2 className={` ${size} text-4xl font-bold text-start`}>Cart</h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 py-8 mx-auto gap-6">
@@ -172,7 +173,7 @@ const CartCheckOut = ({ size }) => {
               </p>
             </div>
 
-            <div className="mx-auto w-fit">
+            <div className="mx-auto w-fit pt-6">
               <p className="text-sm">
                 Please read our{' '}
                 <button className="!p-0">

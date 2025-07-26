@@ -13,6 +13,14 @@ export interface CartItem {
   price: number;
   license: string;
   image: string;
+  key: string;
+  bpm: number;
+  duration: string;
+  audioUrl: string;
+  dateAdded: string;
+  licenses: object[];
+  s3_mp3_url: string;
+  s3_image_url: string;
 }
 
 interface CartContextType {
