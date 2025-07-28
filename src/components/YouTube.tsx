@@ -7,7 +7,7 @@ const YoutubeSection = () => {
         <div className="flex flex-col items-center space-y-6">
           <FaYoutube className="text-red-600 text-6xl" />
           <h2 className="flex items-center gap-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
-            <picture>
+            <picture className="pointer-events-none">
               <source
                 srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.webp"
                 type="image/webp"
@@ -23,7 +23,7 @@ const YoutubeSection = () => {
           </h2>
           <div>
             <img
-              className="w-32 h-32 rounded-full"
+              className="w-32 h-32 rounded-full pointer-events-none"
               src={BirdieLogo}
               alt="bidie logo"
             />
@@ -45,7 +45,7 @@ const YoutubeSection = () => {
             className="flex items-center justify-center gap-2 rounded-md !text-white font-semibold py-3 px-6  hover:bg-foreground hover:!text-background  !transition-all !duration-600 bg-zinc-900"
           >
             {/* 🚀 Visit & Subscribe */}
-            <picture>
+            <picture className="pointer-events-none">
               <source
                 srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.webp"
                 type="image/webp"

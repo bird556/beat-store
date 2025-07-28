@@ -9,7 +9,13 @@ import {
   ModalBody,
   ModalFooter,
 } from '@heroui/modal';
-import { Accordion, AccordionItem } from '@heroui/accordion';
+// import { Accordion, AccordionItem } from '@heroui/accordion';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 
 interface LicenseModalProps {
   isOpen: boolean;
@@ -66,9 +72,7 @@ export default function LicenseModal({
 }: LicenseModalProps) {
   const [selectedLicense, setSelectedLicense] = useState<string | null>(null);
   const { addToCart } = useCart();
-  const defaultContent =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.';
-
+  const [openItems, setOpenItems] = useState({});
   if (!isOpen || !track) return null;
 
   const handleAddToCart = () => {
@@ -168,6 +172,8 @@ export default function LicenseModal({
 
               <ModalBody className="p-6 space-y-4 overflow-y-scroll">
                 {track.licenses.map((license, index) => {
+                  const accordionValue = `item-${index}`;
+                  const isOpen = openItems[license.type] === accordionValue;
                   return (
                     <>
                       <div
@@ -180,86 +186,58 @@ export default function LicenseModal({
                         onClick={() => setSelectedLicense(license.type)}
                       >
                         <div className="flex items-center justify-between mb-3">
-                          <h3 className="text-lg font-semibold text-white">
-                            {license.type} License
-                          </h3>
+                          <div className="flex flex-col">
+                            <h3 className="text-lg font-semibold text-white text-start">
+                              {license.type} License
+                            </h3>
+                            <div className="mt-1 text-start flex flex-col text-xs text-foreground/40">
+                              <p>{license.features[0]}</p>
+                              {index >= 2 && <p>{license.features[1]}</p>}
+                            </div>
+                          </div>
                           <span className="text-2xl font-bold text-green-400">
                             ${license.price}
                           </span>
                         </div>
-                        {/* <ul className="space-y-1">
-                          {license.features.map((feature, index) => (
-                            <li
-                              key={index}
-                              className="text-gray-300 text-sm flex items-center"
-                            >
-                              <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                              {feature === 'Receive Signed Contract' ? (
-                                <span className="">*{feature}*</span>
-                              ) : (
-                                <span>{feature}</span>
-                              )}
-                            </li>
-                          ))}
-                        </ul> */}
-                        <Accordion isCompact={true} disableAnimation={false}>
-                          <AccordionItem
-                            key="1"
-                            aria-label="Accordion 1"
-                            title="Show usage terms"
-                          >
-                            <ul className="space-y-1">
-                              {license.features.map((feature, index) => (
-                                <li
-                                  key={index}
-                                  className="text-gray-300 text-sm flex items-center"
-                                >
-                                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                                  {feature === 'Receive Signed Contract' ? (
-                                    <span className="">*{feature}*</span>
-                                  ) : (
-                                    <span>{feature}</span>
-                                  )}
-                                </li>
-                              ))}
-                            </ul>
+
+                        <Accordion
+                          type="single"
+                          collapsible
+                          onValueChange={(value) => {
+                            setOpenItems((prev) => ({
+                              ...prev,
+                              [license.type]:
+                                value === accordionValue ? value : '',
+                            }));
+                          }}
+                        >
+                          <AccordionItem value={accordionValue}>
+                            <AccordionTrigger className="flex-row-reverse justify-end !m-0 !-ml-1 gap-2 !p-0 !font-medium !text-sm text-foreground/50">
+                              {isOpen ? 'Hide usage terms' : 'Show usage terms'}
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <ul className="space-y-1">
+                                {license.features.map((feature, i) => (
+                                  <li
+                                    key={i}
+                                    className="flex items-center text-sm text-gray-300"
+                                  >
+                                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    {feature === 'Receive Signed Contract' ? (
+                                      <span>*{feature}*</span>
+                                    ) : (
+                                      <span>{feature}</span>
+                                    )}
+                                  </li>
+                                ))}
+                              </ul>
+                            </AccordionContent>
                           </AccordionItem>
                         </Accordion>
                       </div>
                     </>
                   );
                 })}
-                {/* {licenseOptions.map((license) => (
-                  <div
-                    key={license.id}
-                    className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                      selectedLicense === license.id
-                        ? '!border-zinc-500 !bg-green-500/10'
-                        : '!border-gray-700 hover:!border-gray-600'
-                    }`}
-                    onClick={() => setSelectedLicense(license.id)}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-semibold text-white">
-                        {license.name}
-                      </h3>
-                      <span className="text-2xl font-bold text-green-400">
-                        ${license.price}
-                      </span>
-                    </div>
-                    <ul className="space-y-1">
-                      {license.features.map((feature, index) => (
-                        <li
-                          key={index}
-                          className="text-gray-300 text-sm flex items-center"
-                        >
-                          <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))} */}
               </ModalBody>
               <ModalFooter className="z-50">
                 <button

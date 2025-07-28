@@ -16,6 +16,7 @@ import { MoveUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { CartProvider } from './contexts/cart-context';
 import { Toaster } from 'react-hot-toast';
+import { LicenseProvider } from './contexts/LicenseContext';
 function App() {
   const headerText = 'text-2xl';
 
@@ -26,45 +27,47 @@ function App() {
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <CartProvider>
           <PlayerProvider>
-            <div className="bg-background relative m-auto w-full">
-              <div className="fixed h-full w-full top-0 left-0 z-0">
-                <Particles
-                  particleColors={['#ffffff', '#ffffff']}
-                  particleCount={50000}
-                  particleSpread={70}
-                  speed={0.1}
-                  particleBaseSize={10}
-                  moveParticlesOnHover={false}
-                  alphaParticles={true}
-                  disableRotation={true}
-                />
-              </div>
-              <Router>
-                <ScrollToTop />
-                <Navbar />
-                <div className="overflow-x-hidden">
-                  <Routes>
-                    <Route path="/" element={<Home size={headerText} />} />
-                    <Route path="*" element={<Home size={headerText} />} />
-                    <Route path="/beats" element={<Beats />} />
-                    <Route
-                      path="/contact"
-                      element={<Contact fullscreen={true} />}
-                    />
-                    <Route path="/about" element={<About />} />
-                    <Route
-                      path="/checkout"
-                      element={<CartCheckOut size={headerText} />}
-                    />
-                  </Routes>
-                  {/* <div className="py-10"></div> */}
+            <LicenseProvider>
+              <div className="bg-background relative m-auto w-full">
+                <div className="fixed h-full w-full top-0 left-0 z-0">
+                  <Particles
+                    particleColors={['#ffffff', '#ffffff']}
+                    particleCount={50000}
+                    particleSpread={70}
+                    speed={0.1}
+                    particleBaseSize={10}
+                    moveParticlesOnHover={false}
+                    alphaParticles={true}
+                    disableRotation={true}
+                  />
                 </div>
-                <Footer />
-              </Router>
+                <Router>
+                  <ScrollToTop />
+                  <Navbar />
+                  <div className="overflow-x-hidden">
+                    <Routes>
+                      <Route path="/" element={<Home size={headerText} />} />
+                      <Route path="*" element={<Home size={headerText} />} />
+                      <Route path="/beats" element={<Beats />} />
+                      <Route
+                        path="/contact"
+                        element={<Contact fullscreen={true} />}
+                      />
+                      <Route path="/about" element={<About />} />
+                      <Route
+                        path="/checkout"
+                        element={<CartCheckOut size={headerText} />}
+                      />
+                    </Routes>
+                    {/* <div className="py-10"></div> */}
+                  </div>
+                  <Footer />
+                </Router>
 
-              <Toaster position="top-center" reverseOrder={false} />
-              <MusicPlayer />
-            </div>
+                <Toaster position="top-center" reverseOrder={false} />
+                <MusicPlayer />
+              </div>
+            </LicenseProvider>
           </PlayerProvider>
         </CartProvider>
       </ThemeProvider>

@@ -78,7 +78,9 @@ export const HoverEffect = ({
             <div className="flex flex-col justify-between min-h-96 md:min-h-[500px] h-full">
               <div className="flex flex-col gap-3">
                 <CardTitle>{item.title}</CardTitle>
-                <CardDescription>{item.description}</CardDescription>
+                <CardDescription className="max-w-lg md:max-w-sm md:mx-auto">
+                  {item.description}
+                </CardDescription>
               </div>
               <ul className="space-y-1">
                 {item.bulletPoints.map((point, i) => (
@@ -90,7 +92,7 @@ export const HoverEffect = ({
                     }
                     key={i}
                   >
-                    {console.log(item.title)}
+                    {/* {console.log(item.title)} */}
                     {point}
                   </li>
                 ))}
