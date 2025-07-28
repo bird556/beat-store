@@ -101,10 +101,11 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                                 {item.title}
                               </h3>
                               <p className="text-gray-400 text-sm truncate">
-                                {item.artist}
+                                {item.artist} Type Beat
                               </p>
                               <p className="text-green-400 text-sm">
-                                {item.license}
+                                {item.license} License
+                                {/* item license */}
                               </p>
                             </div>
                             <div className="text-white font-bold">

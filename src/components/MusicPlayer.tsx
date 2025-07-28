@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
+import { useEffect } from 'react';
 const MusicPlayer = () => {
   const {
     currentTrack,
@@ -28,7 +28,31 @@ const MusicPlayer = () => {
   };
 
   const nextTrackInfo = getNextTrack();
+  useEffect(() => {
+    if ('mediaSession' in navigator && currentTrack) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: currentTrack.title,
+        artist: currentTrack.artist,
+        album: 'Birdie Bands',
+        artwork: [
+          {
+            src: currentTrack.image || currentTrack.s3_image_url,
+            sizes: '512x512',
+            type: 'image/jpeg',
+          },
+        ],
+      });
+
+      navigator.mediaSession.setActionHandler('play', () => togglePlay());
+      navigator.mediaSession.setActionHandler('pause', () => togglePlay());
+      navigator.mediaSession.setActionHandler('previoustrack', () =>
+        previousTrack()
+      );
+      navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
+    }
+  }, [currentTrack]);
   if (!currentTrack) return null;
+
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-gray-800 px-4 py-3 z-[500] w-full">
       <div className="xl:w-7xl mx-auto z-50">
@@ -93,7 +117,7 @@ const MusicPlayer = () => {
                     <img
                       src={nextTrackInfo.image || nextTrackInfo.s3_image_url}
                       alt={nextTrackInfo.artist}
-                      className="rounded h-12 min-w-12 object-cover"
+                      className="rounded min-w-12 w-12 object-cover aspect-square"
                     />
                     <div className="min-w-0 w-full px-2">
                       <div className="text-xs text-gray-400">Next Up</div>

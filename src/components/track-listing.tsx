@@ -37,7 +37,8 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
   const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredTracks, setFilteredTracks] = useState<Track[]>(sampleTracks);
+  // const [filteredTracks, setFilteredTracks] = useState<Track[]>(sampleTracks);
+  const [filteredTracks, setFilteredTracks] = useState<Track[]>([]);
   const { playTrack, currentTrack, isPlaying, setQueue, queue } = usePlayer();
   const [fetchedBeats, setFetchedBeats] = useState<Track[]>([]);
   const [searchParams] = useSearchParams();
@@ -64,13 +65,30 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
   //   }
   // };
 
+  // const fetchBeats = async () => {
+  //   try {
+  //     const response = await axios.get(`http://localhost:3001/api/beats`);
+  //     console.log(response.data.beats);
+  //     setFetchedBeats(response.data.beats); // Store fetched beats separately
+  //     // setFilteredTracks([...response.data.beats, ...sampleTracks]); // Combine fetched beats with sampleTracks
+  //     setFilteredTracks(response.data.beats); // Combine fetched beats with sampleTracks
+  //     // setQueue([...response.data.beats, ...sampleTracks]);
+  //     setQueue(response.data.beats);
+  //   } catch (error) {
+  //     console.error('Error fetching beats:', error);
+  //   }
+  // };
+
   const fetchBeats = async () => {
     try {
       const response = await axios.get(`http://localhost:3001/api/beats`);
-      console.log(response.data.beats);
-      setFetchedBeats(response.data.beats); // Store fetched beats separately
-      setFilteredTracks([...response.data.beats, ...sampleTracks]); // Combine fetched beats with sampleTracks
-      setQueue([...response.data.beats, ...sampleTracks]);
+      const tracks = response.data.beats.map((track) => ({
+        ...track,
+        id: track._id,
+      }));
+      setFetchedBeats(tracks);
+      setFilteredTracks(tracks);
+      setQueue(tracks);
     } catch (error) {
       console.error('Error fetching beats:', error);
     }
@@ -78,7 +96,6 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
 
   useEffect(() => {
     fetchBeats();
-    console.log(filteredTracks);
   }, []);
 
   // useEffect(() => {
@@ -97,11 +114,14 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
   useEffect(() => {
     if (!searchQuery.trim()) {
       // If no search query, show all tracks (fetched beats first, then sampleTracks)
-      setFilteredTracks([...fetchedBeats, ...sampleTracks]);
-      setQueue([...fetchedBeats, ...sampleTracks]);
+      // setFilteredTracks([...fetchedBeats, ...sampleTracks]);
+      setFilteredTracks([...fetchedBeats]);
+      // setQueue([...fetchedBeats, ...sampleTracks]);
+      setQueue([...fetchedBeats]);
     } else {
       // Search through both fetched beats and sampleTracks
-      const allTracks = [...fetchedBeats, ...sampleTracks];
+      // const allTracks = [...fetchedBeats, ...sampleTracks];
+      const allTracks = [...fetchedBeats];
       const filtered = allTracks.filter(
         (track) =>
           track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -180,12 +200,13 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
   };
 
   const handleBuyClick = (track: Track) => {
+    // console.log(track, 'handle buy click');
     setSelectedTrack(track);
     setIsLicenseModalOpen(true);
   };
 
   const isTrackInCart = (trackId: string) => {
-    return cartItems.some((item) => item.id.startsWith(trackId));
+    return cartItems.some((item) => item.id === trackId);
   };
 
   // framer motion
@@ -304,7 +325,7 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
             </button>
 
             {/* Price/Cart Button */}
-            {isTrackInCart(track.id) ? (
+            {isTrackInCart(track._id) ? (
               <button className="!bg-green-500 text-black px-4 py-2 rounded font-medium text-sm min-w-28">
                 IN CART
               </button>
@@ -327,6 +348,7 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
       </>
     );
   };
+  console.log(filteredTracks);
 
   return (
     <div className="z-50 flex flex-col justify-between relative">
