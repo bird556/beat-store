@@ -51,7 +51,7 @@ const CartCheckOut = ({ size }) => {
             ) : (
               <div className="flex flex-col gap-6">
                 {items.map((track) => (
-                  <div className="grid grid-cols-10 gap-4 items-center">
+                  <div className="border-t-[0.5px] pt-4 !border-foreground/10  grid grid-cols-10 gap-4 items-center">
                     <div
                       key={track.id}
                       className="!bg-transparent !p-0 hover:!border-transparent z-50 !text-start !col-span-6  flex items-center space-x-3"
@@ -68,7 +68,7 @@ const CartCheckOut = ({ size }) => {
                       >
                         <div className="relative aspect-square overflow-hidden rounded cursor-pointer">
                           <img
-                            className="w-20"
+                            className="w-20 object-cover aspect-square"
                             src={track.image}
                             alt={track.title}
                           />
@@ -99,10 +99,13 @@ const CartCheckOut = ({ size }) => {
                           {track.title}
                         </div>
                         <div className="text-gray-400 text-sm truncate">
-                          {track.artist}
+                          {track.artist} Type Beat
+                        </div>
+                        <div className=" sm:block text-gray-500 text-xs">
+                          Key: {track.key} | {track.bpm} BPM
                         </div>
                         <div className="text-green-400 text-sm truncate">
-                          {track.license}
+                          {track.license} License
                         </div>
                       </div>
                     </div>
@@ -164,6 +167,12 @@ const CartCheckOut = ({ size }) => {
                 Secure your license and download your files instantly after
                 payment.
               </p> */}
+              <p className="font-bold text-sm">Important Notice</p>
+              <p className="text-sm ">
+                By clicking the button you accept the product(s){' '}
+                <b>License Agreement(s)</b>, <b>Terms of Service</b>,{' '}
+                <b>Privacy Policy</b> & <b>Refund Policy</b>.
+              </p>
               <p className="text-sm font-light">
                 {' '}
                 {/* Changed text-small to text-sm as it's a common Tailwind class for small text */}

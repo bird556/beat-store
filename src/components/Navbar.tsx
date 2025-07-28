@@ -5,14 +5,23 @@ import { Search, User, ShoppingCart, Menu, X } from 'lucide-react';
 import Marquee from 'react-fast-marquee';
 import { Link, NavLink } from 'react-router';
 import BirdieLogo from '../../src/Images/logo.png';
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownSection,
+  DropdownItem,
+} from '@heroui/dropdown';
 import Particles from './ui/ReactBits/Particles';
 import CartModal from './cart-modal';
 import { useCart } from '@/contexts/cart-context';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const { totalItems } = useCart();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>

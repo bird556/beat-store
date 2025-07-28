@@ -38,7 +38,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const addToCart = (item: CartItem) => {
-    setItems((prev) => [...prev, { ...item, id: `${item.id}-${Date.now()}` }]);
+    // setItems((prev) => [...prev, { ...item, id: `${item.id}-${Date.now()}` }]);
+    setItems((prev) => [...prev, { ...item, id: item.id }]);
   };
 
   const removeFromCart = (id: string) => {

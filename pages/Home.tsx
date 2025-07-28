@@ -7,6 +7,7 @@ import { MoveUp } from 'lucide-react';
 // import Background from '@/components/Background';
 import { useEffect, useState } from 'react';
 import Contact from '@/components/Contact';
+import YoutubeSection from '@/components/YouTube';
 const Home = ({ size }) => {
   document.title = `Birdie Bands | Home`;
   const [searchTerm, setSearchTerm] = useState('');
@@ -51,6 +52,7 @@ const Home = ({ size }) => {
           <MoveUp />
         </button>
       )}
+      <YoutubeSection />
     </div>
   );
 };

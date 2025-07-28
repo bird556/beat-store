@@ -70,17 +70,23 @@ export default function LicenseModal({
 
   const handleAddToCart = () => {
     if (!selectedLicense) return;
-
-    const license = licenseOptions.find((l) => l.id === selectedLicense);
+    console.log(licenseOptions, 'licenseOption');
+    console.log(track.licenses, 'track');
+    console.log(selectedLicense, 'selectedLicense');
+    // console.log()
+    const license = track.licenses.find((l) => l.type === selectedLicense);
     if (!license) return;
 
     addToCart({
       id: track.id,
       title: track.title,
       artist: track.artist,
-      price: license.price,
-      license: license.name,
-      image: track.image,
+      // price: license.price,
+      // return price where selected license is equal to the type in the map so we return that price
+      price: track.licenses.find((l) => l.type === selectedLicense)?.price || 0,
+      // license: license.name,
+      license: selectedLicense,
+      image: track.image || track.s3_image_url,
       key: track.key,
       bpm: track.bpm,
       duration: track.duration,
@@ -141,15 +147,15 @@ export default function LicenseModal({
               <div className="relative  min-h-32 flex w-full items-center pt-3  overflow-hidden border-b-2 border-foreground/5">
                 <img
                   className="h-44 aspect-square object-cover"
-                  src={track.image}
+                  src={track.image ? track.image : track.s3_image_url}
                   alt={track.artist}
                 />
                 <div className="!text-start">
-                  <ModalHeader className="flex flex-col   !font-normal text-foreground/70">
+                  <ModalHeader className="flex flex-col !font-normal text-foreground/70">
                     <p className="text-2xl font-bold text-white">
                       {track.title}
                     </p>
-                    <p className=" text-lg">{track.artist}</p>
+                    <p className=" text-lg">{track.artist} Type Beat</p>
                     <p className="font-light text-sm">
                       Key: {track.key} | {track.bpm} BPM
                     </p>
@@ -158,7 +164,42 @@ export default function LicenseModal({
               </div>
 
               <ModalBody className="p-6 space-y-4 overflow-y-scroll">
-                {licenseOptions.map((license) => (
+                {track.licenses.map((license, index) => {
+                  return (
+                    <>
+                      <div
+                        key={index}
+                        className={`border rounded-lg p-4 !p-2 cursor-pointer transition-colors ${
+                          selectedLicense === license.type
+                            ? '!border-zinc-500 !bg-green-500/10'
+                            : '!border-gray-700 hover:!border-gray-600'
+                        }`}
+                        onClick={() => setSelectedLicense(license.type)}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-lg font-semibold text-white">
+                            {license.type} License
+                          </h3>
+                          <span className="text-2xl font-bold text-green-400">
+                            ${license.price}
+                          </span>
+                        </div>
+                        {/* <ul className="space-y-1">
+                          {license.features.map((feature, index) => (
+                            <li
+                              key={index}
+                              className="text-gray-300 text-sm flex items-center"
+                            >
+                              <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                              {feature}
+                            </li>
+                          ))}
+                        </ul> */}
+                      </div>
+                    </>
+                  );
+                })}
+                {/* {licenseOptions.map((license) => (
                   <div
                     key={license.id}
                     className={`border rounded-lg p-4 cursor-pointer transition-colors ${
@@ -188,7 +229,7 @@ export default function LicenseModal({
                       ))}
                     </ul>
                   </div>
-                ))}
+                ))} */}
               </ModalBody>
               <ModalFooter className="z-50">
                 <button

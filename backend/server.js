@@ -47,18 +47,6 @@ const getPresignedUrl = async (key, expires = 3600) => {
   }
 };
 
-// async function startServer() {
-//   try {
-//     await client.connect();
-//     console.log('Connected to MongoDB Atlas');
-//     await beats.createIndex({ created_at: -1 });
-//     await beats.createIndex({ 'licenses.type': 1, bpm: 1, key: 1 });
-//     await orders.createIndex({ purchase_date: -1, customer_email: 1 });
-//     await customers.createIndex({ email: 1 }, { unique: true });
-//   } catch (error) {
-//     console.error('MongoDB connection error:', error);
-//   }
-// }
 async function startServer() {
   try {
     console.log(`Attempting to connect to MongoDB URI: ${uri.blue}`); // Log the URI
