@@ -34,7 +34,7 @@ const Home = ({ size }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   return (
-    <div className="flex flex-col gap-64 relative">
+    <div className="overflow-x-hidden flex flex-col gap-64 relative">
       <TrackListing
         limitTrackCount={true}
         searchTerm={searchTerm}
