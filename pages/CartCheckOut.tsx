@@ -15,10 +15,11 @@ const CartCheckOut = ({ size }) => {
     <motion.div
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className=" max-w-6xl mx-auto px-4 py-8 z-5 !min-h-3/4 h-[60vh]"
+      // className="max-w-6xl mx-auto px-4 py-8 z-5 !min-h-3/4 h-[60vh]"
+      className="max-w-6xl mx-auto px-4 py-8 z-5"
     >
       <h2 className={` ${size} text-4xl font-bold text-start`}>Cart</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-3 py-8 mx-auto gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 py-8 mx-auto gap-6 relative">
         <div className="col-span-1 lg:col-span-2 z-5">
           {/* Header */}
           <div
@@ -35,7 +36,7 @@ const CartCheckOut = ({ size }) => {
 
             {/* <div className="col-span-5 md:col-span-2 lg:col-span-2"></div> */}
           </div>
-          <div className="space-y-2 z-10">
+          <div className="space-y-2 z-10 ">
             {items.length == 0 ? (
               <div className="text-center py-8 flex flex-col justify-center items-center gap-3">
                 <p className="text-gray-400">Your Cart Is Empty...</p>
@@ -49,7 +50,11 @@ const CartCheckOut = ({ size }) => {
                 </button>
               </div>
             ) : (
-              <div className="flex flex-col gap-6">
+              <div
+                className={`flex flex-col gap-6 max-lg:mb-16 ${
+                  items.length >= 5 ? '!overflow-y-scroll' : ''
+                } lg:!max-h-[50vh]`}
+              >
                 {items.map((track) => (
                   <div className="border-t-[0.5px] pt-4 !border-foreground/10  grid grid-cols-10 gap-4 items-center">
                     <div
@@ -104,9 +109,9 @@ const CartCheckOut = ({ size }) => {
                         <div className=" sm:block text-gray-500 text-xs">
                           Key: {track.key} | {track.bpm} BPM
                         </div>
-                        <div className="text-green-400 text-sm truncate">
+                        <button className="!m-0 !p-0 !font-normal !text-green-400 hover:!text-gray-200 !text-sm !truncate hover:underline !transition-colors !duration-300">
                           {track.license} License
-                        </div>
+                        </button>
                       </div>
                     </div>
                     {/* <div className="hidden md:block md:col-span-1 col-end-1 !z-5"></div> */}
@@ -133,8 +138,9 @@ const CartCheckOut = ({ size }) => {
           <div className="flex flex-col gap-3">
             <div className="flex text-green-400 justify-between w-full">
               <p className="text-2xl  text-default-500 font-bold">Item Total</p>
+              {/* Show only decimal 2 */}
               <p className="text-2xl text-default-500 font-bold">
-                ${totalPrice}
+                ${totalPrice.toFixed(2)}
               </p>
             </div>
             <hr className="w-full " />

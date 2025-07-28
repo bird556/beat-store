@@ -6,8 +6,20 @@ const YoutubeSection = () => {
       <div className="max-w-5xl mx-auto text-center">
         <div className="flex flex-col items-center space-y-6">
           <FaYoutube className="text-red-600 text-6xl" />
-          <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-            🔥 Subscribe to Birdie Bands
+          <h2 className="flex items-center gap-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <picture>
+              <source
+                srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.webp"
+                type="image/webp"
+              />
+              <img
+                src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.gif"
+                alt="🔥"
+                width="32"
+                height="32"
+              />
+            </picture>{' '}
+            Subscribe to Birdie Bands
           </h2>
           <div>
             <img
@@ -26,12 +38,26 @@ const YoutubeSection = () => {
             vibes straight from the channel.
           </p>
           <a
-            href="https://www.youtube.com/@BIRDIEBANDS" // Replace with your actual channel link
+            href="https://www.youtube.com/@BIRDIEBANDS?sub_confirmation=1" // Replace with your actual channel link
+            // href="https://www.youtube.com/@BIRDIEBANDS" // Replace with your actual channel link
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block rounded-md !text-white font-semibold py-3 px-6  hover:bg-foreground hover:!text-background  !transition-all !duration-600 bg-zinc-900"
+            className="flex items-center justify-center gap-2 rounded-md !text-white font-semibold py-3 px-6  hover:bg-foreground hover:!text-background  !transition-all !duration-600 bg-zinc-900"
           >
-            🚀 Visit & Subscribe
+            {/* 🚀 Visit & Subscribe */}
+            <picture>
+              <source
+                srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.webp"
+                type="image/webp"
+              />
+              <img
+                src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.gif"
+                alt="🚀"
+                width="32"
+                height="32"
+              />
+            </picture>
+            Visit & Subscribe
           </a>
         </div>
       </div>
