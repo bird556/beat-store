@@ -9,6 +9,7 @@ import {
   ModalBody,
   ModalFooter,
 } from '@heroui/modal';
+import { Accordion, AccordionItem } from '@heroui/accordion';
 
 interface LicenseModalProps {
   isOpen: boolean;
@@ -65,6 +66,8 @@ export default function LicenseModal({
 }: LicenseModalProps) {
   const [selectedLicense, setSelectedLicense] = useState<string | null>(null);
   const { addToCart } = useCart();
+  const defaultContent =
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.';
 
   if (!isOpen || !track) return null;
 
@@ -191,10 +194,37 @@ export default function LicenseModal({
                               className="text-gray-300 text-sm flex items-center"
                             >
                               <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                              {feature}
+                              {feature === 'Receive Signed Contract' ? (
+                                <span className="">*{feature}*</span>
+                              ) : (
+                                <span>{feature}</span>
+                              )}
                             </li>
                           ))}
                         </ul> */}
+                        <Accordion isCompact={true} disableAnimation={false}>
+                          <AccordionItem
+                            key="1"
+                            aria-label="Accordion 1"
+                            title="Show usage terms"
+                          >
+                            <ul className="space-y-1">
+                              {license.features.map((feature, index) => (
+                                <li
+                                  key={index}
+                                  className="text-gray-300 text-sm flex items-center"
+                                >
+                                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                  {feature === 'Receive Signed Contract' ? (
+                                    <span className="">*{feature}*</span>
+                                  ) : (
+                                    <span>{feature}</span>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          </AccordionItem>
+                        </Accordion>
                       </div>
                     </>
                   );
