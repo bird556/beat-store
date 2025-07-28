@@ -1,14 +1,15 @@
 import React from 'react';
 import { HoverEffect } from './ui/card-hover-effect';
 import { ModalBody } from '@heroui/modal';
-
+import { useLicenses } from '../contexts/LicenseContext';
 const Licenses = () => {
+  // console.log(licenses, 'licenses');
   return (
     <>
       <div className="flex flex-col gap-12">
         <h2 className="font-bold text-2xl">Licensing Info</h2>
         <div className="max-w-lg md:max-w-6xl mx-auto px-8">
-          <HoverEffect items={projects} />
+          <HoverEffect items={useProjects() as any} />
         </div>
       </div>
     </>
@@ -16,6 +17,29 @@ const Licenses = () => {
 };
 
 export default Licenses;
+
+export const useProjects = () => {
+  const licenses = useLicenses();
+  const clickTime = new Date();
+
+  const formattedDate = clickTime.toLocaleDateString('en-US', {
+    month: 'numeric',
+    day: 'numeric',
+    year: '2-digit',
+  });
+  const formattedTime = clickTime.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  return licenses.map((license) => ({
+    title: license.title,
+    description: license.description,
+    link: '#',
+    bulletPoints: license.features,
+    licenseInfo: () => <>{LicenseTemplate(formattedDate, formattedTime)}</>,
+  }));
+};
 
 export const projects = [
   {

@@ -9,6 +9,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import colors from 'colors';
 import Beat from './models/Beat.js';
+import License from './models/License.js';
 
 //
 dotenv.config();
@@ -123,6 +124,18 @@ app.get('/api/beats', async (req, res) => {
   } catch (error) {
     console.error('Error fetching beats:'.red, error);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Fetch all licenses
+app.get('/api/licenses', async (req, res) => {
+  try {
+    const licenses = await License.find();
+    // console.log(licenses, 'licenses');
+    res.json(licenses);
+  } catch (err) {
+    console.error('Error fetching licenses:', err);
+    res.status(500).send('Server error');
   }
 });
 
