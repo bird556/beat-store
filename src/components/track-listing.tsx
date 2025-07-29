@@ -39,7 +39,15 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
   const [searchQuery, setSearchQuery] = useState('');
   // const [filteredTracks, setFilteredTracks] = useState<Track[]>(sampleTracks);
   const [filteredTracks, setFilteredTracks] = useState<Track[]>([]);
-  const { playTrack, currentTrack, isPlaying, setQueue, queue } = usePlayer();
+  const {
+    playTrack,
+    currentTrack,
+    isPlaying,
+    setQueue,
+    queue,
+    togglePlay,
+    pauseTrack,
+  } = usePlayer();
   const [fetchedBeats, setFetchedBeats] = useState<Track[]>([]);
   const [searchParams] = useSearchParams();
   const defaultQuery = searchParams.get('search') || '';
@@ -209,6 +217,24 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
     return cartItems.some((item) => item.id === trackId);
   };
 
+  const handleTrackPlay = (track: Track, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    // If this is the current track and it's playing, pause it
+    if (currentTrack?.id === track.id && isPlaying) {
+      pauseTrack();
+      console.log('pause', isPlaying);
+    }
+    // If this is the current track but paused, resume playback
+    else if (currentTrack?.id === track.id && !isPlaying) {
+      playTrack(track);
+    }
+    // If it's a different track, play it
+    else {
+      playTrack(track);
+    }
+  };
+
   // framer motion
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -241,10 +267,12 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
           {/* Title with Image */}
           <button
             // onClick={() => handlePlayTrack(track)}
-            onClick={(e) => {
-              e.stopPropagation();
-              playTrack(track);
-            }}
+            // onClick={(e) => {
+            //   e.stopPropagation();
+            //   // playTrack(track);
+            //   togglePlay();
+            // }}
+            onClick={(e) => handleTrackPlay(track, e)}
             // className="col-span-5 md:col-span-4 flex items-center space-x-3 cursor-pointer"
             className="!bg-transparent !p-0 hover:!border-transparent z-50 !text-start col-span-5 md:col-span-4 flex items-center space-x-3 cursor-pointer"
           >
@@ -255,11 +283,10 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
                 alt={track.title}
               />
               <div
-                // onClick={() => handlePlayTrack(track)}
-
-                className="cursor-pointer scale-125 absolute inset-0 !bg-black/50 !border-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded"
+                className={`cursor-pointer scale-125 absolute inset-0 !bg-black/50 !border-transparent flex items-center justify-center transition-opacity rounded ${
+                  currentTrack?.id === track.id ? 'opacity-100' : 'opacity-0'
+                }`}
               >
-                {/* <Play className="w-4 h-4 text-foreground fill-white" /> */}
                 {currentTrack?.id === track.id && isPlaying ? (
                   <Pause className="w-4 h-4 text-foreground fill-white" />
                 ) : (
@@ -348,7 +375,7 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
       </>
     );
   };
-  console.log(filteredTracks);
+  // console.log(filteredTracks);
 
   return (
     <div className="z-50 flex flex-col justify-between relative">

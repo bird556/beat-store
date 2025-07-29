@@ -110,7 +110,7 @@ app.get('/api/beats', async (req, res) => {
 
       beat.s3_mp3_url = await getPresignedUrl(mp3Key, 3600); // 1-hour for previews
       beat.s3_image_url = imageKey
-        ? await getPresignedUrl(imageKey, 3600)
+        ? await getPresignedUrl(imageKey, 3600 * 24)
         : null; // 1-hour for images
       for (const license of beat.licenses) {
         license.s3_file_url = null; // Hide download URLs

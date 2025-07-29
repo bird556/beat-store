@@ -22,6 +22,7 @@ interface PlayerContextType {
   isPlaying: boolean;
   queue: Track[];
   playTrack: (track: Track) => void;
+  pauseTrack: () => void;
   togglePlay: () => void;
   setQueue: (tracks: Track[]) => void;
   nextTrack: () => void;
@@ -33,6 +34,7 @@ const PlayerContext = createContext<PlayerContextType>({
   isPlaying: false,
   queue: [],
   playTrack: () => {},
+  pauseTrack: () => {},
   togglePlay: () => {},
   setQueue: () => {},
   nextTrack: () => {},
@@ -63,8 +65,18 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const pauseTrack = () => {
+    setIsPlaying(false);
+    console.log('pause from pauseTrack Player Context');
+  };
+
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
+    if (isPlaying) {
+      console.log('play');
+    } else {
+      console.log('pause');
+    }
   };
 
   const handleSetQueue = (tracks: Track[]) => {
@@ -108,6 +120,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
         isPlaying,
         queue,
         playTrack,
+        pauseTrack,
         togglePlay,
         setQueue: handleSetQueue,
         nextTrack,
