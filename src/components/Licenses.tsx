@@ -3,13 +3,16 @@ import { HoverEffect } from './ui/card-hover-effect';
 import { ModalBody } from '@heroui/modal';
 import { useLicenses } from '../contexts/LicenseContext';
 const Licenses = () => {
-  // console.log(licenses, 'licenses');
+  const { loading } = useLicenses();
   return (
     <>
-      <div className="flex flex-col gap-12">
+      <div className="flex flex-col gap-12 py-12">
         <h2 className="font-bold text-2xl">Licensing Info</h2>
         <div className="max-w-lg md:max-w-6xl mx-auto px-8">
-          <HoverEffect items={useProjects() as any} />
+          <HoverEffect
+            items={useProjects() as any}
+            isLoading={loading as boolean}
+          />
         </div>
       </div>
     </>
@@ -19,9 +22,9 @@ const Licenses = () => {
 export default Licenses;
 
 export const useProjects = () => {
-  const licenses = useLicenses();
+  // const licenses = useLicenses();
+  const { licenses } = useLicenses();
   const clickTime = new Date();
-
   const formattedDate = clickTime.toLocaleDateString('en-US', {
     month: 'numeric',
     day: 'numeric',
@@ -33,6 +36,7 @@ export const useProjects = () => {
   });
 
   return licenses.map((license) => ({
+    id: license._id,
     title: license.title,
     description: license.description,
     link: '#',
@@ -177,7 +181,7 @@ export const projects = [
 
 const LicenseTemplate = (formattedDate: string, formattedTime: string) => {
   return (
-    <ModalBody className="bg-foreground whitespace-pre-line text-justify text-background overflow-y-scroll">
+    <ModalBody className="bg-zinc-900 whitespace-pre-line text-justify text-foreground overflow-y-scroll">
       {/* Introductory Paragraph */}
       <div>
         <p>

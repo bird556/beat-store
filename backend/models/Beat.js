@@ -1,3 +1,5 @@
+// backend/models/Beat.js
+
 import mongoose from 'mongoose';
 
 const licenseSchema = new mongoose.Schema({
@@ -70,6 +72,7 @@ const beatSchema = new mongoose.Schema({
     get: (v) => (v instanceof Date ? v : new Date(v)), // Handle $date
   },
   licenses: [licenseSchema],
+  available: { type: Boolean, required: true, default: true }, // ✅ Add this
 });
 
 // Ensure _id is treated as ObjectId

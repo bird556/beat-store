@@ -1,3 +1,4 @@
+// src/contexts/cart-context.tsx
 import {
   createContext,
   useContext,
@@ -37,9 +38,19 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  // const addToCart = (item: CartItem) => {
+  //   // setItems((prev) => [...prev, { ...item, id: `${item.id}-${Date.now()}` }]);
+  //   setItems((prev) => [...prev, { ...item, id: item.id }]);
+  // };
+
   const addToCart = (item: CartItem) => {
-    // setItems((prev) => [...prev, { ...item, id: `${item.id}-${Date.now()}` }]);
-    setItems((prev) => [...prev, { ...item, id: item.id }]);
+    setItems((prev) => {
+      const exists = prev.some((i) => i.id === item.id);
+      if (exists) {
+        return prev.map((i) => (i.id === item.id ? item : i));
+      }
+      return [...prev, item];
+    });
   };
 
   const removeFromCart = (id: string) => {
@@ -72,7 +83,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (hydrated) {
       localStorage.setItem('cartItems', JSON.stringify(items));
-      console.log('Saving to localStorage:', items);
+      // console.log('Saving to localStorage:', items);
     }
   }, [items, hydrated]);
 

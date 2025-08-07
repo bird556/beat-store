@@ -18,57 +18,95 @@ const FAQS = ({ size }) => {
           defaultValue="item-1"
         >
           <AccordionItem value="item-1">
-            <AccordionTrigger>Product Information</AccordionTrigger>
+            <AccordionTrigger>How do I receive my beats?</AccordionTrigger>
             <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
               <p>
-                Our flagship product combines cutting-edge technology with sleek
-                design. Built with premium materials, it offers unparalleled
-                performance and reliability.
-              </p>
-              <p>
-                Key features include advanced processing capabilities, and an
-                intuitive user interface designed for both beginners and
-                experts.
+                After purchase, you’ll receive an email with a download link.
+                This link is valid for 7 days. If it expires, you can contact us
+                for a new one.
               </p>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-2">
-            <AccordionTrigger>Shipping Details</AccordionTrigger>
+            <AccordionTrigger>Do you offer refunds?</AccordionTrigger>
             <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
               <p>
-                We offer worldwide shipping through trusted courier partners.
-                Standard delivery takes 3-5 business days, while express
-                shipping ensures delivery within 1-2 business days.
+                All sales are final. Since our products are digital and
+                delivered instantly, we do not offer refunds or cancellations
+                after purchase.
               </p>
               <p>
-                All orders are carefully packaged and fully insured. Track your
-                shipment in real-time through our dedicated tracking portal.
+                Exceptions are made only for duplicate transactions or technical
+                issues that prevent access to your files. Contact us if you need
+                help.
               </p>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-3">
-            <AccordionTrigger>Return Policy</AccordionTrigger>
+            <AccordionTrigger>
+              Can I resell your beats after purchasing?
+            </AccordionTrigger>
             <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
               <p>
-                We stand behind our products with a comprehensive 30-day return
-                policy. If you&apos;re not completely satisfied, simply return
-                the item in its original condition.
-              </p>
-              <p>
-                Our hassle-free return process includes free return shipping and
-                full refunds processed within 48 hours of receiving the returned
-                item.
+                No, reselling or redistributing our beats is strictly
+                prohibited—even with an exclusive license. You may only use them
+                as part of your own original music.
               </p>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-4">
             <AccordionTrigger>
-              Can I resell your beats after purchasing?
+              Can I register the beat or song with YouTube Content ID?
             </AccordionTrigger>
-            <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6 ">
+            <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
               <p>
-                No, reselling or redistributing my beats is strictly prohibited,
-                even with an exclusive license.
+                Under non-exclusive licenses (Basic, Premium, Professional,
+                Legacy), registering the beat or your song with any Content
+                Identification System (like YouTube Content ID, TuneCore, or
+                CDBaby) is strictly prohibited.
+              </p>
+              <p>
+                However, if you purchase an <strong>Exclusive License</strong>,
+                you gain full ownership of the beat and may register your song
+                with YouTube Content ID and other platforms.
+              </p>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-5">
+            <AccordionTrigger>
+              Can I use the beat in multiple songs?
+            </AccordionTrigger>
+            <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
+              <p>
+                Only Exclusive License holders may use the beat in multiple
+                songs. All other licenses allow use in one (1) new song only.
+              </p>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-6">
+            <AccordionTrigger>
+              Do I own the beat after purchase?
+            </AccordionTrigger>
+            <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
+              <p>
+                With non-exclusive licenses, the producer retains ownership of
+                the beat. You own your lyrics and original musical elements.
+              </p>
+              <p>
+                With an Exclusive License, full ownership of the beat is
+                transferred to you.
+              </p>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-7">
+            <AccordionTrigger>
+              How should I credit the producer?
+            </AccordionTrigger>
+            <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
+              <p>
+                You must credit the producer in all media formats where your
+                song appears. Use the format:{' '}
+                <strong>"Produced by Birdie Bands"</strong>.
               </p>
             </AccordionContent>
           </AccordionItem>

@@ -27,33 +27,41 @@ const Footer = () => {
             </NavLink>
             <ul className="flex flex-wrap items-center mb-6 text-sm font-medium  sm:mb-0">
               <li>
-                <a
-                  href="#"
-                  className="!text-foreground hover:underline me-4 md:me-6"
+                <NavLink
+                  to={'/refund-policy'}
+                  className="!text-foreground hover:!underline !transition-all !duration-300 me-4 md:me-6"
                 >
-                  About
-                </a>
+                  Refund Policy
+                </NavLink>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="!text-foreground hover:underline me-4 md:me-6"
+                <NavLink
+                  to={'/privacy-policy'}
+                  className="!text-foreground hover:!underline !transition-all !duration-300 me-4 md:me-6"
                 >
                   Privacy Policy
-                </a>
+                </NavLink>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="!text-foreground hover:underline me-4 md:me-6"
+                <NavLink
+                  to={'/terms-of-service'}
+                  className="!text-foreground hover:!underline !transition-all !duration-300 me-4 md:me-6"
+                >
+                  Terms of Use
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to={'/licenses'}
+                  className="!text-foreground hover:!underline !transition-all !duration-300 me-4 md:me-6"
                 >
                   Licensing
-                </a>
+                </NavLink>
               </li>
               <li>
                 <NavLink
                   to={'/contact'}
-                  className="!text-foreground hover:underline"
+                  className="!text-foreground hover:!underline !transition-all !duration-300"
                 >
                   Contact
                 </NavLink>
@@ -71,7 +79,7 @@ const Footer = () => {
                 alt="Flowbite Logo"
               />
             </a>
-            <ul className="flex flex-wrap items-center mb-6 text-sm font-medium space-x-6 sm:mb-0">
+            <ul className="flex flex-wrap items-center mb-6 min-sm:my-3 text-sm font-medium space-x-6 sm:mb-0">
               <li>
                 <FaCcVisa size={30} />
               </li>

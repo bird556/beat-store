@@ -5,6 +5,7 @@ import { Search, User, ShoppingCart, Menu, X } from 'lucide-react';
 import Marquee from 'react-fast-marquee';
 import { Link, NavLink } from 'react-router';
 import BirdieLogo from '../../src/Images/logo.png';
+import BirdieLogo1 from '../../src/Images/birdie2025-logo.png';
 import {
   Dropdown,
   DropdownTrigger,
@@ -25,7 +26,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="!sticky !top-0 z-[500] border-b border-foreground/30  backdrop-blur-sm bg-background/70">
+      <nav className="!sticky !top-0 z-[500] border-b border-foreground/30  backdrop-blur-sm bg-black/70">
         {/* <div className="fixed h-full w-full top-0 left-0 z-0">
           <Particles
             particleColors={['#ffffff', '#ffffff']}
@@ -58,7 +59,13 @@ const Navbar = () => {
               width={200}
               height={200}
             /> */}
-            <img className="w-48" src={BirdieLogo} alt="Birdie Bands Logo" />
+            {/* <img className="w-48" src={BirdieLogo} alt="Birdie Bands Logo" /> */}
+            <img className="w-32" src={BirdieLogo} alt="Birdie Bands Logo" />
+            <img
+              className="w-12 rounded-full"
+              src={BirdieLogo1}
+              alt="Birdie Bands Logo"
+            />
           </NavLink>
 
           {/* Navigation Links - Hidden on mobile */}

@@ -1,3 +1,4 @@
+// src/App.tsx
 import './App.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import Home from '../pages/Home';
@@ -9,14 +10,20 @@ import Navbar from './components/Navbar';
 import Particles from './components/ui/ReactBits/Particles';
 import Contact from './components/Contact';
 import MusicPlayer from './components/musicplayer';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/helper/ScrollToTop';
 import { PlayerProvider } from './contexts/PlayerContext';
-import { MoveUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { CartProvider } from './contexts/cart-context';
 import { Toaster } from 'react-hot-toast';
 import { LicenseProvider } from './contexts/LicenseContext';
+import Billing from '../pages/Billing';
+import TermsOfUse from '../pages/TermsOfUse';
+import PrivacyPolicy from '../pages/PrivacyPolicy';
+import RefundPolicy from '../pages/RefundPolicy';
+import DownloadPage from '../pages/DownloadPage';
+import SingleBeatPage from '../pages/SingleBeat';
+import Licenses from './components/Licenses';
 function App() {
   const headerText = 'text-2xl';
 
@@ -28,7 +35,7 @@ function App() {
         <CartProvider>
           <PlayerProvider>
             <LicenseProvider>
-              <div className="bg-background relative m-auto w-full">
+              <div className="bg-black relative m-auto w-full">
                 <div className="fixed h-full w-full top-0 left-0 z-0">
                   <Particles
                     particleColors={['#ffffff', '#ffffff']}
@@ -49,6 +56,17 @@ function App() {
                       <Route path="/" element={<Home size={headerText} />} />
                       <Route path="*" element={<Home size={headerText} />} />
                       <Route path="/beats" element={<Beats />} />
+                      <Route path="/licenses" element={<Licenses />} />
+                      <Route path="/billing" element={<Billing />} />
+                      <Route
+                        path="/terms-of-service"
+                        element={<TermsOfUse />}
+                      />
+                      <Route
+                        path="/privacy-policy"
+                        element={<PrivacyPolicy />}
+                      />
+                      <Route path="/refund-policy" element={<RefundPolicy />} />
                       <Route
                         path="/contact"
                         element={<Contact fullscreen={true} />}
@@ -58,14 +76,16 @@ function App() {
                         path="/checkout"
                         element={<CartCheckOut size={headerText} />}
                       />
+
+                      <Route path="/download" element={<DownloadPage />} />
+                      <Route path="/beat" element={<SingleBeatPage />} />
                     </Routes>
-                    {/* <div className="py-10"></div> */}
                   </div>
                   <Footer />
+                  <MusicPlayer />
                 </Router>
 
                 <Toaster position="top-center" reverseOrder={false} />
-                <MusicPlayer />
               </div>
             </LicenseProvider>
           </PlayerProvider>

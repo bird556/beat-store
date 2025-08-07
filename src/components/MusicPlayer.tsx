@@ -1,3 +1,4 @@
+// src/components/musicplayer.tsx
 import { usePlayer } from '@/contexts/PlayerContext';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
@@ -6,7 +7,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useRef, useEffect } from 'react';
+import { ShoppingCart } from 'lucide-react';
+import { useRef, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import LicenseModal from './license-modal';
+import { useCart } from '@/contexts/cart-context';
 
 const MusicPlayer = () => {
   const {
@@ -18,6 +23,11 @@ const MusicPlayer = () => {
     nextTrack,
     previousTrack,
   } = usePlayer();
+  const { items: cartItems } = useCart();
+  const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
+  const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
+
+  const navigate = useNavigate();
 
   const audioPlayerRef = useRef<any>(null);
 
@@ -168,10 +178,31 @@ const MusicPlayer = () => {
     return queue[nextIndex];
   };
 
+  const handleCardClick = (beat: Track) => {
+    // Re-fetch the main beat when a related beat is clicked to update the page
+    navigate(`/beat?beatId=${beat._id}`);
+    // Consider adding a scroll to top here for a better UX
+    window.scrollTo(0, 0);
+  };
+
+  const handleBuyClick = (track: Track) => {
+    // console.log(track, 'handle buy click');
+    setSelectedTrack(track);
+    setIsLicenseModalOpen(true);
+  };
+
+  const isTrackInCart = (trackId: string) => {
+    return cartItems.some((item) => item.id === trackId);
+  };
+  const handleEditLicenseClick = (track: Track) => {
+    setSelectedTrack(track);
+    setIsLicenseModalOpen(true);
+  };
+
   const nextTrackInfo = getNextTrack();
   if (!currentTrack) return null;
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-gray-800 px-4 py-3 z-[500] w-full">
+    <div className="fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 px-4 py-3 z-[500] w-full">
       <div className="xl:w-7xl mx-auto z-50">
         <div className="flex items-center justify-between text-start ">
           {/* Current Track Info */}
@@ -181,37 +212,36 @@ const MusicPlayer = () => {
               alt={currentTrack.title}
               className="rounded h-14 w-14 object-cover hidden sm:block"
             />
-            <div className="min-w-0 flex-1">
-              <div className=" sm:block text-white font-medium truncate md:max-w-64 ">
-                {currentTrack.title}
+            <button
+              onClick={() => handleCardClick(currentTrack)}
+              className="!p-0 !m-0 text-start overflow-hidden"
+            >
+              <div className="min-w-0 flex-1">
+                <div className=" sm:block text-white font-medium truncate md:max-w-64 ">
+                  {currentTrack.title}
+                </div>
+                <div className=" sm:block text-gray-400 text-sm truncate">
+                  {currentTrack.artist} Type Beat
+                </div>
+                <div className=" sm:block text-gray-500 text-xs">
+                  Key: {currentTrack.key} | {currentTrack.bpm} BPM
+                </div>
               </div>
-              <div className=" sm:block text-gray-400 text-sm truncate">
-                {currentTrack.artist} Type Beat
-              </div>
-              <div className=" sm:block text-gray-500 text-xs">
-                Key: {currentTrack.key} | {currentTrack.bpm} BPM
-              </div>
-            </div>
+            </button>
           </div>
 
           {/* Audio Player */}
           <div className="flex-1 max-w-6xl mx-4">
             <AudioPlayer
-              // autoPlay={isPlaying}
               // autoPlay={true}
               ref={audioPlayerRef}
               autoPlay={false} // We'll control this manually
               src={currentTrack.audioUrl || currentTrack.s3_mp3_url}
-              // onPlay={togglePlay}
-              // onPlay={togglePlay}
-              // onPause={togglePlay}
               onPlay={() => {
                 // Only update context if not already playing
-                console.log('play from audio player');
                 if (!isPlaying) togglePlay();
               }}
               onPause={() => {
-                console.log('pause from audio player');
                 // Only update context if not already paused
                 if (isPlaying) togglePlay();
               }}
@@ -221,7 +251,6 @@ const MusicPlayer = () => {
               progressUpdateInterval={100}
               showJumpControls={true}
               showSkipControls={true}
-              // customProgressBarSection={[]}
               progressJumpSteps={{
                 forward: 10000,
                 backward: 5000,
@@ -232,9 +261,8 @@ const MusicPlayer = () => {
           {/* Player Controls */}
 
           {/* Volume and Next Up */}
-          {nextTrackInfo && (
+          {/* {nextTrackInfo && (
             <div className="flex items-center justify-center flex-col">
-              {/* Next Up */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
@@ -262,9 +290,34 @@ const MusicPlayer = () => {
                 </TooltipContent>
               </Tooltip>
             </div>
+          )} */}
+
+          {isTrackInCart(currentTrack.id) ? (
+            <button
+              onClick={() => handleEditLicenseClick(currentTrack)}
+              className="!bg-green-600 hover:!bg-green-800 !transition-colors duration-300 text-foreground px-4 py-2 rounded font-medium text-sm lg:min-w-28"
+            >
+              <ShoppingCart className="w-4 h-4 min-md:hidden" />
+              <span className="hidden md:block">IN CART</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => handleBuyClick(currentTrack)}
+              className="lg:min-w-28 cursor-pointer !bg-foreground  text-background px-4 py-2 rounded font-medium text-sm hover:!bg-gray-300 transition-colors flex items-center space-x-1"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              <span className="hidden sm:block">
+                ${currentTrack.price || currentTrack.licenses[0].price}
+              </span>
+            </button>
           )}
         </div>
       </div>
+      <LicenseModal
+        isOpen={isLicenseModalOpen}
+        onClose={() => setIsLicenseModalOpen(false)}
+        track={selectedTrack}
+      />
     </div>
   );
 };

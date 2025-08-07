@@ -1,3 +1,5 @@
+// src/components/license-modal.tsx
+
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import type { Track } from '@/contexts/PlayerContext';
@@ -23,48 +25,6 @@ interface LicenseModalProps {
   track: Track | null;
 }
 
-const licenseOptions = [
-  {
-    id: 'basic',
-    name: 'Basic License',
-    price: 39.99,
-    features: [
-      'MP3 Format',
-      'Non-Exclusive Rights',
-      'Up to 5,000 streams',
-      '1 Music Video',
-      'Basic Distribution Rights',
-    ],
-  },
-  {
-    id: 'premium',
-    name: 'Premium License',
-    price: 79.99,
-    features: [
-      'WAV + MP3 Format',
-      'Non-Exclusive Rights',
-      'Up to 50,000 streams',
-      '5 Music Videos',
-      'Full Distribution Rights',
-      'Trackouts Available',
-    ],
-  },
-  {
-    id: 'exclusive',
-    name: 'Exclusive License',
-    price: 299.99,
-    features: [
-      'WAV + MP3 Format',
-      'Exclusive Rights',
-      'Unlimited streams',
-      'Unlimited Music Videos',
-      'Full Commercial Rights',
-      'Trackouts Included',
-      'Producer Credit Removal',
-    ],
-  },
-];
-
 export default function LicenseModal({
   isOpen,
   onClose,
@@ -75,24 +35,16 @@ export default function LicenseModal({
   const [openItems, setOpenItems] = useState({});
   if (!isOpen || !track) return null;
 
-  const handleAddToCart = () => {
-    if (!selectedLicense) return;
-    console.log(licenseOptions, 'licenseOption');
-    console.log(track.licenses, 'track');
-    console.log(selectedLicense, 'selectedLicense');
-    // console.log()
-    const license = track.licenses.find((l) => l.type === selectedLicense);
+  const handleLicenseSelect = (licenseType: string) => {
+    const license = track.licenses.find((l) => l.type === licenseType);
     if (!license) return;
 
-    addToCart({
+    const updatedItem = {
       id: track.id,
       title: track.title,
       artist: track.artist,
-      // price: license.price,
-      // return price where selected license is equal to the type in the map so we return that price
-      price: track.licenses.find((l) => l.type === selectedLicense)?.price || 0,
-      // license: license.name,
-      license: selectedLicense,
+      price: license.price,
+      license: licenseType,
       image: track.image || track.s3_image_url,
       key: track.key,
       bpm: track.bpm,
@@ -102,10 +54,16 @@ export default function LicenseModal({
       licenses: track.licenses,
       s3_mp3_url: track.s3_mp3_url,
       s3_image_url: track.s3_image_url,
-    });
+    };
 
+    addToCart(updatedItem);
     onClose();
     setSelectedLicense(null);
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedLicense) return;
+    handleLicenseSelect(selectedLicense);
   };
 
   return (

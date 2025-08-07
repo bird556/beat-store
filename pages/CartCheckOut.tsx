@@ -1,22 +1,123 @@
+// pages/CartCheckOut.tsx
 import { useCart } from '@/contexts/cart-context';
 import { usePlayer } from '@/contexts/PlayerContext';
 import { motion } from 'framer-motion';
 import { FaStripe } from 'react-icons/fa';
-import { Trash2 } from 'lucide-react';
-import { Play, ShoppingCart, Download, Share2, Pause } from 'lucide-react';
+import { Trash2, Edit, Play, Pause } from 'lucide-react';
 import { IoLogoPaypal } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
-const CartCheckOut = ({ size }) => {
-  const { items, removeFromCart, totalPrice, clearCart } = useCart();
-  const { playTrack, currentTrack, isPlaying, setQueue, queue } = usePlayer();
-  console.log(items);
+import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { loadStripe } from '@stripe/stripe-js';
+import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+interface CustomerInfo {
+  name: string;
+  email: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+}
+
+interface CartItem {
+  id: string;
+  title: string;
+  artist: string;
+  image?: string;
+  s3_image_url?: string;
+  license: string;
+  price: number;
+  key: string;
+  bpm: number;
+}
+
+const CartCheckOut = ({ size }: { size: string }) => {
+  document.title = `Birdie Bands | Checkout`;
+  const { items, removeFromCart, totalPrice } = useCart();
+  const { playTrack, currentTrack, isPlaying } = usePlayer();
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Load customer info from sessionStorage
+  useEffect(() => {
+    const savedInfo = sessionStorage.getItem('customerInfo');
+    if (savedInfo) {
+      try {
+        setCustomerInfo(JSON.parse(savedInfo));
+      } catch (e) {
+        console.error('Error parsing customer info:', e);
+      }
+    }
+  }, []);
+
+  const handleEditInfo = () => {
+    navigate('/billing');
+  };
+
+  const handlePaypalCheckout = () => {
+    // Implement PayPal checkout logic here
+    console.log('Initiating PayPal checkout with:', customerInfo);
+    console.log('Items For PayPal:', items);
+  };
+
+  const handleStripeCheckout = async () => {
+    // Implement Stripe checkout logic here
+    console.log('Initiating Stripe checkout with:', customerInfo);
+    console.log('Items For Stripe:', items);
+    if (!customerInfo) return;
+
+    setPaymentStatus('processing');
+    try {
+      const cartItems = items.map((item) => ({
+        beatId: item.id,
+        licenseType: item.license,
+        s3_image_url: item.s3_image_url,
+      }));
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_BASE_URL_BACKEND
+        }/api/stripe/create-checkout-session`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cartItems, customerInfo }),
+        }
+      );
+      const { sessionId, error } = await response.json();
+
+      if (error) {
+        setPaymentStatus('error');
+        return;
+      }
+
+      const stripe = await stripePromise;
+      if (!stripe) {
+        setPaymentStatus('error');
+        return;
+      }
+
+      const { error: redirectError } = await stripe.redirectToCheckout({
+        sessionId,
+      });
+      if (redirectError) {
+        console.error('Stripe redirect error:', redirectError);
+        setPaymentStatus('error');
+      }
+    } catch (err) {
+      console.error('Stripe checkout error:', err);
+      setPaymentStatus('error');
+    }
+  };
+
   return (
     <motion.div
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      // className="max-w-6xl mx-auto px-4 py-8 z-5 !min-h-3/4 h-[60vh]"
-      className="max-w-6xl mx-auto px-4 py-8 z-5"
+      className=" max-w-6xl mx-auto px-4 py-16 z-5"
     >
       <h2 className={` ${size} text-4xl font-bold text-start`}>Cart</h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 py-8 mx-auto gap-6 relative">
@@ -33,8 +134,6 @@ const CartCheckOut = ({ size }) => {
             <div className="lg:block col-end-9 md:col-end-10 lg:col-end-10 text-xl font-bold">
               Price
             </div>
-
-            {/* <div className="col-span-5 md:col-span-2 lg:col-span-2"></div> */}
           </div>
           <div className="space-y-2 z-10 ">
             {items.length == 0 ? (
@@ -55,8 +154,11 @@ const CartCheckOut = ({ size }) => {
                   items.length >= 5 ? '!overflow-y-scroll' : ''
                 } lg:!max-h-[50vh]`}
               >
-                {items.map((track) => (
-                  <div className="border-t-[0.5px] pt-4 !border-foreground/10  grid grid-cols-10 gap-4 items-center">
+                {items.map((track, index) => (
+                  <div
+                    key={index}
+                    className="border-t-[0.5px] pt-4 !border-foreground/10  grid grid-cols-10 gap-4 items-center"
+                  >
                     <div
                       key={track.id}
                       className="!bg-transparent !p-0 hover:!border-transparent z-50 !text-start !col-span-6  flex items-center space-x-3"
@@ -68,21 +170,21 @@ const CartCheckOut = ({ size }) => {
                           e.stopPropagation();
                           playTrack(track);
                         }}
-                        // className="col-span-5 md:col-span-4 flex items-center space-x-3 cursor-pointer"
                         className="!bg-transparent !p-0 hover:!border-transparent z-50 !text-start col-span-5 md:col-span-4 flex items-center space-x-3 cursor-pointer"
                       >
-                        <div className="relative aspect-square overflow-hidden rounded cursor-pointer">
+                        <div className="relative aspect-square overflow-hidden rounded cursor-pointer w-20 min-w-20 max-w-20">
                           <img
-                            className="w-20 object-cover aspect-square"
-                            src={track.image}
+                            className="w-full h-full object-cover"
+                            src={track.image ? track.image : track.s3_image_url}
                             alt={track.title}
                           />
                           <div
-                            // onClick={() => handlePlayTrack(track)}
-
-                            className="cursor-pointer scale-125 absolute inset-0 !bg-black/50 !border-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded"
+                            className={`cursor-pointer scale-125 absolute inset-0 !bg-black/50 !border-transparent flex items-center justify-center transition-opacity rounded ${
+                              currentTrack?.id === track.id
+                                ? 'opacity-100'
+                                : 'opacity-0'
+                            }`}
                           >
-                            {/* <Play className="w-4 h-4 text-foreground fill-white" /> */}
                             {currentTrack?.id === track.id && isPlaying ? (
                               <Pause className="w-4 h-4 text-foreground fill-white" />
                             ) : (
@@ -114,8 +216,6 @@ const CartCheckOut = ({ size }) => {
                         </button>
                       </div>
                     </div>
-                    {/* <div className="hidden md:block md:col-span-1 col-end-1 !z-5"></div> */}
-                    {/* <div className="hidden md:block md:col-span-1 col-end-1 !z-5"></div> */}
 
                     {/* Price Per Beat */}
                     <div className="col-end-9 md:col-end-10 lg:col-end-10 text-foreground font-bold text-xl">
@@ -123,9 +223,9 @@ const CartCheckOut = ({ size }) => {
                     </div>
                     <button
                       onClick={() => removeFromCart(track.id)}
-                      className="text-red-400 hover:text-red-300 transition-colors col-start-10"
+                      className="relative !z-50 text-red-400 hover:text-red-300 transition-colors col-start-10"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="!z-0 w-4 h-4" />
                     </button>
                   </div>
                 ))}
@@ -146,7 +246,7 @@ const CartCheckOut = ({ size }) => {
             <hr className="w-full " />
           </div>
 
-          <p className=" text-sm">
+          {/* <p className=" text-sm">
             Secure your license and download your files instantly after payment
             on this website.
             <br />A copy will also be sent to your{' '}
@@ -154,34 +254,150 @@ const CartCheckOut = ({ size }) => {
               <u>email address</u>
             </b>
             .
-          </p>
-          <div className="w-full relative flex flex-col gap-3">
-            <button className="flex items-center justify-center w-full !bg-yellow-400 !text-indigo-600 !px-4 !py-2 !rounded !font-semibold !transition-all !duration-300 hover:!bg-yellow-500">
-              <IoLogoPaypal className="w-64 h-6 scale-150" />
-            </button>
-            <button className="flex items-center justify-center w-full !bg-indigo-600 !text-white !px-4 !py-2 !rounded !font-semibold !transition-all !duration-300 hover:!bg-indigo-700">
-              <FaStripe className="w-64 h-6 scale-200" />
-              {/* Pay with Stripe */}
-            </button>
-          </div>
+          </p> */}
+          {customerInfo ? (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center gap-3">
+                <p className="text-sm">
+                  Billing: {customerInfo.name} ({customerInfo.email})
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleEditInfo}
+                  className="text-foreground  border-white/10 hover:bg-zinc-800 "
+                >
+                  <Edit className="w-4 h-4 mr-2" /> Edit Info
+                </Button>
+              </div>
+              <div className="w-full relative flex flex-col gap-3">
+                {/* <Button
+                  onClick={handlePaypalCheckout}
+                  className="flex items-center min-h-10 justify-center w-full !bg-yellow-400 !text-indigo-600 !px-4 !py-2 !rounded !font-semibold !transition-all !duration-300 hover:!bg-yellow-500 overflow-hidden"
+                >
+                  <IoLogoPaypal className="max-w-full max-h-6 scale-150 mr-2" />
+                  Pay with PayPal
+                </Button> */}
+                <div style={{ colorScheme: 'none' }}>
+                  <PayPalScriptProvider
+                    // options={{
+                    //   'client-id': import.meta.env.VITE_PAYPAL_CLIENT_ID,
+                    // }}
+                    options={{
+                      clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
+                    }}
+                  >
+                    <PayPalButtons
+                      createOrder={async () => {
+                        try {
+                          const cartItems = items.map((item) => ({
+                            beatId: item.id,
+                            licenseType: item.license,
+                          }));
+                          const response = await fetch(
+                            'http://localhost:3001/api/paypal/create-order',
+                            {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ cartItems, customerInfo }),
+                            }
+                          );
+                          const { orderId, error } = await response.json();
+                          if (error) throw new Error(error);
+                          return orderId;
+                        } catch (err) {
+                          console.error('PayPal create order error:', err);
+                          setPaymentStatus('error');
+                          return '';
+                        }
+                      }}
+                      onApprove={async (data) => {
+                        try {
+                          const cartItems = items.map((item) => ({
+                            beatId: item.id,
+                            licenseType: item.license,
+                          }));
+                          const response = await fetch(
+                            'http://localhost:3001/api/paypal/capture-order',
+                            {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                orderId: data.orderID,
+                                cartItems,
+                                customerInfo,
+                              }),
+                            }
+                          );
+                          const {
+                            status,
+                            orderId,
+                            items: orderItems,
+                            error,
+                          } = await response.json();
+                          if (error) throw new Error(error);
+                          if (status === 'success') {
+                            navigate(`/download?orderId=${orderId}`);
+                          }
+                        } catch (err) {
+                          console.error('PayPal capture error:', err);
+                          setPaymentStatus('error');
+                        }
+                      }}
+                      onError={() => setPaymentStatus('error')}
+                    />
+                  </PayPalScriptProvider>
+                </div>
+
+                <Button
+                  onClick={handleStripeCheckout}
+                  disabled={paymentStatus === 'processing'}
+                  className="flex items-center min-h-10 justify-center w-full !bg-indigo-600 !text-white !px-4 !py-2 !rounded !font-semibold !transition-all !duration-300 hover:!bg-indigo-700 overflow-hidden"
+                >
+                  <FaStripe className="max-w-full max-h-6 scale-150 mr-2" />
+                  Pay with Stripe
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className=" text-sm">
+                Secure your license and download your files instantly after
+                payment on this website.
+                <br />A copy will also be sent to your{' '}
+                <b>
+                  <u>email address</u>
+                </b>
+                .
+              </p>
+              <Button
+                onClick={() => navigate('/billing')}
+                className="w-full bg-green-400 text-black hover:bg-green-500"
+              >
+                Proceed to Payment
+              </Button>
+            </>
+          )}
           <div>
             <div className="flex flex-col gap-3">
-              {' '}
-              {/* Use a gap value that looks good to you, e.g., gap-2, gap-3, gap-4 */}
-              {/* <p className="font-bold text-sm">Complete Your Purchase</p> */}
-              {/* <p className="">
-                Secure your license and download your files instantly after
-                payment.
-              </p> */}
               <p className="font-bold text-sm">Important Notice</p>
               <p className="text-sm ">
                 By clicking the button you accept the product(s){' '}
-                <b>License Agreement(s)</b>, <b>Terms of Service</b>,{' '}
-                <b>Privacy Policy</b> & <b>Refund Policy</b>.
+                <b>License Agreement(s)</b>,{' '}
+                <button className="!font-bold  !m-0 !p-0">
+                  <Link to={'/terms-of-service'}>Terms of Service</Link>
+                </button>
+                ,{' '}
+                <button className="!font-bold  !m-0 !p-0">
+                  <Link to={'/privacy-policy'}>Privacy Policy</Link>
+                </button>{' '}
+                &{' '}
+                <button className="!font-bold !m-0 !p-0">
+                  <Link to={'/refund-policy'}>Refund Policy</Link>
+                </button>
+                .
               </p>
               <p className="text-sm font-light">
-                {' '}
-                {/* Changed text-small to text-sm as it's a common Tailwind class for small text */}
                 Please review your order before completing payment.
                 <br />
                 All purchases are final.
@@ -191,9 +407,11 @@ const CartCheckOut = ({ size }) => {
             <div className="mx-auto w-fit pt-6">
               <p className="text-sm">
                 Please read our{' '}
-                <button className="!p-0">
-                  <u>Refund Policy</u>
-                </button>
+                <Link to={'/refund-policy'}>
+                  <button className="!p-0">
+                    <u>Refund Policy</u>
+                  </button>
+                </Link>
                 .
               </p>
             </div>

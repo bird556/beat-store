@@ -11,6 +11,7 @@ const Contact = ({ fullscreen }) => {
   const [sent, setSent] = useState(false);
   const [truth, setTruth] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  document.title = `Birdie Bands | Contact`;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -2,6 +2,7 @@
 import React, { use } from 'react';
 import { PlaceholdersAndVanishInput } from './ui/placeholders-and-vanish-input';
 import { useState, useEffect } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Clock,
   Play,
@@ -11,17 +12,17 @@ import {
   Pause,
 } from 'lucide-react';
 import BirdieLogo from '/src/Images/logo.png';
-import Particles from './ui/ReactBits/Particles';
-import { Link, NavLink } from 'react-router';
+import BirdieLogo1 from '../Images/cropped.png';
+import { Link, NavLink, useNavigate } from 'react-router';
 import { usePlayer } from '@/contexts/PlayerContext';
-import sampleTracks from '../../Data/MockData';
 import StudioVideo from '/Videos/music-studio.mp4';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { useCart } from '@/contexts/cart-context';
 import LicenseModal from './license-modal';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 /**
  * A track listing component that displays a list of tracks and allows the user to search
  * through them. It also allows the user to play, download, and share tracks.
@@ -37,6 +38,7 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
   const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isBeatsLoaded, setIsBeatsLoaded] = useState(false);
   // const [filteredTracks, setFilteredTracks] = useState<Track[]>(sampleTracks);
   const [filteredTracks, setFilteredTracks] = useState<Track[]>([]);
   const {
@@ -49,6 +51,10 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
     pauseTrack,
   } = usePlayer();
   const [fetchedBeats, setFetchedBeats] = useState<Track[]>([]);
+  const navigate = useNavigate();
+
+  // const location = useLocation();
+  // const searchQuery = location.search;
   const [searchParams] = useSearchParams();
   const defaultQuery = searchParams.get('search') || '';
 
@@ -62,31 +68,6 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
     'G-Funk?',
   ];
 
-  // const fetchBeats = async () => {
-  //   try {
-  //     const response = await axios.get(`http://localhost:3001/api/beats`);
-  //     console.log(response.data.beats);
-  //     setFilteredTracks(response.data.beats);
-  //     setQueue(response.data.beats);
-  //   } catch (error) {
-  //     console.error('Error fetching beats:', error);
-  //   }
-  // };
-
-  // const fetchBeats = async () => {
-  //   try {
-  //     const response = await axios.get(`http://localhost:3001/api/beats`);
-  //     console.log(response.data.beats);
-  //     setFetchedBeats(response.data.beats); // Store fetched beats separately
-  //     // setFilteredTracks([...response.data.beats, ...sampleTracks]); // Combine fetched beats with sampleTracks
-  //     setFilteredTracks(response.data.beats); // Combine fetched beats with sampleTracks
-  //     // setQueue([...response.data.beats, ...sampleTracks]);
-  //     setQueue(response.data.beats);
-  //   } catch (error) {
-  //     console.error('Error fetching beats:', error);
-  //   }
-  // };
-
   const fetchBeats = async () => {
     try {
       const response = await axios.get(`http://localhost:3001/api/beats`);
@@ -97,8 +78,13 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
       setFetchedBeats(tracks);
       setFilteredTracks(tracks);
       setQueue(tracks);
+      setIsBeatsLoaded(true);
     } catch (error) {
       console.error('Error fetching beats:', error);
+      // call and try fetch beats again in 5 seconds
+      setTimeout(fetchBeats, 5000);
+      setIsBeatsLoaded(false);
+      return;
     }
   };
 
@@ -106,19 +92,11 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
     fetchBeats();
   }, []);
 
-  // useEffect(() => {
-  //   if (!searchQuery.trim()) {
-  //     setFilteredTracks(sampleTracks);
-  //   } else {
-  //     const filtered = sampleTracks.filter(
-  //       (track) =>
-  //         track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //         track.artist.toLowerCase().includes(searchQuery.toLowerCase())
-  //     );
-  //     setFilteredTracks(filtered);
-  //   }
-  // }, [searchQuery]);
   // Search effect
+  useEffect(() => {
+    setSearchQuery(defaultQuery);
+  }, [defaultQuery]);
+
   useEffect(() => {
     if (!searchQuery.trim()) {
       // If no search query, show all tracks (fetched beats first, then sampleTracks)
@@ -140,26 +118,15 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
     }
   }, [searchQuery, fetchedBeats]); // Add fetchedBeats as dependency
 
-  // useEffect(() => {
-  //   // setQueue(sampleTracks);
-  //   if (!searchQuery.trim()) {
-  //     setQueue(sampleTracks);
-  //   } else {
-  //     const filtered = sampleTracks.filter(
-  //       (track) =>
-  //         track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //         track.artist.toLowerCase().includes(searchQuery.toLowerCase())
-  //     );
-  //     setQueue(filtered);
-  //   }
-  // }, [searchQuery]);
-
   useEffect(() => {
     if (defaultQuery) {
       const filtered = fetchedBeats.filter(
         (track) =>
           track.title.toLowerCase().includes(defaultQuery.toLowerCase()) ||
-          track.artist.toLowerCase().includes(defaultQuery.toLowerCase())
+          track.artist.toLowerCase().includes(defaultQuery.toLowerCase()) ||
+          track.tags.some((tag) =>
+            tag.toLowerCase().includes(defaultQuery.toLowerCase())
+          )
       );
       setFilteredTracks(filtered);
       setQueue(filtered);
@@ -179,11 +146,42 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
    * in production this would trigger a download of the track.
    * @param {Track} track The track to download
    */
-  const handleDownloadClick = (track: Track) => {
-    // For demo purposes, show an alert. In production, this would trigger a download
-    alert(
-      `Download ${track.title} - This would trigger a download in production`
-    );
+
+  const handleDownloadClick = async (track: Track) => {
+    try {
+      if (!track._id) {
+        toast.error('No track ID available.');
+        return;
+      }
+
+      const toastId = toast.loading('Starting download...');
+
+      // Call the backend download endpoint
+      const response = await axios.get(
+        `http://localhost:3001/api/download/${track._id}`
+      );
+      const { downloadUrl } = response.data;
+
+      if (!downloadUrl) {
+        toast.error('No download URL available.', { id: toastId });
+        return;
+      }
+
+      // Create a temporary anchor element to trigger the download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `${track.artist} Type Beat - ${track.title} [Prod. Birdie Bands].mp3`; // Suggest a filename (optional, as backend sets it)
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success(`Download started for ${track.title}`, { id: toastId });
+    } catch (error) {
+      console.error('Error initiating download:', error);
+      toast.error('Failed to download the track. Please try again later.', {
+        id: toastId,
+      });
+    }
   };
 
   const handleShareClick = (track: Track) => {
@@ -213,6 +211,11 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
     setIsLicenseModalOpen(true);
   };
 
+  const handleEditLicenseClick = (track: Track) => {
+    setSelectedTrack(track);
+    setIsLicenseModalOpen(true);
+  };
+
   const isTrackInCart = (trackId: string) => {
     return cartItems.some((item) => item.id === trackId);
   };
@@ -235,6 +238,13 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
     }
   };
 
+  const handleCardClick = (beat: Track) => {
+    // Re-fetch the main beat when a related beat is clicked to update the page
+    navigate(`/beat?beatId=${beat._id}`);
+    // Consider adding a scroll to top here for a better UX
+    window.scrollTo(0, 0);
+  };
+
   // framer motion
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -253,39 +263,35 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
 
   const TrackCard = ({ track }) => {
     const ref = useRef(null);
-    const isInView = useInView(ref, { once: false });
+    const isInView = useInView(ref, { once: true });
     return (
       <>
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, ease: 'easeOut' }}
-          className="z-50 grid grid-cols-10 gap-4 items-center py-3 px-2 rounded-lg hover:bg-foreground/15 transition-colors group"
-        >
+        {/* I only want it to animate once..I dont want to do ref or isInview anymore */}
+        <div className="z-50 grid grid-cols-10 gap-4 items-center py-3 px-2 rounded-lg hover:bg-foreground/15 transition-colors group">
           {/* Title with Image */}
-          <button
-            // onClick={() => handlePlayTrack(track)}
-            // onClick={(e) => {
-            //   e.stopPropagation();
-            //   // playTrack(track);
-            //   togglePlay();
-            // }}
-            onClick={(e) => handleTrackPlay(track, e)}
-            // className="col-span-5 md:col-span-4 flex items-center space-x-3 cursor-pointer"
-            className="!bg-transparent !p-0 hover:!border-transparent z-50 !text-start col-span-5 md:col-span-4 flex items-center space-x-3 cursor-pointer"
-          >
-            <div className="relative aspect-square overflow-hidden rounded cursor-pointer">
+          <div className="gap-3 !bg-transparent !p-0 hover:!border-transparent z-50 !text-start col-span-5 md:col-span-4 flex items-center space-x-3">
+            <button
+              onClick={(e) => handleTrackPlay(track, e)}
+              className=" !relative !aspect-square !overflow-hidden !rounded !cursor-pointer !w-20 !min-w-20 !p-0 !m-0 !max-w-20"
+            >
               <img
-                className="w-20 object-cover aspect-square"
+                className="w-full h-full object-cover"
                 src={track.image ? track.image : track.s3_image_url}
                 alt={track.title}
               />
+              {currentTrack?.id === track.id && (
+                <div
+                  className={`cursor-pointer scale-125 absolute inset-0 !bg-black/50 !border-transparent flex items-center justify-center transition-opacity rounded opacity-100`}
+                >
+                  {currentTrack?.id === track.id && isPlaying ? (
+                    <Pause className="w-4 h-4 text-foreground fill-white" />
+                  ) : (
+                    <Play className="w-4 h-4 text-foreground fill-white" />
+                  )}
+                </div>
+              )}
               <div
-                className={`cursor-pointer scale-125 absolute inset-0 !bg-black/50 !border-transparent flex items-center justify-center transition-opacity rounded ${
-                  currentTrack?.id === track.id ? 'opacity-100' : 'opacity-0'
-                }`}
+                className={`cursor-pointer scale-125 absolute inset-0 !bg-black/50 !border-transparent flex items-center justify-center transition-opacity rounded opacity-0 group-hover:opacity-100`}
               >
                 {currentTrack?.id === track.id && isPlaying ? (
                   <Pause className="w-4 h-4 text-foreground fill-white" />
@@ -293,23 +299,17 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
                   <Play className="w-4 h-4 text-foreground fill-white" />
                 )}
               </div>
-            </div>
-            <div className="min-w-0">
-              {/* <div
-                      className={`font-medium truncate ${
-                        isCurrentTrack(track.id)
-                          ? 'text-green-400'
-                          : 'text-foreground'}
-                          `}
-                    > */}
-              <div className={`font-medium truncate text-foreground`}>
-                {track.title}
-              </div>
-              <div className="text-gray-400 text-sm truncate">
+            </button>
+            <button
+              onClick={() => handleCardClick(track)}
+              className="min-w-0 !p-0 !m-0 text-start text-foreground hover:!text-green-400 !duration-200 !transition-colors"
+            >
+              <div className={`font-medium truncate `}>{track.title}</div>
+              <div className=" text-sm truncate font-medium">
                 {track.artist} Type Beat
               </div>
-            </div>
-          </button>
+            </button>
+          </div>
 
           {/* BPM */}
           <div className="hidden md:block md:col-span-1 text-foreground">
@@ -353,20 +353,26 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
 
             {/* Price/Cart Button */}
             {isTrackInCart(track._id) ? (
-              <button className="!bg-green-500 text-black px-4 py-2 rounded font-medium text-sm min-w-28">
-                IN CART
+              <button
+                onClick={() => handleEditLicenseClick(track)}
+                className="!bg-green-600 hover:!bg-green-800 !transition-colors !duration-300 text-foreground px-4 py-2 rounded font-medium text-sm lg:min-w-28"
+              >
+                <ShoppingCart className="w-4 h-4 min-sm:hidden" />
+                <span className="hidden sm:block">IN CART</span>
               </button>
             ) : (
               <button
                 onClick={() => handleBuyClick(track)}
-                className="min-w-28 cursor-pointer !bg-foreground  text-background px-4 py-2 rounded font-medium text-sm hover:!bg-gray-300 transition-colors flex items-center space-x-1"
+                className="lg:min-w-28 cursor-pointer !bg-foreground  text-background px-4 py-2 rounded font-medium text-sm hover:!bg-gray-300 transition-colors flex items-center space-x-1"
               >
                 <ShoppingCart className="w-4 h-4" />
-                <span>${track.price || track.licenses[0].price}</span>
+                <span className="hidden sm:block">
+                  ${track.price || track.licenses[0].price}
+                </span>
               </button>
             )}
           </div>
-        </motion.div>
+        </div>
         <LicenseModal
           isOpen={isLicenseModalOpen}
           onClose={() => setIsLicenseModalOpen(false)}
@@ -375,15 +381,43 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
       </>
     );
   };
-  // console.log(filteredTracks);
+
+  const TrackCardSkeleton = () => {
+    return (
+      <>
+        <div className="z-50 grid grid-cols-10 gap-4 items-center py-3 px-2 rounded-lg hover:bg-foreground/15 transition-colors group">
+          {/*  */}
+          <button className="!bg-transparent !p-0 hover:!border-transparent z-50 !text-start col-span-5 md:col-span-4 flex items-center space-x-3 cursor-pointer">
+            <div className="relative aspect-square overflow-hidden rounded cursor-pointer">
+              <Skeleton className="w-20 object-cover aspect-square" />
+            </div>
+            <div className="min-w-0 flex flex-col gap-2">
+              <Skeleton className="h-4 w-[150px]" />
+              <Skeleton className="h-4 w-[170px] lg:w-[250px]" />
+            </div>
+          </button>
+
+          {/* BPM */}
+          <Skeleton className="hidden w-12 md:block md:col-span-1 text-foreground h-4 lg:w-16" />
+
+          {/* Key */}
+          <Skeleton className="hidden md:block md:col-span-1 -ml-7 lg:-ml-9 !col-start-7 text-foreground h-4 w-12 lg:w-16" />
+
+          {/* Date Added */}
+
+          <Skeleton className="hidden md:block md:col-span-1 -ml-3 lg:-ml-5 text-foreground h-4 w-12 lg:w-16" />
+
+          {/* Duration */}
+          <Skeleton className="hidden md:block col-span-2 md:col-span-1 text-foreground text-start" />
+        </div>
+      </>
+    );
+  };
 
   return (
     <div className="z-50 flex flex-col justify-between relative">
       <div
         className={`py-32 flex flex-col justify-center items-center px-4 relative overflow-hidden`}
-        // className={`${
-        //   !limitTrackCount && 'sticky top-15 z-[51] bg-background'
-        // }  py-32 flex flex-col justify-center items-center px-4`}
       >
         <video
           autoPlay
@@ -395,11 +429,11 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
         <motion.div
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
+          transition={{ duration: 1.0, ease: 'easeOut', delay: 0.3 }}
         >
           <img
-            className="w-xl mb-5 sm:mb-10 z-[50] relative"
-            src={BirdieLogo}
+            className="w-xs mb-5 sm:mb-10 z-[50] relative"
+            src={BirdieLogo1}
             alt="Birdie Logo"
           />
         </motion.div>
@@ -412,17 +446,13 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
             onChange={handleChange}
             onSubmit={onSubmit}
             onSearch={(query) => {
-              // This does the actual filtering
-              // const filtered = sampleTracks.filter(
-              //   (track) =>
-              //     track.title.toLowerCase().includes(query.toLowerCase()) ||
-              //     track.artist.toLowerCase().includes(query.toLowerCase())
-              // );
-              const allTracks = [...fetchedBeats, ...sampleTracks];
-              const filtered = allTracks.filter(
+              const filtered = fetchedBeats.filter(
                 (track) =>
                   track.title.toLowerCase().includes(query.toLowerCase()) ||
-                  track.artist.toLowerCase().includes(query.toLowerCase())
+                  track.artist.toLowerCase().includes(query.toLowerCase()) ||
+                  track.tags.some((tag) =>
+                    tag.toLowerCase().includes(query.toLowerCase())
+                  )
               );
               setFilteredTracks(filtered);
               setQueue(filtered);
@@ -434,12 +464,7 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
       <div className="max-w-7xl mx-auto px-4 py-8 z-5">
         {/* Header */}
         <div
-          // className={`${
-          //   !limitTrackCount &&
-          //   'sticky top-[330px] md:top-[365px] bg-background z-[51]'
-          // } grid grid-cols-10 gap-4 text-gray-400 text-sm font-medium border-b border-gray-800 pb-3 mb-4`}
-
-          className={`grid grid-cols-10 gap-4 text-gray-400 text-sm font-medium border-b border-gray-800 pb-3 mb-4`}
+          className={`w-full min-w-full grid grid-cols-10 gap-4 text-gray-400 text-sm font-medium border-b border-gray-800 pb-3 mb-4`}
         >
           <div className="col-span-5 md:col-span-4">Title</div>
           <div className="hidden md:block md:col-span-1">BPM</div>
@@ -458,22 +483,31 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
           variants={containerVariants}
           className="space-y-2 z-10"
         >
-          {filteredTracks.length === 0 ? (
+          {filteredTracks.length === 0 && isBeatsLoaded && (
             <motion.div variants={itemVariants} className="text-center py-8">
               <p className="text-gray-400">
                 No tracks found matching your search.
               </p>
             </motion.div>
-          ) : (
-            filteredTracks
-              .slice(0, limitTrackCount ? 6 : 999)
-              .map((track) => <TrackCard key={track.id} track={track} />)
           )}
+
+          {!isBeatsLoaded
+            ? // map me 6 skeleton from TrackCardSkeleton
+              Array.from({ length: 3 }).map((_, index) => (
+                <TrackCardSkeleton key={index} />
+              ))
+            : filteredTracks
+                .slice(0, limitTrackCount ? 6 : 999)
+                .map((track) => <TrackCard key={track.id} track={track} />)}
         </motion.div>
       </div>
       {limitTrackCount ? (
         <NavLink to="/beats" className="z-50">
-          <button className="w-fit text-white hover:bg-foreground hover:text-background  !transition-all !duration-600 bg-zinc-900">
+          <button
+            className={`${
+              !isBeatsLoaded && 'hidden'
+            } w-fit text-white hover:bg-foreground hover:text-background  !transition-all !duration-600 bg-zinc-900`}
+          >
             Browse All Beats
           </button>
         </NavLink>

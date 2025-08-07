@@ -53,6 +53,7 @@
   position: absolute;
   z-index: 2;
   background-color: oklch(72.3% 0.219 149.579) !important;
+  /* background-color: #FFD700 !important; */
   border-radius: 2px;
 }
 
@@ -106,6 +107,7 @@
   width: 100%;
   height: 4px;
   background: oklch(72.3% 0.219 149.579) !important;
+  /* background: #FFD700 !important; */
   border-radius: 2px;
 }
 
