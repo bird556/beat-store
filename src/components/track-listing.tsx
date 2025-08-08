@@ -1,3 +1,5 @@
+// src/components/track-listing.tsx
+
 'use client';
 import React, { use } from 'react';
 import { PlaceholdersAndVanishInput } from './ui/placeholders-and-vanish-input';
@@ -20,9 +22,21 @@ import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { useSearchParams, useLocation } from 'react-router-dom';
 import { useCart } from '@/contexts/cart-context';
+import { useBeats } from '@/contexts/BeatsContext';
 import LicenseModal from './license-modal';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { debounce } from 'lodash';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+} from '@/components/ui/pagination';
+import FadeContent from './ui/ReactBits/FadeContent';
 /**
  * A track listing component that displays a list of tracks and allows the user to search
  * through them. It also allows the user to play, download, and share tracks.
@@ -32,30 +46,23 @@ import toast from 'react-hot-toast';
  * @prop {string} searchTerm - The search term to filter the tracks by.
  * @prop {function} setSearchTerm - A function to set the search term.
  */
-const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
-  // const { playTrack, setQueue, currentTrack, isPlaying } = useMusic();
+const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
+  const {
+    beats,
+    isBeatsLoaded,
+    fetchBeats,
+    totalBeats,
+    totalPages,
+    currentPage,
+  } = useBeats();
   const { items: cartItems } = useCart();
+  const { playTrack, currentTrack, isPlaying, setQueue, pauseTrack } =
+    usePlayer();
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
   const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isBeatsLoaded, setIsBeatsLoaded] = useState(false);
-  // const [filteredTracks, setFilteredTracks] = useState<Track[]>(sampleTracks);
-  const [filteredTracks, setFilteredTracks] = useState<Track[]>([]);
-  const {
-    playTrack,
-    currentTrack,
-    isPlaying,
-    setQueue,
-    queue,
-    togglePlay,
-    pauseTrack,
-  } = usePlayer();
-  const [fetchedBeats, setFetchedBeats] = useState<Track[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isFetching, setIsFetching] = useState(false);
   const navigate = useNavigate();
-
-  // const location = useLocation();
-  // const searchQuery = location.search;
-  const [searchParams] = useSearchParams();
   const defaultQuery = searchParams.get('search') || '';
 
   const placeholders = [
@@ -68,74 +75,45 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
     'G-Funk?',
   ];
 
-  const fetchBeats = async () => {
-    try {
-      const response = await axios.get(`http://localhost:3001/api/beats`);
-      const tracks = response.data.beats.map((track) => ({
-        ...track,
-        id: track._id,
-      }));
-      setFetchedBeats(tracks);
-      setFilteredTracks(tracks);
-      setQueue(tracks);
-      setIsBeatsLoaded(true);
-    } catch (error) {
-      console.error('Error fetching beats:', error);
-      // call and try fetch beats again in 5 seconds
-      setTimeout(fetchBeats, 5000);
-      setIsBeatsLoaded(false);
-      return;
-    }
+  // Handle pagination and search
+  useEffect(() => {
+    const page = parseInt(searchParams.get('page') || '1');
+    const search = searchParams.get('search') || '';
+    const limit = limitTrackCount || 6;
+    const fetchData = async () => {
+      setIsFetching(true);
+      await fetchBeats(page, limit, search);
+      setIsFetching(false);
+    };
+    fetchData();
+  }, [searchParams, limitTrackCount, fetchBeats]);
+
+  // Set queue when beats change
+  useEffect(() => {
+    setQueue(beats);
+  }, [beats, setQueue]);
+
+  const handlePageChange = (newPage: number) => {
+    setSearchParams({ page: newPage.toString(), search: defaultQuery });
   };
 
-  useEffect(() => {
-    fetchBeats();
-  }, []);
+  const handleSearch = debounce((query: string) => {
+    setSearchParams({ search: query, page: '1' });
+  }, 1000); // Debounce search for 1 second
 
-  // Search effect
+  // Handle pagination and search
   useEffect(() => {
-    setSearchQuery(defaultQuery);
-  }, [defaultQuery]);
+    const page = parseInt(searchParams.get('page') || '1');
+    const search = searchParams.get('search') || '';
+    const limit = limitTrackCount || 6; // Use 6 for homepage, 20 for /beats
+    fetchBeats(page, limit, search);
+  }, [searchParams, limitTrackCount, fetchBeats]);
 
+  // Set queue when beats change
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      // If no search query, show all tracks (fetched beats first, then sampleTracks)
-      // setFilteredTracks([...fetchedBeats, ...sampleTracks]);
-      setFilteredTracks([...fetchedBeats]);
-      // setQueue([...fetchedBeats, ...sampleTracks]);
-      setQueue([...fetchedBeats]);
-    } else {
-      // Search through both fetched beats and sampleTracks
-      // const allTracks = [...fetchedBeats, ...sampleTracks];
-      const allTracks = [...fetchedBeats];
-      const filtered = allTracks.filter(
-        (track) =>
-          track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          track.artist.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredTracks(filtered);
-      setQueue(filtered);
-    }
-  }, [searchQuery, fetchedBeats]); // Add fetchedBeats as dependency
+    setQueue(beats);
+  }, [beats, setQueue]);
 
-  useEffect(() => {
-    if (defaultQuery) {
-      const filtered = fetchedBeats.filter(
-        (track) =>
-          track.title.toLowerCase().includes(defaultQuery.toLowerCase()) ||
-          track.artist.toLowerCase().includes(defaultQuery.toLowerCase()) ||
-          track.tags.some((tag) =>
-            tag.toLowerCase().includes(defaultQuery.toLowerCase())
-          )
-      );
-      setFilteredTracks(filtered);
-      setQueue(filtered);
-    }
-  }, [defaultQuery]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
-  };
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('submitted');
@@ -261,13 +239,113 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
     visible: { y: 0, opacity: 1 },
   };
 
+  // Render pagination items with ellipsis and looping
+  const renderPaginationItems = () => {
+    const items = [];
+    const maxVisiblePages = 5; // Show 3 pages + 2 ellipses
+    const startPage = Math.max(1, currentPage - 1);
+    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    console.log('totalPages', totalPages);
+    if (totalPages <= 1) {
+      // Only show page 1
+      return (
+        <PaginationItem>
+          <PaginationLink
+            isActive={currentPage === 1}
+            onClick={() => handlePageChange(1)}
+          >
+            1
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    // Previous button
+    const isPreviousDisabled = currentPage === 1;
+    items.push(
+      <PaginationItem key="prev">
+        <PaginationPrevious
+          onClick={
+            isPreviousDisabled
+              ? undefined
+              : () => handlePageChange(currentPage - 1)
+          }
+          className={isPreviousDisabled ? 'opacity-50 cursor-not-allowed' : ''}
+        />
+      </PaginationItem>
+    );
+
+    // First page
+    if (startPage > 1) {
+      items.push(
+        <PaginationItem key="first">
+          <PaginationLink onClick={() => handlePageChange(1)}>1</PaginationLink>
+        </PaginationItem>
+      );
+      if (startPage > 2) {
+        items.push(
+          <PaginationItem key="start-ellipsis">
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+    }
+
+    // Visible pages
+    for (let page = startPage; page <= endPage; page++) {
+      items.push(
+        <PaginationItem key={page}>
+          <PaginationLink
+            isActive={currentPage === page}
+            onClick={() => handlePageChange(page)}
+          >
+            {page}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    // Last page
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        items.push(
+          <PaginationItem key="end-ellipsis">
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+      items.push(
+        <PaginationItem key="last">
+          <PaginationLink onClick={() => handlePageChange(totalPages)}>
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    // Next button
+    const isNextDisabled = currentPage === totalPages;
+    items.push(
+      <PaginationItem key="next">
+        <PaginationNext
+          onClick={
+            isNextDisabled ? undefined : () => handlePageChange(currentPage + 1)
+          }
+          className={isNextDisabled ? 'opacity-50 cursor-not-allowed' : ''}
+        />
+      </PaginationItem>
+    );
+
+    return items;
+  };
+
   const TrackCard = ({ track }) => {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true });
     return (
       <>
         {/* I only want it to animate once..I dont want to do ref or isInview anymore */}
-        <div className="z-50 grid grid-cols-10 gap-4 items-center py-3 px-2 rounded-lg hover:bg-foreground/15 transition-colors group">
+        <div className="z-50 grid grid-cols-10 gap-4 items-center py-3 px-2 rounded-lg hover:bg-foreground/10 transition-colors group">
           {/* Title with Image */}
           <div className="gap-3 !bg-transparent !p-0 hover:!border-transparent z-50 !text-start col-span-5 md:col-span-4 flex items-center space-x-3">
             <button
@@ -355,7 +433,7 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
             {isTrackInCart(track._id) ? (
               <button
                 onClick={() => handleEditLicenseClick(track)}
-                className="!bg-green-600 hover:!bg-green-800 !transition-colors !duration-300 text-foreground px-4 py-2 rounded font-medium text-sm lg:min-w-28"
+                className="min-sm:min-w-28  !bg-green-600 hover:!bg-green-800 text-nowrap !transition-colors !duration-300 text-foreground px-4 py-2 rounded font-medium text-sm  "
               >
                 <ShoppingCart className="w-4 h-4 min-sm:hidden" />
                 <span className="hidden sm:block">IN CART</span>
@@ -363,7 +441,7 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
             ) : (
               <button
                 onClick={() => handleBuyClick(track)}
-                className="lg:min-w-28 cursor-pointer !bg-foreground  text-background px-4 py-2 rounded font-medium text-sm hover:!bg-gray-300 transition-colors flex items-center space-x-1"
+                className="min-sm:min-w-28 cursor-pointer !bg-foreground  text-background px-4 py-2 rounded font-medium text-sm hover:!bg-gray-300 transition-colors flex items-center space-x-1"
               >
                 <ShoppingCart className="w-4 h-4" />
                 <span className="hidden sm:block">
@@ -443,20 +521,11 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
           </p>
           <PlaceholdersAndVanishInput
             placeholders={placeholders}
-            onChange={handleChange}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleSearch(e.target.value)
+            }
             onSubmit={onSubmit}
-            onSearch={(query) => {
-              const filtered = fetchedBeats.filter(
-                (track) =>
-                  track.title.toLowerCase().includes(query.toLowerCase()) ||
-                  track.artist.toLowerCase().includes(query.toLowerCase()) ||
-                  track.tags.some((tag) =>
-                    tag.toLowerCase().includes(query.toLowerCase())
-                  )
-              );
-              setFilteredTracks(filtered);
-              setQueue(filtered);
-            }}
+            onSearch={handleSearch}
           />
         </div>
       </div>
@@ -483,7 +552,12 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
           variants={containerVariants}
           className="space-y-2 z-10"
         >
-          {filteredTracks.length === 0 && isBeatsLoaded && (
+          {isFetching && (
+            <div className="text-center py-4">
+              <p className="text-gray-400">Loading...</p>
+            </div>
+          )}
+          {!isFetching && beats.length === 0 && isBeatsLoaded && (
             <motion.div variants={itemVariants} className="text-center py-8">
               <p className="text-gray-400">
                 No tracks found matching your search.
@@ -491,15 +565,37 @@ const TrackListing = ({ limitTrackCount, searchTerm, setSearchTerm }) => {
             </motion.div>
           )}
 
-          {!isBeatsLoaded
+          {!isFetching && !isBeatsLoaded
             ? // map me 6 skeleton from TrackCardSkeleton
-              Array.from({ length: 3 }).map((_, index) => (
+              Array.from({ length: limitTrackCount || 6 }).map((_, index) => (
                 <TrackCardSkeleton key={index} />
               ))
-            : filteredTracks
-                .slice(0, limitTrackCount ? 6 : 999)
-                .map((track) => <TrackCard key={track.id} track={track} />)}
+            : !isFetching &&
+              beats.map((track) => (
+                <FadeContent
+                  initialOpacity={0}
+                  blur={false}
+                  duration={500}
+                  delay={0}
+                  threshold={0.1}
+                >
+                  <TrackCard key={track.id} track={track} />
+                </FadeContent>
+              ))}
         </motion.div>
+        {!limitTrackCount && isBeatsLoaded && totalPages > 0 && (
+          <div className="mt-8 flex justify-center">
+            <Pagination
+              data-total={totalPages}
+              data-active-page={currentPage}
+              data-loop="true"
+              data-controls={totalPages > 1 ? 'true' : 'false'}
+              className="bg-zinc-900/0 rounded-lg max-w-fit"
+            >
+              <PaginationContent>{renderPaginationItems()}</PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </div>
       {limitTrackCount ? (
         <NavLink to="/beats" className="z-50">

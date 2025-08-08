@@ -295,7 +295,7 @@ const MusicPlayer = () => {
           {isTrackInCart(currentTrack.id) ? (
             <button
               onClick={() => handleEditLicenseClick(currentTrack)}
-              className="!bg-green-600 hover:!bg-green-800 !transition-colors duration-300 text-foreground px-4 py-2 rounded font-medium text-sm lg:min-w-28"
+              className=" min-sm:min-w-28 !bg-green-600 hover:!bg-green-800 !transition-colors duration-300 text-foreground px-4 py-2 rounded font-medium text-sm"
             >
               <ShoppingCart className="w-4 h-4 min-md:hidden" />
               <span className="hidden md:block">IN CART</span>
@@ -303,7 +303,7 @@ const MusicPlayer = () => {
           ) : (
             <button
               onClick={() => handleBuyClick(currentTrack)}
-              className="lg:min-w-28 cursor-pointer !bg-foreground  text-background px-4 py-2 rounded font-medium text-sm hover:!bg-gray-300 transition-colors flex items-center space-x-1"
+              className="min-sm:min-w-28 cursor-pointer !bg-foreground  text-background px-4 py-2 rounded font-medium text-sm hover:!bg-gray-300 transition-colors flex items-center space-x-1"
             >
               <ShoppingCart className="w-4 h-4" />
               <span className="hidden sm:block">

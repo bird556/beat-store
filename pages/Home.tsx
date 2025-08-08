@@ -36,9 +36,9 @@ const Home = ({ size }) => {
   return (
     <div className="overflow-x-hidden flex flex-col gap-64 relative">
       <TrackListing
-        limitTrackCount={true}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
+        limitTrackCount={6}
+        // searchTerm={searchTerm}
+        // setSearchTerm={setSearchTerm}
       />
       <Artists size={size} setSearchTerm={setSearchTerm} />
       <Licenses />

@@ -8,6 +8,7 @@ const licenseSchema = new mongoose.Schema({
   description: String,
   features: [String],
   licenseDownloadLink: String,
+  licenseContract: String,
 });
 
 export default mongoose.model('License', licenseSchema);

@@ -303,10 +303,28 @@ app.use('/api/emailTest', emailTestRouter);
 app.get('/api/beats', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20; // Default to 20 for home page
+    const limit = parseInt(req.query.limit) || 6; // Default to 20 for home page
+    let search = req.query.search || ''; // Get search query
     const skip = (page - 1) * limit;
 
-    const beatsList = await Beat.find({ available: true })
+    // Build query
+    let query = { available: true };
+    if (search) {
+      if (search == 'g funk') {
+        search = 'g-funk';
+      }
+      query = {
+        available: true,
+        $or: [
+          { title: { $regex: search, $options: 'i' } },
+          { artist: { $regex: search, $options: 'i' } },
+          { tags: { $regex: search, $options: 'i' } },
+        ],
+      };
+    }
+
+    // const beatsList = await Beat.find({ available: true })
+    const beatsList = await Beat.find(query)
       .sort({ created_at: -1 })
       .skip(skip)
       .limit(limit)
@@ -330,7 +348,10 @@ app.get('/api/beats', async (req, res) => {
       }
     }
 
-    const totalBeats = await Beat.countDocuments();
+    // const totalBeats = await Beat.countDocuments();
+    // const totalPages = Math.ceil(totalBeats / limit);
+    // Count beats matching the query
+    const totalBeats = await Beat.countDocuments(query);
     const totalPages = Math.ceil(totalBeats / limit);
 
     res.json({ beats: beatsList, page, totalPages, totalBeats });
@@ -411,7 +432,10 @@ app.get('/api/licenses/download/:licenseId', async (req, res) => {
 // Fetch all licenses
 app.get('/api/licenses', async (req, res) => {
   try {
-    const licenses = await License.find().sort({ created_at: 1 });
+    const licenses = await License.find({}, { licenseContract: 0 }).sort({
+      created_at: 1,
+    });
+
     // const licenses = await License.find();
     res.json(licenses);
   } catch (err) {

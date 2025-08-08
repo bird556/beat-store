@@ -2,17 +2,40 @@
 
 import { Router } from 'express';
 import nodemailer from 'nodemailer';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'; // Import PDF-lib
-import fs from 'node:fs/promises'; // Node.js built-in module for file system operations
-import path from 'path'; // Node.js built-in module for path manipulation
-import { fileURLToPath } from 'url'; // For __dirname equivalent in ES Modules
+import { PDFDocument } from 'pdf-lib'; // Import PDF-lib
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import License from '../models/License.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const router = Router();
 
-// --- Helper to get __dirname in ES Modules ---
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const TEMPLATES_DIR = path.join(__dirname, '..', 'pdf-templates');
+const s3 = new S3Client({
+  region: process.env.AWS_S3_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
+
+// A function to get a presigned URL for an S3 object
+const getPresignedUrl = async (key, expires = 3600, disposition = null) => {
+  try {
+    const params = {
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: key,
+    };
+    if (disposition) {
+      params.ResponseContentDisposition = disposition;
+    }
+    const command = new GetObjectCommand(params);
+    return await getSignedUrl(s3, command, { expiresIn: expires });
+  } catch (error) {
+    console.error('Error generating presigned URL:', error);
+    throw error;
+  }
+};
 
 // --- Your generateContractPdf function ---
 async function generateContractPdf(item, customerName) {
@@ -33,64 +56,75 @@ async function generateContractPdf(item, customerName) {
   const beatName = item.description;
   const leaseType = item.leaseType;
   const pricePaid = item.amount / 100; // Assuming amount is in cents
-  const pricePaidText = `${pricePaid.toFixed(2)}`;
+  const pricePaidText = `${pricePaid.toFixed(2)}`; // --- Dynamic values based on leaseType ---
 
   // --- Dynamic values based on leaseType ---
-  let templateFileName;
-  let contractTitlePrefix; // For the contract title in the PDF filename
+  let contractTitlePrefix;
+
+  // 1. Fetch the license document from MongoDB
+  const license = await License.findOne({ type: new RegExp(leaseType, 'i') });
+
+  if (!license || !license.licenseContract) {
+    throw new Error(
+      `License document for type "${leaseType}" not found or missing 'licenseContract' field.`
+    );
+  }
+
+  // 2. Extract the S3 key from the full S3 URL
+  const s3Link = license.licenseContract;
+  const templateS3Key = s3Link.replace(
+    `s3://${process.env.AWS_S3_BUCKET}/`,
+    ''
+  );
 
   switch (leaseType) {
     case 'basic':
-      templateFileName = 'basic_lease.pdf';
       contractTitlePrefix = 'Basic Lease';
       break;
     case 'premium':
-      templateFileName = 'premium_lease.pdf';
       contractTitlePrefix = 'Premium Lease';
       break;
     case 'professional':
-      templateFileName = 'professional_lease.pdf';
       contractTitlePrefix = 'Professional Lease';
       break;
     case 'legacy':
-      templateFileName = 'legacy_lease.pdf';
       contractTitlePrefix = 'Legacy Lease';
       break;
     case 'exclusive':
-      templateFileName = 'exclusive_license.pdf';
       contractTitlePrefix = 'Exclusive License';
       break;
     default:
       throw new Error(`Unknown lease type: ${leaseType}`);
   }
 
-  const templatePath = path.join(TEMPLATES_DIR, templateFileName);
-
+  // --- Download PDF Template from S3 ---
   let existingPdfBytes;
   try {
-    existingPdfBytes = await fs.readFile(templatePath);
+    const presignedUrl = await getPresignedUrl(templateS3Key);
+    const response = await fetch(presignedUrl);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to download template from S3: ${response.statusText}`
+      );
+    }
+    existingPdfBytes = await response.arrayBuffer();
   } catch (error) {
-    console.error(`Error reading PDF template at ${templatePath}:`, error);
-    throw new Error('Failed to load PDF template.');
+    console.error(
+      `Error fetching PDF template from S3 at key ${templateS3Key}:`,
+      error
+    );
+    throw new Error('Failed to load PDF template from S3.');
   }
 
   const pdfDoc = await PDFDocument.load(existingPdfBytes);
-
   const form = pdfDoc.getForm();
 
   // --- Fill Form Fields ---
-  // Ensure these field names match EXACTLY what you set in Adobe Acrobat Pro
-  //   form.getTextField('effective_date_italic').setText(effectiveDate);
   form.getTextField('effective_date').setText(effectiveDate);
   form.getTextField('licensee_full_name').setText(customerName);
   form.getTextField('composition_title').setText(beatName);
-  //   form.getTextField('licensor_name').setText('Rashaun Bennett'); // For Licensor name in intro and ownership split
-  //   form.getTextField('producer_name').setText(producerName); // For credit section
-
   form.getTextField('license_fee').setText(`$${pricePaidText}`); // For License Fee in intro
   form.getTextField('license_writer').setText(`${customerName} (50%)`); // For License Fee in intro
-  // If you have other price fields (e.g., in a "Consideration" section), ensure they are named and filled
-  // For now, we'll assume 'license_fee' is the primary price field.
 
   // --- Signature Dates ---
   const currentFormattedDate = new Date().toLocaleDateString('en-US', {

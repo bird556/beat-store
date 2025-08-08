@@ -6,7 +6,7 @@ const Beats = () => {
 
   return (
     <>
-      <TrackListing limitTrackCount={false} />
+      <TrackListing />
     </>
   );
 };

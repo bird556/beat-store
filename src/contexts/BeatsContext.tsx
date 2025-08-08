@@ -1,31 +1,28 @@
 // src/contexts/BeatsContext.tsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from 'react';
 import axios from 'axios';
 
-interface License {
-  type: string;
-  price: number;
-  currency: string;
-  description: string;
-  s3_file_url: string;
-  features: string[];
-}
-
 interface Track {
-  _id: string;
-  id?: string; // Optional, as frontend maps _id to id
+  id: string;
   title: string;
   artist: string;
   bpm: number;
   key: string;
+  dateAdded: string;
   duration: string;
-  tags: string[];
+  price: number;
+  image: string;
+  audioUrl: string;
+  licenses: object[];
   s3_mp3_url: string;
-  s3_image_url: string | null;
-  created_at: Date | string;
-  licenses: License[];
-  available: boolean;
-  price?: number; // Optional, as price might come from licenses[0].price
+  s3_image_url: string;
 }
 
 interface BeatsContextType {
@@ -47,38 +44,71 @@ export const BeatsProvider: React.FC<{ children: React.ReactNode }> = ({
   const [totalBeats, setTotalBeats] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const cache = useRef<
+    Map<
+      string,
+      {
+        beats: Track[];
+        totalBeats: number;
+        totalPages: number;
+        currentPage: number;
+        timestamp: number;
+      }
+    >
+  >(new Map());
+  const fetchBeats = useCallback(async (page = 1, limit = 6, search = '') => {
+    const cacheKey = `${page}-${limit}-${search}`;
+    const cachedData = cache.current.get(cacheKey);
+    const cacheAge = cachedData ? Date.now() - cachedData.timestamp : Infinity;
+    if (cachedData && cacheAge < 5 * 60 * 1000) {
+      // Cache valid for 5 minutes
+      setBeats(cachedData.beats);
+      setTotalBeats(cachedData.totalBeats);
+      setTotalPages(cachedData.totalPages);
+      setCurrentPage(cachedData.currentPage);
+      setIsBeatsLoaded(true);
+      console.log('Beats retrieved from cache:', cacheKey);
+      return;
+    }
 
-  const fetchBeats = async (page = 1, limit = 20, search = '') => {
     try {
-      const response = await axios.get('http://localhost:3001/api/beats', {
-        params: { page, limit, search },
-      });
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL_BACKEND}/api/beats`,
+        {
+          params: { page, limit, search },
+        }
+      );
       const tracks = response.data.beats.map((track: any) => ({
         ...track,
-        id: track._id, // Map _id to id for frontend compatibility
-        bpm: parseFloat(track.bpm.$numberDouble || track.bpm), // Handle MongoDB $numberDouble
-        created_at: new Date(track.created_at.$date.$numberLong), // Convert MongoDB date
-        licenses: track.licenses.map((license: any) => ({
-          ...license,
-          price: parseFloat(license.price.$numberDouble || license.price), // Handle $numberDouble
-        })),
+        id: track._id,
       }));
       setBeats(tracks);
       setTotalBeats(response.data.totalBeats);
       setTotalPages(response.data.totalPages);
       setCurrentPage(response.data.page);
       setIsBeatsLoaded(true);
+      cache.current.set(cacheKey, {
+        beats: tracks,
+        totalBeats: response.data.totalBeats,
+        totalPages: response.data.totalPages,
+        currentPage: response.data.page,
+        timestamp: Date.now(),
+      });
+      console.log('Beats fetched successfully:', cacheKey);
     } catch (error) {
       console.error('Error fetching beats:', error);
+      toast.error('Failed to load beats. Retrying...');
       setTimeout(() => fetchBeats(page, limit, search), 5000);
       setIsBeatsLoaded(false);
     }
-  };
+  }, []); // Empty dependency array since fetchBeats doesn't depend on any external variables
 
-  useEffect(() => {
-    // Fetch initial beats for homepage (6 beats)
-    fetchBeats(1, 6);
-  }, []);
+  // useEffect(() => {
+  //   // Only fetch if cache is empty for initial homepage load
+  //   if (!cache.current.has('1-6-')) {
+  //     fetchBeats(1, 6);
+  //   }
+  // }, [fetchBeats]);
 
   return (
     <BeatsContext.Provider
