@@ -1,6 +1,5 @@
 // src/contexts/PlayerContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
 export interface Track {
   id: string;
   title: string;

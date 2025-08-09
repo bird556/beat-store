@@ -36,7 +36,7 @@ const Home = ({ size }) => {
   return (
     <div className="overflow-x-hidden flex flex-col gap-64 relative">
       <TrackListing
-        limitTrackCount={6}
+        limitTrackCount={50}
         // searchTerm={searchTerm}
         // setSearchTerm={setSearchTerm}
       />

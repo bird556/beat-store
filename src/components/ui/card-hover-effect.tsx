@@ -134,7 +134,7 @@ export const HoverEffect = ({
             <div
               key={idx}
               className={cn(
-                `relative group block p-2 w-full`,
+                ` relative group block p-2 w-full`,
                 idx === items.length - 2
                   ? 'md:col-span-1 lg:col-span-1'
                   : idx === items.length - 1
@@ -161,11 +161,13 @@ export const HoverEffect = ({
                   />
                 )}
               </AnimatePresence>
-              <Card>
+              <Card className="bg-background border-black/25 dark:bg-transparent">
                 <div className="flex flex-col justify-between min-h-96 md:min-h-[500px] h-full">
                   <div className="flex flex-col gap-3">
-                    <CardTitle>{item.title}</CardTitle>
-                    <CardDescription className="max-w-lg md:max-w-sm md:mx-auto">
+                    <CardTitle className="text-foreground">
+                      {item.title}
+                    </CardTitle>
+                    <CardDescription className="max-w-lg md:max-w-sm md:mx-auto  text-foreground dark:text-foreground/75">
                       {item.description}
                     </CardDescription>
                   </div>
@@ -184,7 +186,7 @@ export const HoverEffect = ({
                     ))}
                   </ul>
                   <button
-                    className="hover:bg-foreground hover:text-background !transition-all !duration-600 bg-zinc-900"
+                    className=" dark:hover:bg-white dark:hover:text-background !transition-all !duration-600 hover:bg-background hover:text-foreground text-background dark:text-foreground bg-zinc-900"
                     // onClick={() => handleOpen(size, idx)}
                     onClick={() => handleDownloadClick(item)}
                   >

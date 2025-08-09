@@ -107,7 +107,7 @@ export default function BillingForm() {
       animate={{ y: 0, opacity: 1 }}
       className="max-w-2xl mx-auto px-4 py-8"
     >
-      <Card className="bg-zinc-900/85 border-white/10">
+      <Card className="dark:bg-zinc-900/0 dark:border-white/10 shadow-none border-none">
         <CardHeader>
           <CardTitle className="text-2xl text-foreground">
             Billing Information
@@ -124,7 +124,7 @@ export default function BillingForm() {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="bg-zinc-800 border-white/10 text-foreground"
+                className="dark:dark:bg-zinc-800 border-white/10 text-foreground"
                 required
               />
               {errors.name && (
@@ -142,7 +142,7 @@ export default function BillingForm() {
                 type="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="bg-zinc-800 border-white/10 text-foreground"
+                className="dark:bg-zinc-800 border-white/10 text-foreground"
                 required
               />
               {errors.email && (
@@ -160,7 +160,7 @@ export default function BillingForm() {
                 type="email"
                 value={formData.emailConfirm}
                 onChange={handleInputChange}
-                className="bg-zinc-800 border-white/10 text-foreground"
+                className="dark:bg-zinc-800 border-white/10 text-foreground"
                 required
               />
               {errors.emailConfirm && (
@@ -177,7 +177,7 @@ export default function BillingForm() {
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
-                className="bg-zinc-800 border-white/10 text-foreground"
+                className="dark:bg-zinc-800 border-white/10 text-foreground"
                 required
               />
               {errors.address && (
@@ -195,7 +195,7 @@ export default function BillingForm() {
                   name="city"
                   value={formData.city}
                   onChange={handleInputChange}
-                  className="bg-zinc-800 border-white/10 text-foreground"
+                  className="dark:bg-zinc-800 border-white/10 text-foreground"
                   required
                 />
                 {errors.city && (
@@ -212,7 +212,7 @@ export default function BillingForm() {
                   name="state"
                   value={formData.state}
                   onChange={handleInputChange}
-                  className="bg-zinc-800 border-white/10 text-foreground"
+                  className="dark:bg-zinc-800 border-white/10 text-foreground"
                   required
                 />
                 {errors.state && (
@@ -231,7 +231,7 @@ export default function BillingForm() {
                   name="zip"
                   value={formData.zip}
                   onChange={handleInputChange}
-                  className="bg-zinc-800 border-white/10 text-foreground"
+                  className="dark:bg-zinc-800 border-white/10 text-foreground"
                   required
                 />
                 {errors.zip && (
@@ -248,7 +248,7 @@ export default function BillingForm() {
                   name="country"
                   value={formData.country}
                   onChange={handleInputChange}
-                  className="bg-zinc-800 border-white/10 text-foreground"
+                  className="dark:bg-zinc-800 border-white/10 text-foreground"
                   required
                 />
                 {errors.country && (

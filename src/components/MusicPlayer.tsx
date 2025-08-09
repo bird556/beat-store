@@ -202,7 +202,7 @@ const MusicPlayer = () => {
   const nextTrackInfo = getNextTrack();
   if (!currentTrack) return null;
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 px-4 py-3 z-[500] w-full">
+    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-black dark:border-t border-gray-800 px-4 py-3 z-[500] w-full">
       <div className="xl:w-7xl mx-auto z-50">
         <div className="flex items-center justify-between text-start ">
           {/* Current Track Info */}
@@ -217,13 +217,13 @@ const MusicPlayer = () => {
               className="!p-0 !m-0 text-start overflow-hidden"
             >
               <div className="min-w-0 flex-1">
-                <div className=" sm:block text-white font-medium truncate md:max-w-64 ">
+                <div className=" sm:block dark:text-white font-medium truncate md:max-w-64 ">
                   {currentTrack.title}
                 </div>
-                <div className=" sm:block text-gray-400 text-sm truncate">
+                <div className=" sm:block dark:text-gray-400 text-sm truncate">
                   {currentTrack.artist} Type Beat
                 </div>
-                <div className=" sm:block text-gray-500 text-xs">
+                <div className=" sm:block dark:text-gray-500 text-xs">
                   Key: {currentTrack.key} | {currentTrack.bpm} BPM
                 </div>
               </div>

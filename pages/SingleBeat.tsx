@@ -24,7 +24,7 @@ import { usePlayer } from '@/contexts/PlayerContext'; // Corrected context name 
 import LicenseModal from '@/components/license-modal'; // Assuming path
 import axios from 'axios';
 import toast from 'react-hot-toast';
-
+import FadeContent from '@/components/ui/ReactBits/FadeContent';
 // --- SingleBeatPage Component ---
 
 export default function SingleBeatPage() {
@@ -298,7 +298,7 @@ export default function SingleBeatPage() {
             className="!relative !aspect-square !overflow-hidden !rounded-lg !cursor-pointer min-md:!w-20 min-md:!min-w-20 !p-0 !m-0 min-md:!max-w-20"
           >
             <img
-              className="w-full h-full object-cover max-md:!rounded-lg"
+              className="w-full h-full max-w-xs object-cover max-md:!rounded-lg"
               src={beat.image || beat.s3_image_url || '/placeholder-beat.png'}
               alt={beat.title}
             />
@@ -444,11 +444,17 @@ export default function SingleBeatPage() {
           </div>
         </div>
       ) : beat ? (
-        <>
+        <FadeContent
+          initialOpacity={0}
+          blur={false}
+          duration={500}
+          delay={0}
+          threshold={0.1}
+        >
           {' '}
           {/* Use a React Fragment to return multiple top-level elements */}
           {/* Loaded Main Beat Content - Refactored to match the image, NOT using Card */}
-          <div className="bg-zinc-900/0 text-white shadow-lg rounded-lg overflow-hidden flex flex-col md:flex-row p-6 md:p-0">
+          <div className="dark:bg-zinc-900/0 dark:text-white shadow-lg rounded-lg overflow-hidden flex flex-col md:flex-row p-6 md:p-0">
             {/* Image Section */}
             <div className="w-full md:w-1/3 flex-shrink-0 relative  aspect-square">
               <img
@@ -476,12 +482,12 @@ export default function SingleBeatPage() {
             <div className="flex-1 p-6 md:p-8 flex flex-col justify-center">
               <div className="flex items-center space-x-4 mb-4">
                 <div>
-                  <h1 className="!text-2xl font-bold text-white !text-start">
+                  <h1 className="!text-2xl font-bold dark:text-white !text-start">
                     {' '}
                     {/* Changed CardTitle to h1 */}
                     {beat.title}
                   </h1>
-                  <p className="!text-xl text-gray-400 mt-1 text-start">
+                  <p className="!text-xl text-gray-800 dark:text-gray-400 mt-1 text-start">
                     {' '}
                     {/* Changed CardDescription to p */}
                     {beat.artist} Type Beat
@@ -490,9 +496,9 @@ export default function SingleBeatPage() {
               </div>
 
               {/* Metadata (BPM, Key, Date) */}
-              <div className="flex items-center space-x-6 text-lg text-gray-300 mb-6">
+              <div className="flex items-center space-x-6 text-lgtext-gray-700 dark:text-gray-300 mb-6">
                 <p className="flex items-center space-x-2">
-                  <Music className="w-5 h-5 text-gray-300" />
+                  <Music className="w-5 h-5 dark:text-gray-300" />
                   <span>BPM {beat.bpm}</span>
                 </p>
                 <p className="flex items-center space-x-2">
@@ -500,7 +506,7 @@ export default function SingleBeatPage() {
                   <span>{beat.key}</span>
                 </p>
                 <p className="flex items-center space-x-2">
-                  <Clock className="w-5 h-5 text-gray-300" />
+                  <Clock className="w-5 h-5 dark:text-gray-300" />
                   <span>{beat.duration}</span>
                 </p>
               </div>
@@ -599,7 +605,7 @@ export default function SingleBeatPage() {
               </p>
             )}
           </section>
-        </>
+        </FadeContent>
       ) : null}
 
       {/* License Modal */}

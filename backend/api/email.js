@@ -7,7 +7,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import License from '../models/License.js';
 import dotenv from 'dotenv';
-
+import { generateContactEmails } from '../generators/contactEmails.js';
 dotenv.config();
 const router = Router();
 
@@ -815,22 +815,34 @@ router.post('/', async (req, res) => {
     let htmlContent;
     let htmlSaleConfirmationContent;
     const attachments = [];
-    for (const item of data.orderItems) {
-      try {
-        // Pass licensorFullName and producerName to the PDF generation function
-        const pdfAttachment = await generateContractPdf(
-          item,
-          data.customerName
-        );
-        attachments.push(pdfAttachment);
-      } catch (pdfError) {
-        console.error(
-          `Error generating PDF for item ${item.description} (${item.leaseType}):`,
-          pdfError
-        );
-        // Decide how to handle this: skip this PDF, or throw a global error
-        // For now, we'll just log and continue, but you might want to fail the whole request.
-        // You might also want to send an email to yourself about the failure.
+    // for (const item of data.orderItems) {
+    //   try {
+    //     const pdfAttachment = await generateContractPdf(
+    //       item,
+    //       data.customerName
+    //     );
+    //     attachments.push(pdfAttachment);
+    //   } catch (pdfError) {
+    //     console.error(
+    //       `Error generating PDF for item ${item.description} (${item.leaseType}):`,
+    //       pdfError
+    //     );
+    //   }
+    // }
+    if (template === 'purchaseConfirmation' || subject.includes('Purchase')) {
+      for (const item of data.orderItems) {
+        try {
+          const pdfAttachment = await generateContractPdf(
+            item,
+            data.customerName
+          );
+          attachments.push(pdfAttachment);
+        } catch (pdfError) {
+          console.error(
+            `Error generating PDF for item ${item.description} (${item.leaseType}):`,
+            pdfError
+          );
+        }
       }
     }
     if (template === 'purchaseConfirmation') {
@@ -899,44 +911,17 @@ router.post('/', async (req, res) => {
         </div>
       `;
     } else {
-      // Contact form emails
-      const mailToSelf = {
-        from: `"www.BirdieBands.com" <${process.env.GMAIL_EMAIL}>`,
-        replyTo: email,
-        to: process.env.GMAIL_EMAIL,
-        subject: `${subject}`,
-        text: `You have a new message from:\n${email}\n\nMessage:\n${message}`,
-      };
+      // Contact form emails using generateContactEmails
+      const emails = generateContactEmails({ email, subject, message });
 
-      const mailToUser = {
-        from: `"Birdie Bands" <${process.env.GMAIL_EMAIL}>`,
-        to: email,
-        subject: 'Thanks For Contacting Birdie Bands ✨🎶',
-        html: `
-              <div style="font-family:'Segoe UI',Arial,sans-serif; background:#f9f9f9; padding:24px; color:#222; line-height:1.7; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); max-width:600px; margin:auto;">
-      <h2 style="color:#555;">Thanks for reaching out 💌</h2>
-      <p>Hey there,</p>
-      <p>Thank you for reaching out! I appreciate your interest in my work — whether it's about purchasing a beat, collaborating on a project, or anything in between.</p>
-      <p>I’ll be reviewing your message personally and will hit you back ASAP.</p>
-      <p>Meanwhile, dive into the catalog, follow the vibes, or hit reply if you’ve got more to share. Let's make something legendary 🎶✨</p>
-      
-      <p style="margin-top:28px; font-weight:bold; font-size:16px;">Much respect,<br/>Birdie Bands</p>
-      
-      <div style="margin:32px 0; border-top:1px solid #ddd;"></div>
-      
-      <div style="font-size:15px;">
-        🔗 <strong>Quick Links:</strong><br/>
-        🎧 <a href="https://open.spotify.com/artist/44CuCf1NgVzB4fPiAgpNoQ" style="color:#1DB954;">Spotify</a><br/>
-        📺 <a href="https://www.youtube.com/@BIRDIEBANDS" style="color:#FF0000;">YouTube</a><br/>
-        🛒 <a href="https://www.birdiebands.com" style="color:#FFA500;">Beat Store</a><br/>
-        📸 <a href="https://instagram.com/birdiebands" style="color:#C13584;">Instagram</a>
-      </div>
-    </div>
-        `,
-      };
+      if (!emails) {
+        return res
+          .status(500)
+          .json({ error: 'Failed to generate contact emails' });
+      }
 
-      await transporter.sendMail(mailToSelf);
-      await transporter.sendMail(mailToUser);
+      await transporter.sendMail(emails.mailToSelf);
+      await transporter.sendMail(emails.mailToUser);
       return res.status(200).json({ message: 'Email(s) sent successfully' });
     }
 

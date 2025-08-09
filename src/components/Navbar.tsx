@@ -26,7 +26,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="!sticky !top-0 z-[500] border-b border-foreground/30  backdrop-blur-sm bg-black/70">
+      <nav className="!sticky !top-0 z-[500] border-b border-foreground/30  backdrop-blur-sm bg-background dark:bg-black/70">
         {/* <div className="fixed h-full w-full top-0 left-0 z-0">
           <Particles
             particleColors={['#ffffff', '#ffffff']}
@@ -60,9 +60,13 @@ const Navbar = () => {
               height={200}
             /> */}
             {/* <img className="w-48" src={BirdieLogo} alt="Birdie Bands Logo" /> */}
-            <img className="w-32" src={BirdieLogo} alt="Birdie Bands Logo" />
             <img
-              className="w-12 rounded-full"
+              className="w-32 pointer !pointer-events-none"
+              src={BirdieLogo}
+              alt="Birdie Bands Logo"
+            />
+            <img
+              className="w-12 rounded-full !pointer-events-none"
               src={BirdieLogo1}
               alt="Birdie Bands Logo"
             />

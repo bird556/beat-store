@@ -143,7 +143,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
                   onClick={() => {
                     navigate('/');
                   }}
-                  className="bg-zinc-900 max-w-2xl hover:bg-foreground hover:text-background !transition-colors !duration-300"
+                  className="dark:bg-zinc-900 max-w-2xl hover:bg-foreground hover:text-background !transition-colors !duration-300"
                 >
                   Go Back Home
                 </button>
@@ -234,7 +234,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
           </div>
           {/* Checkout Card */}
         </div>
-        <div className="mx-auto max-w-2xl lg:max-w-6xl flex flex-col gap-8 justify-between z-50 !bg-zinc-900/85 rounded-sm outline-1 !outline-white/10 p-3">
+        <div className="mx-auto max-w-2xl lg:max-w-6xl flex flex-col gap-8 justify-between z-50 dark:!bg-zinc-900/85 rounded-sm outline-1 !outline-white/10 p-3">
           <div className="flex flex-col gap-3">
             <div className="flex text-green-400 justify-between w-full">
               <p className="text-2xl  text-default-500 font-bold">Item Total</p>
@@ -265,7 +265,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
                   variant="outline"
                   size="sm"
                   onClick={handleEditInfo}
-                  className="text-foreground  border-white/10 hover:bg-zinc-800 "
+                  className="bg-foreground text-background dark:text-foreground  border-white/10 dark:hover:bg-zinc-800 "
                 >
                   <Edit className="w-4 h-4 mr-2" /> Edit Info
                 </Button>

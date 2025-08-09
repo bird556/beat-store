@@ -306,7 +306,6 @@ app.get('/api/beats', async (req, res) => {
     const limit = parseInt(req.query.limit) || 6; // Default to 20 for home page
     let search = req.query.search || ''; // Get search query
     const skip = (page - 1) * limit;
-
     // Build query
     let query = { available: true };
     if (search) {
@@ -904,7 +903,7 @@ app.get('/related-beats', async (req, res) => {
       }, // Find beats where the 'tags' array contains any of the provided tags
       _id: { $ne: excludeBeatId }, // Exclude the current beat
     })
-      .limit(4) // Limit the number of related beats (e.g., 8 or 12)
+      .limit(10) // Limit the number of related beats (e.g., 8 or 12)
       .sort({ createdAt: -1 }) // Or sort by views, popularity, etc.
       .lean(); // For plain JavaScript objects
     // Add presigned URLs for previews and images for related beats

@@ -6,7 +6,7 @@ const YoutubeSection = () => {
       <div className="max-w-5xl mx-auto text-center">
         <div className="flex flex-col items-center space-y-6">
           <FaYoutube className="text-red-600 text-6xl" />
-          <h2 className="flex items-center gap-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
+          <h2 className="text-foreground flex items-center gap-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
             <picture className="pointer-events-none">
               <source
                 srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.webp"
@@ -29,11 +29,12 @@ const YoutubeSection = () => {
             />
           </div>
           {/* Subscriber Count */}
-          <div className="text-gray-400 text-lg font-medium">
-            🎧 Join <span className="text-white font-semibold">115,000+</span>{' '}
+          <div className="text-foreground dark:text-gray-400 text-lg font-medium">
+            🎧 Join{' '}
+            <span className="dark:text-white font-semibold">115,000+</span>{' '}
             subscribers
           </div>
-          <p className="text-lg text-gray-300 max-w-xl">
+          <p className="text-lg text-foreground dark:text-gray-300 max-w-xl">
             Get exclusive beat drops, studio sessions, and behind-the-scenes
             vibes straight from the channel.
           </p>
@@ -42,7 +43,7 @@ const YoutubeSection = () => {
             // href="https://www.youtube.com/@BIRDIEBANDS" // Replace with your actual channel link
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-md !text-white font-semibold py-3 px-6  hover:bg-foreground hover:!text-background  !transition-all !duration-600 bg-zinc-900"
+            className="flex items-center justify-center gap-2 rounded-md !text-white font-semibold py-3 px-6 hover:bg-background hover:!text-foreground  dark:hover:bg-foreground dark:hover:!text-background  !transition-all !duration-600 bg-zinc-900"
           >
             {/* 🚀 Visit & Subscribe */}
             <picture className="pointer-events-none">

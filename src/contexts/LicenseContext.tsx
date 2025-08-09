@@ -36,6 +36,9 @@ export const LicenseProvider = ({
   // const [licenses, setLicenses] = useState([]);
   const [licenses, setLicenses] = useState<License[]>([]);
   const [loading, setLoading] = useState(true);
+  const [retries, setRetries] = useState(0);
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 1000; // 1 second
   useEffect(() => {
     const fetchLicenses = async () => {
       try {
@@ -46,13 +49,22 @@ export const LicenseProvider = ({
         setTimeout(() => setLoading(false), 1000); // Set loading to false after 1 second
       } catch (error) {
         console.error('Failed to fetch licenses:', error);
+        if (retries < MAX_RETRIES) {
+          console.log(`Retrying... Attempt ${retries + 1} of ${MAX_RETRIES}`);
+          setTimeout(() => {
+            setRetries(retries + 1);
+          }, RETRY_DELAY);
+        } else {
+          console.error('Max retries reached. Giving up.');
+          setLoading(false);
+        }
       } finally {
         setTimeout(() => setLoading(false), 1000); // Set loading to false after 1 second
       }
     };
 
     fetchLicenses();
-  }, []);
+  }, [retries]);
 
   return (
     // <LicenseContext.Provider value={licenses}>

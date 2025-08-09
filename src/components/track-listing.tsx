@@ -1,7 +1,7 @@
 // src/components/track-listing.tsx
 
 'use client';
-import React, { use } from 'react';
+import React from 'react';
 import { PlaceholdersAndVanishInput } from './ui/placeholders-and-vanish-input';
 import { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -100,19 +100,6 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
   const handleSearch = debounce((query: string) => {
     setSearchParams({ search: query, page: '1' });
   }, 1000); // Debounce search for 1 second
-
-  // Handle pagination and search
-  useEffect(() => {
-    const page = parseInt(searchParams.get('page') || '1');
-    const search = searchParams.get('search') || '';
-    const limit = limitTrackCount || 6; // Use 6 for homepage, 20 for /beats
-    fetchBeats(page, limit, search);
-  }, [searchParams, limitTrackCount, fetchBeats]);
-
-  // Set queue when beats change
-  useEffect(() => {
-    setQueue(beats);
-  }, [beats, setQueue]);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -339,6 +326,9 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
     return items;
   };
 
+  // Slice beats for display (6 on homepage, all on /beats)
+  const displayedBeats = limitTrackCount ? beats.slice(0, 6) : beats;
+
   const TrackCard = ({ track }) => {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true });
@@ -495,13 +485,13 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
   return (
     <div className="z-50 flex flex-col justify-between relative">
       <div
-        className={`py-32 flex flex-col justify-center items-center px-4 relative overflow-hidden`}
+        className={`bg-black py-32 flex flex-col justify-center items-center px-4 relative overflow-hidden`}
       >
         <video
           autoPlay
           loop
           muted
-          className="absolute h-screen lg:h-auto scale-200 md:scale-140 z-0 opacity-10"
+          className="!pointer-events-none absolute h-screen lg:h-auto scale-200 md:scale-140 z-0 opacity-25 dark:opacity-10"
           src={StudioVideo}
         ></video>
         <motion.div
@@ -510,13 +500,13 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           transition={{ duration: 1.0, ease: 'easeOut', delay: 0.3 }}
         >
           <img
-            className="w-xs mb-5 sm:mb-10 z-[50] relative"
+            className="w-xs mb-5 sm:mb-10 z-[50] relative !pointer-events-none"
             src={BirdieLogo1}
             alt="Birdie Logo"
           />
         </motion.div>
         <div className="w-full z-2">
-          <p className="mb-10 sm:mb-2 font-medium text-sm text-center sm:text-lg dark:text-foreground text-black">
+          <p className="mb-10 sm:mb-2 font-medium text-sm text-center sm:text-lg text-white ">
             Search Beats Here
           </p>
           <PlaceholdersAndVanishInput
@@ -533,7 +523,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
       <div className="max-w-7xl mx-auto px-4 py-8 z-5">
         {/* Header */}
         <div
-          className={`w-full min-w-full grid grid-cols-10 gap-4 text-gray-400 text-sm font-medium border-b border-gray-800 pb-3 mb-4`}
+          className={`w-full min-w-full grid grid-cols-10 gap-4 dark:text-gray-400 text-sm font-medium border-b border-gray-800 pb-3 mb-4`}
         >
           <div className="col-span-5 md:col-span-4">Title</div>
           <div className="hidden md:block md:col-span-1">BPM</div>
@@ -557,7 +547,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
               <p className="text-gray-400">Loading...</p>
             </div>
           )}
-          {!isFetching && beats.length === 0 && isBeatsLoaded && (
+          {!isFetching && displayedBeats.length === 0 && isBeatsLoaded && (
             <motion.div variants={itemVariants} className="text-center py-8">
               <p className="text-gray-400">
                 No tracks found matching your search.
@@ -565,21 +555,22 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
             </motion.div>
           )}
 
-          {!isFetching && !isBeatsLoaded
+          {isFetching || !isBeatsLoaded
             ? // map me 6 skeleton from TrackCardSkeleton
-              Array.from({ length: limitTrackCount || 6 }).map((_, index) => (
+              Array.from({ length: 6 }).map((_, index) => (
                 <TrackCardSkeleton key={index} />
               ))
             : !isFetching &&
-              beats.map((track) => (
+              displayedBeats.map((track) => (
                 <FadeContent
+                  key={track.id}
                   initialOpacity={0}
                   blur={false}
-                  duration={500}
-                  delay={0}
+                  duration={800}
+                  delay={100}
                   threshold={0.1}
                 >
-                  <TrackCard key={track.id} track={track} />
+                  <TrackCard track={track} />
                 </FadeContent>
               ))}
         </motion.div>

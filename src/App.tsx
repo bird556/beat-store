@@ -34,10 +34,10 @@ function App() {
     <>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <CartProvider>
-          <PlayerProvider>
-            <LicenseProvider>
-              <BeatsProvider>
-                <div className="bg-black relative m-auto w-full">
+          <BeatsProvider>
+            <PlayerProvider>
+              <LicenseProvider>
+                <div className="dark:bg-black bg-background relative m-auto w-full">
                   <div className="fixed h-full w-full top-0 left-0 z-0">
                     <Particles
                       particleColors={['#ffffff', '#ffffff']}
@@ -92,9 +92,9 @@ function App() {
 
                   <Toaster position="top-center" reverseOrder={false} />
                 </div>
-              </BeatsProvider>
-            </LicenseProvider>
-          </PlayerProvider>
+              </LicenseProvider>
+            </PlayerProvider>
+          </BeatsProvider>
         </CartProvider>
       </ThemeProvider>
     </>
