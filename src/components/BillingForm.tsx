@@ -94,6 +94,20 @@ export default function BillingForm() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    // Capitalize each word if it's the name field
+    /*
+    let processedValue = value;
+    if (name === 'name') {
+      processedValue = value
+        .split(' ')
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        )
+        .join(' ');
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: processedValue }));
+*/
     setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
     if (errors[name as keyof CustomerInfo]) {

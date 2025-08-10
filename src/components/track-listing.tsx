@@ -97,9 +97,13 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
     setSearchParams({ page: newPage.toString(), search: defaultQuery });
   };
 
-  const handleSearch = debounce((query: string) => {
+  // const handleSearch = debounce((query: string) => {
+  //   setSearchParams({ search: query, page: '1' });
+  // }, 1000); // Debounce search for 1 second
+
+  const handleSearch = (query: string) => {
     setSearchParams({ search: query, page: '1' });
-  }, 1000); // Debounce search for 1 second
+  };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -123,7 +127,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
 
       // Call the backend download endpoint
       const response = await axios.get(
-        `http://localhost:3001/api/download/${track._id}`
+        `${import.meta.env.VITE_API_BASE_URL_BACKEND}/api/download/${track._id}`
       );
       const { downloadUrl } = response.data;
 
@@ -380,14 +384,20 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           </div>
 
           {/* BPM */}
-          <div className="hidden md:block md:col-span-1 text-foreground">
+          <button
+            onClick={() => handleCardClick(track)}
+            className="hidden text-nowrap !font-normal md:block md:col-span-1 text-foreground"
+          >
             {track.bpm} BPM
-          </div>
+          </button>
 
           {/* Key */}
-          <div className="hidden md:block md:col-span-2 text-foreground">
+          <button
+            onClick={() => handleCardClick(track)}
+            className="hidden text-nowrap !font-normal md:block md:col-span-2 text-foreground"
+          >
             {track.key}
-          </div>
+          </button>
 
           {/* Date Added */}
           {/* <div className="hidden lg:block lg:col-span-2 text-foreground">
@@ -395,9 +405,12 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
                 </div> */}
 
           {/* Duration */}
-          <div className="hidden md:block col-span-2 md:col-span-1 text-foreground text-start">
+          <button
+            onClick={() => handleCardClick(track)}
+            className="hidden text-nowrap !font-normal md:block col-span-2 md:col-span-1 text-foreground text-start -ml-6"
+          >
             {track.duration}
-          </div>
+          </button>
 
           {/* Actions */}
           <div className="col-span-5 md:col-span-2 lg:col-span-2 flex justify-end space-x-2">
@@ -485,7 +498,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
   return (
     <div className="z-50 flex flex-col justify-between relative">
       <div
-        className={`bg-black py-32 flex flex-col justify-center items-center px-4 relative overflow-hidden`}
+        className={`bg-black py-16 flex flex-col justify-center items-center px-4 relative overflow-hidden`}
       >
         <video
           autoPlay
@@ -511,9 +524,10 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           </p>
           <PlaceholdersAndVanishInput
             placeholders={placeholders}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleSearch(e.target.value)
-            }
+            // onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            //   handleSearch(e.target.value)
+            // }
+            onChange={() => {}} // No-op for onChange
             onSubmit={onSubmit}
             onSearch={handleSearch}
           />

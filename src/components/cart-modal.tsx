@@ -8,6 +8,7 @@ import {
   ModalFooter,
 } from '@heroui/modal';
 import { useNavigate, useLocation } from 'react-router-dom';
+
 interface CartModalProps {
   isOpen: boolean;
   onClose: () => void;

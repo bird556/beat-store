@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import type { Track } from '@/contexts/PlayerContext';
 import { useCart } from '@/contexts/cart-context';
 import {
@@ -33,6 +34,8 @@ export default function LicenseModal({
   const [selectedLicense, setSelectedLicense] = useState<string | null>(null);
   const { addToCart } = useCart();
   const [openItems, setOpenItems] = useState({});
+  const [showError, setShowError] = useState(false); // New state for error message
+
   if (!isOpen || !track) return null;
 
   const handleLicenseSelect = (licenseType: string) => {
@@ -57,11 +60,19 @@ export default function LicenseModal({
     };
 
     addToCart(updatedItem);
+    setShowError(false); // Clear error on successful add
+    toast.success('Beat added to cart.');
     onClose();
     setSelectedLicense(null);
   };
 
   const handleAddToCart = () => {
+    if (!selectedLicense) {
+      setShowError(true); // Show error if no license selected
+      toast.error('Please select a license.');
+      return;
+    }
+    setShowError(false); // Clear error if license is selected
     if (!selectedLicense) return;
     handleLicenseSelect(selectedLicense);
   };
@@ -141,7 +152,10 @@ export default function LicenseModal({
                             ? '!border-zinc-500 !bg-green-500/10'
                             : '!border-gray-700 hover:!border-gray-600'
                         }`}
-                        onClick={() => setSelectedLicense(license.type)}
+                        onClick={() => {
+                          setSelectedLicense(license.type);
+                          setShowError(false);
+                        }}
                       >
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex flex-col">
@@ -198,6 +212,11 @@ export default function LicenseModal({
                 })}
               </ModalBody>
               <ModalFooter className="z-50">
+                {showError && (
+                  <p className="flex-1 text-start  self-center text-red-400 text-sm">
+                    Please select a license before adding to cart.
+                  </p>
+                )}
                 <button
                   onClick={onClose}
                   className="px-6 py-2 !text-gray-300 hover:!text-white"
@@ -206,7 +225,7 @@ export default function LicenseModal({
                 </button>
                 <button
                   onClick={handleAddToCart}
-                  disabled={!selectedLicense}
+                  // disabled={!selectedLicense}
                   className="px-6 py-2 !bg-green-700 text-foreground font-medium rounded hover:!bg-green-600 transition-colors  disabled:cursor-not-allowed"
                 >
                   Add to Cart

@@ -6,6 +6,7 @@ import {
   useEffect,
   type ReactNode,
 } from 'react';
+import toast from 'react-hot-toast';
 
 export interface CartItem {
   id: string;
@@ -55,10 +56,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const removeFromCart = (id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
+    toast.error('Beat removed from cart.');
   };
 
   const clearCart = () => {
     setItems([]);
+    toast.error('Cart cleared.');
   };
 
   const totalItems = items.length;
