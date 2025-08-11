@@ -224,6 +224,14 @@ export function PlaceholdersAndVanishInput({
         )}
       />
 
+      <button
+        disabled={!value}
+        type="submit"
+        className="absolute right-2 top-1/2 z-50 -translate-y-1/2 h-8 w-8 !rounded-full disabled:!bg-transparent !bg-transparent dark:!bg-zinc-600 dark:disabled:!bg-transparent !transition !duration-900 flex items-center justify-center"
+      >
+        <p className={`!text-black dark:!text-white`}>{'>'}</p>
+      </button>
+
       <div className="absolute inset-0 flex items-center rounded-full pointer-events-none">
         <AnimatePresence mode="wait">
           {!value && (
