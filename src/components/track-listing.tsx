@@ -35,6 +35,7 @@ import {
   PaginationEllipsis,
 } from '@/components/ui/pagination';
 import FadeContent from './ui/ReactBits/FadeContent';
+import SplitText from './ui/ReactBits/SplitText';
 /**
  * A track listing component that displays a list of tracks and allows the user to search
  * through them. It also allows the user to play, download, and share tracks.
@@ -485,6 +486,9 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
     );
   };
 
+  const handleAnimationComplete = () => {
+    console.log('All letters have animated!');
+  };
   return (
     <div className="z-50 flex flex-col justify-between relative">
       <div
@@ -509,9 +513,23 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           />
         </motion.div>
         <div className="w-full z-2">
-          <p className="mb-10 sm:mb-2 font-medium text-sm text-center sm:text-lg text-white ">
+          {/* <p className="mb-10 sm:mb-2 font-medium text-sm text-center sm:text-lg text-white ">
             Search Beats Here
-          </p>
+          </p> */}
+          <SplitText
+            text="Search Beats Here"
+            className="mb-10 sm:mb-2 font-medium text-sm text-center sm:text-lg text-white"
+            delay={100}
+            duration={0.6}
+            ease="power3.out"
+            splitType="chars"
+            from={{ opacity: 0, y: 40 }}
+            to={{ opacity: 1, y: 0 }}
+            threshold={0.1}
+            rootMargin="-100px"
+            textAlign="center"
+            onLetterAnimationComplete={handleAnimationComplete}
+          />
           <PlaceholdersAndVanishInput
             placeholders={placeholders}
             // onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

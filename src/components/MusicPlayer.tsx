@@ -107,7 +107,7 @@ const MusicPlayer = () => {
           if (isPlaying) togglePlay();
         });
       } catch (error) {
-        console.log('Play/pause actions not supported');
+        console.log('Play/pause actions not supported', error);
       }
 
       try {
@@ -115,7 +115,7 @@ const MusicPlayer = () => {
           previousTrack();
         });
       } catch (error) {
-        console.log('Previous track action not supported');
+        console.log('Previous track action not supported', error);
       }
 
       try {
@@ -123,7 +123,7 @@ const MusicPlayer = () => {
           nextTrack();
         });
       } catch (error) {
-        console.log('Next track action not supported');
+        console.log('Next track action not supported', error);
       }
 
       // Additional optional handlers
@@ -134,7 +134,7 @@ const MusicPlayer = () => {
           }
         });
       } catch (error) {
-        console.log('Seek action not supported');
+        console.log('Seek action not supported', error);
       }
     } catch (error) {
       console.error('Media Session API error:', error);
@@ -151,7 +151,7 @@ const MusicPlayer = () => {
           navigator.mediaSession.setActionHandler('nexttrack', null);
           navigator.mediaSession.setActionHandler('seekto', null);
         } catch (error) {
-          console.log('Error cleaning up media session handlers');
+          console.log('Error cleaning up media session handlers', error);
         }
       }
     };

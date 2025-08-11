@@ -4,7 +4,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import Home from '../pages/Home';
 import Beats from '../pages/Beats';
 import CartCheckOut from '../pages/CartCheckOut';
-import About from '../pages/About';
+// import About from '../pages/About';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import Particles from './components/ui/ReactBits/Particles';
@@ -24,6 +24,7 @@ import PrivacyPolicy from '../pages/PrivacyPolicy';
 import RefundPolicy from '../pages/RefundPolicy';
 import DownloadPage from '../pages/DownloadPage';
 import SingleBeatPage from '../pages/SingleBeat';
+import NotFound from '../pages/NotFound';
 import Licenses from './components/Licenses';
 function App() {
   const headerText = 'text-2xl';
@@ -57,7 +58,7 @@ function App() {
                     <div className="overflow-x-hidden">
                       <Routes>
                         <Route path="/" element={<Home size={headerText} />} />
-                        <Route path="*" element={<Home size={headerText} />} />
+                        <Route path="*" element={<NotFound />} />
                         <Route path="/beats" element={<Beats />} />
                         <Route path="/licenses" element={<Licenses />} />
                         <Route path="/billing" element={<Billing />} />
@@ -77,7 +78,7 @@ function App() {
                           path="/contact"
                           element={<Contact fullscreen={true} />}
                         />
-                        <Route path="/about" element={<About />} />
+                        {/* <Route path="/about" element={<About />} /> */}
                         <Route
                           path="/checkout"
                           element={<CartCheckOut size={headerText} />}
