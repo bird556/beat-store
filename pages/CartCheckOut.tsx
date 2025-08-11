@@ -4,7 +4,6 @@ import { usePlayer } from '@/contexts/PlayerContext';
 import { motion } from 'framer-motion';
 import { FaStripe } from 'react-icons/fa';
 import { Trash2, Edit, Play, Pause } from 'lucide-react';
-import { IoLogoPaypal } from 'react-icons/io5';
 import { useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -20,18 +19,6 @@ interface CustomerInfo {
   state: string;
   zip: string;
   country: string;
-}
-
-interface CartItem {
-  id: string;
-  title: string;
-  artist: string;
-  image?: string;
-  s3_image_url?: string;
-  license: string;
-  price: number;
-  key: string;
-  bpm: number;
 }
 
 const CartCheckOut = ({ size }: { size: string }) => {
@@ -56,12 +43,6 @@ const CartCheckOut = ({ size }: { size: string }) => {
 
   const handleEditInfo = () => {
     navigate('/billing');
-  };
-
-  const handlePaypalCheckout = () => {
-    // Implement PayPal checkout logic here
-    console.log('Initiating PayPal checkout with:', customerInfo);
-    console.log('Items For PayPal:', items);
   };
 
   const handleStripeCheckout = async () => {

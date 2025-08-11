@@ -61,7 +61,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => {
     setItems([]);
-    toast.error('Cart cleared.');
+    // toast.error('Cart cleared.');
   };
 
   const totalItems = items.length;

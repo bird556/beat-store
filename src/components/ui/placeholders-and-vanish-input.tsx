@@ -1,5 +1,6 @@
 // src/components/ui/placeholders-and-vanish-input.tsx
 'use client';
+import { useNavigate } from 'react-router';
 
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -17,6 +18,8 @@ export function PlaceholdersAndVanishInput({
   onSearch: (query: string) => void; // New prop for search functionality
 }) {
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
+  const navigate = useNavigate();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!animating) {
       const newValue = e.target.value;
@@ -192,6 +195,7 @@ export function PlaceholdersAndVanishInput({
     vanishAndSubmit();
     // onSearch && onSearch(''); // Trigger empty search to reset table
     onSubmit && onSubmit(e);
+    navigate(`/beats?search=${encodeURIComponent(value)}`); // Navigates to the '/dashboard' route
   };
   return (
     <form

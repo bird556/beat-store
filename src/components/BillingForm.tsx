@@ -1,10 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface CustomerInfo {
   name: string;
@@ -31,6 +38,119 @@ export default function BillingForm() {
   });
   const [errors, setErrors] = useState<Partial<CustomerInfo>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Load Google Places API script dynamically
+  useEffect(() => {
+    const apiKey = import.meta.env.VITE_GOOGLE_PLACES;
+    if (!apiKey) {
+      console.log('Google Places API key is missing. Autocomplete disabled.');
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.async = true;
+    script.onload = initAutocomplete;
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
+  // Initialize Google Places Autocomplete
+  const initAutocomplete = () => {
+    if (!inputRef.current) return;
+
+    autocompleteRef.current = new google.maps.places.Autocomplete(
+      inputRef.current,
+      {
+        types: ['address'],
+        componentRestrictions: {
+          country: ['us', 'ca', 'mx', 'de', 'gb', 'fr', 'cn', 'jp', 'kr', 'br'],
+        }, // Restrict to US and Canada, adjust as needed
+        fields: ['address_components'], // Only fetch address components
+      }
+    );
+
+    autocompleteRef.current.addListener('place_changed', handlePlaceSelect);
+  };
+
+  // Handle place selection and update form fields
+  const handlePlaceSelect = () => {
+    if (!autocompleteRef.current) return;
+
+    const place = autocompleteRef.current.getPlace();
+    const addressComponents = place.address_components || [];
+    const updatedFormData: Partial<CustomerInfo> = {};
+
+    addressComponents.forEach((component) => {
+      const types = component.types;
+      if (types.includes('street_number') || types.includes('route')) {
+        updatedFormData.address = updatedFormData.address
+          ? `${updatedFormData.address} ${component.long_name}`
+          : component.long_name;
+      }
+      if (types.includes('locality')) {
+        updatedFormData.city = component.long_name;
+      }
+      if (types.includes('administrative_area_level_1')) {
+        updatedFormData.state = component.short_name; // e.g., "ON" for Ontario
+      }
+      if (types.includes('postal_code')) {
+        updatedFormData.zip = component.long_name;
+      }
+      if (types.includes('country')) {
+        updatedFormData.country = component.short_name; // e.g., "CA" for Canada
+      }
+    });
+
+    setFormData((prev) => ({
+      ...prev,
+      ...updatedFormData,
+      address: updatedFormData.address || prev.address,
+      city: updatedFormData.city || prev.city,
+      state: updatedFormData.state || prev.state,
+      zip: updatedFormData.zip || prev.zip,
+      country: updatedFormData.country || prev.country,
+    }));
+
+    // Clear errors for updated fields
+    setErrors((prev) => ({
+      ...prev,
+      address: undefined,
+      city: undefined,
+      state: undefined,
+      zip: undefined,
+      country: undefined,
+    }));
+  };
+
+  // Sample country list (ISO 3166-1 alpha-2 codes)
+  const countries = useMemo(
+    () => [
+      // North America
+      { code: 'US', name: 'United States' },
+      { code: 'CA', name: 'Canada' },
+      { code: 'MX', name: 'Mexico' },
+
+      // Europe
+      { code: 'DE', name: 'Germany' },
+      { code: 'GB', name: 'United Kingdom' },
+      { code: 'FR', name: 'France' },
+
+      // Asia-Pacific
+      { code: 'CN', name: 'China' },
+      { code: 'JP', name: 'Japan' },
+      { code: 'KR', name: 'South Korea' },
+
+      // Latin America
+      { code: 'BR', name: 'Brazil' },
+      // Add other countries as needed
+    ],
+    []
+  );
 
   // Load saved data from sessionStorage
   useEffect(() => {
@@ -38,22 +158,31 @@ export default function BillingForm() {
     if (savedInfo) {
       try {
         const parsedInfo = JSON.parse(savedInfo);
-        setFormData((prev) => ({
-          ...prev,
-          name: parsedInfo.name || '',
-          email: parsedInfo.email || '',
-          emailConfirm: parsedInfo.email || '', // Pre-fill emailConfirm with email
-          address: parsedInfo.address || '',
-          city: parsedInfo.city || '',
-          state: parsedInfo.state || '',
-          zip: parsedInfo.zip || '',
-          country: parsedInfo.country || '',
-        }));
+        setFormData((prev) => {
+          const loadedData = {
+            name: parsedInfo.name || '',
+            email: parsedInfo.email || '',
+            emailConfirm: parsedInfo.email || '',
+            address: parsedInfo.address || '',
+            city: parsedInfo.city || '',
+            state: parsedInfo.state || '',
+            zip: parsedInfo.zip || '',
+            country: parsedInfo.country || '',
+          };
+          // Ensure country is a valid ISO code
+          return {
+            ...prev,
+            ...loadedData,
+            country: countries.some((c) => c.code === loadedData.country)
+              ? loadedData.country
+              : '',
+          };
+        });
       } catch (e) {
         console.error('Error parsing customer info:', e);
       }
     }
-  }, []);
+  }, [countries]);
 
   const validateForm = () => {
     const newErrors: Partial<CustomerInfo> = {};
@@ -72,6 +201,9 @@ export default function BillingForm() {
     if (!formData.state.trim()) newErrors.state = 'State is required';
     if (!formData.zip.trim()) newErrors.zip = 'ZIP code is required';
     if (!formData.country.trim()) newErrors.country = 'Country is required';
+    else if (!/^[A-Z]{2}$/.test(formData.country))
+      newErrors.country =
+        'Country must be a valid ISO code (e.g., CA for Canada)';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -95,7 +227,6 @@ export default function BillingForm() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     // Capitalize each word if it's the name field
-    /*
     let processedValue = value;
     if (name === 'name') {
       processedValue = value
@@ -107,8 +238,7 @@ export default function BillingForm() {
     }
 
     setFormData((prev) => ({ ...prev, [name]: processedValue }));
-*/
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    // setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
     if (errors[name as keyof CustomerInfo]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
@@ -191,6 +321,7 @@ export default function BillingForm() {
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
+                ref={inputRef}
                 className="dark:bg-zinc-800 border-white/10 text-foreground"
                 required
               />
@@ -257,14 +388,33 @@ export default function BillingForm() {
                 <Label htmlFor="country">
                   Country <span className="text-red-400">*</span>
                 </Label>
-                <Input
+                {/* <Input
                   id="country"
                   name="country"
                   value={formData.country}
                   onChange={handleInputChange}
                   className="dark:bg-zinc-800 border-white/10 text-foreground"
                   required
-                />
+                /> */}
+                <Select
+                  name="country"
+                  value={formData.country}
+                  defaultValue={formData.country}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, country: value }))
+                  }
+                >
+                  <SelectTrigger className="dark:bg-zinc-800 border-white/10 text-foreground">
+                    <SelectValue placeholder="Select a country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country.code} value={country.code}>
+                        {country.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {errors.country && (
                   <p className="text-red-400 text-sm">{errors.country}</p>
                 )}

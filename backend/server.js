@@ -17,6 +17,7 @@ import Customer from './models/Customer.js';
 import paypal from '@paypal/checkout-server-sdk';
 import Stripe from 'stripe';
 import crypto from 'crypto';
+import iso3166 from 'iso-3166-1';
 //
 dotenv.config();
 const app = express();
@@ -309,7 +310,7 @@ app.get('/api/beats', async (req, res) => {
     // Build query
     let query = { available: true };
     if (search) {
-      if (search == 'g funk') {
+      if (search == 'g funk' || search == 'gfunk') {
         search = 'g-funk';
       }
       query = {
@@ -447,12 +448,27 @@ app.get('/api/licenses', async (req, res) => {
 app.post('/api/paypal/create-order', async (req, res) => {
   const { cartItems, customerInfo } = req.body;
   const newOrderId = generateOrderId();
-  // console.log('Received cartItems:', cartItems);
-  // console.log('PayPal Client ID:', process.env.PAYPAL_CLIENT_ID);
-  // console.log(
-  //   'PayPal Client Secret:',
-  //   process.env.PAYPAL_CLIENT_SECRET ? '***' : 'MISSING'
-  // );
+  // const country = iso3166.whereCountry(customerInfo.country);
+  // if (!country) {
+  //   return res.status(400).json({ error: 'Invalid country code' });
+  // }
+  // Check if country is an ISO code or name
+  let countryCode = customerInfo.country;
+  if (!/^[A-Z]{2}$/.test(customerInfo.country)) {
+    // Try to resolve as a country name
+    const country = iso3166.whereCountry(customerInfo.country);
+    if (!country) {
+      return res.status(400).json({ error: 'Invalid country name or code' });
+    }
+    countryCode = country.alpha2;
+  } else {
+    // Verify it's a valid ISO code
+    const country = iso3166.whereAlpha2(customerInfo.country);
+    if (!country) {
+      return res.status(400).json({ error: 'Invalid country code' });
+    }
+    countryCode = customerInfo.country; // Already an ISO code
+  }
 
   try {
     if (!customerInfo.email || !customerInfo.name) {
@@ -525,13 +541,13 @@ app.post('/api/paypal/create-order', async (req, res) => {
         }, // PayPal requires given_name and surname
 
         email_address: customerInfo.email,
-        // address: {
-        //   address_line_1: customerInfo.address,
-        //   admin_area_2: customerInfo.city,
-        //   admin_area_1: customerInfo.state,
-        //   postal_code: customerInfo.zip,
-        //   country_code: customerInfo.country,
-        // },
+        address: {
+          address_line_1: customerInfo.address,
+          admin_area_2: customerInfo.city,
+          admin_area_1: customerInfo.state,
+          postal_code: customerInfo.zip,
+          country_code: countryCode,
+        },
       },
     });
 

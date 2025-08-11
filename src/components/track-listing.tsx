@@ -107,7 +107,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('submitted');
+    // console.log('submitted');
   };
 
   /**
@@ -195,7 +195,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
     // If this is the current track and it's playing, pause it
     if (currentTrack?.id === track.id && isPlaying) {
       pauseTrack();
-      console.log('pause', isPlaying);
+      // console.log('pause', isPlaying);
     }
     // If this is the current track but paused, resume playback
     else if (currentTrack?.id === track.id && !isPlaying) {
@@ -236,7 +236,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
     const maxVisiblePages = 5; // Show 3 pages + 2 ellipses
     const startPage = Math.max(1, currentPage - 1);
     const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    console.log('totalPages', totalPages);
+    // console.log('totalPages', totalPages);
     if (totalPages <= 1) {
       // Only show page 1
       return (

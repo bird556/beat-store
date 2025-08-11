@@ -13,7 +13,7 @@ import MusicPlayer from './components/musicplayer';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/helper/ScrollToTop';
 import { PlayerProvider } from './contexts/PlayerContext';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { CartProvider } from './contexts/cart-context';
 import { Toaster } from 'react-hot-toast';
 import { LicenseProvider } from './contexts/LicenseContext';
@@ -44,7 +44,8 @@ function App() {
                       particleCount={50000}
                       particleSpread={70}
                       speed={0.1}
-                      particleBaseSize={10}
+                      particleBaseSize={50}
+                      // particleBaseSize={10}
                       moveParticlesOnHover={false}
                       alphaParticles={true}
                       disableRotation={true}

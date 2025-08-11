@@ -102,14 +102,14 @@ const Navbar = () => {
                 Beats
               </li>
             </NavLink>
-            <NavLink
+            {/* <NavLink
               to="/about"
               className="!bg-transparent hover:!border-transparent"
             >
               <li className="text-foreground hover:text-green-400 transition-colors">
                 About
               </li>
-            </NavLink>
+            </NavLink> */}
             <NavLink
               to="/contact"
               className="!bg-transparent hover:!border-transparent"
