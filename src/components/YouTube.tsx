@@ -17,6 +17,7 @@ const YoutubeSection = () => {
                 alt="🔥"
                 width="32"
                 height="32"
+                className="max-sm:hidden"
               />
             </picture>{' '}
             Subscribe to Birdie Bands

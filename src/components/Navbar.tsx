@@ -165,7 +165,7 @@ const Navbar = () => {
                   Beats
                 </li>
               </NavLink>
-              <NavLink
+              {/* <NavLink
                 to="/about"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="!bg-transparent hover:!border-transparent"
@@ -173,7 +173,7 @@ const Navbar = () => {
                 <li className="text-foreground hover:text-green-400 transition-colors">
                   About
                 </li>
-              </NavLink>
+              </NavLink> */}
               <NavLink
                 to="/contact"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

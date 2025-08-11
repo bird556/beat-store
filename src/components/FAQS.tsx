@@ -16,7 +16,9 @@ const FAQS = ({ size }: { size: string }) => {
           defaultValue="item-1"
         >
           <AccordionItem value="item-1">
-            <AccordionTrigger>How do I receive my beats?</AccordionTrigger>
+            <AccordionTrigger className="!text-black dark:!text-white !bg-transparent">
+              How do I receive my beats?
+            </AccordionTrigger>
             <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
               <p>
                 After purchase, you’ll receive an email with a download link.
@@ -26,7 +28,7 @@ const FAQS = ({ size }: { size: string }) => {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-2">
-            <AccordionTrigger>Do you offer refunds?</AccordionTrigger>
+            <AccordionTrigger>o you offer refunds?</AccordionTrigger>
             <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
               <p>
                 All sales are final. Since our products are digital and
@@ -68,6 +70,7 @@ const FAQS = ({ size }: { size: string }) => {
                 you gain full ownership of the beat and may register your song
                 with YouTube Content ID and other platforms.
               </p>
+              D
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-5">

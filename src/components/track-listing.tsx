@@ -503,7 +503,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           transition={{ duration: 1.0, ease: 'easeOut', delay: 0.3 }}
         >
           <img
-            className="w-xs mb-5 sm:mb-10 z-[50] relative !pointer-events-none"
+            className="max-sm:w-[12rem] w-xs mb-5 sm:mb-10 z-[50] relative !pointer-events-none"
             src={BirdieLogo1}
             alt="Birdie Logo"
           />
