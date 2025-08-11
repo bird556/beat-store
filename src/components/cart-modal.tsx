@@ -1,4 +1,4 @@
-import { X, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useCart } from '@/contexts/cart-context';
 import {
   Modal,

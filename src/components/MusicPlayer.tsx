@@ -2,27 +2,16 @@
 import { usePlayer } from '@/contexts/PlayerContext';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { ShoppingCart } from 'lucide-react';
 import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LicenseModal from './license-modal';
 import { useCart } from '@/contexts/cart-context';
+import type { Track } from '../types';
 
 const MusicPlayer = () => {
-  const {
-    currentTrack,
-    isPlaying,
-    togglePlay,
-    queue,
-    playTrack,
-    nextTrack,
-    previousTrack,
-  } = usePlayer();
+  const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack } =
+    usePlayer();
   const { items: cartItems } = useCart();
   const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
@@ -38,7 +27,7 @@ const MusicPlayer = () => {
     if (isPlaying) {
       audioPlayerRef.current.audio.current
         .play()
-        .catch((e) => console.error('Play failed:', e));
+        .catch(() => console.error('Play failed:'));
     } else {
       audioPlayerRef.current.audio.current.pause();
     }
@@ -168,19 +157,9 @@ const MusicPlayer = () => {
     };
   }, [currentTrack, isPlaying]); // Add isPlaying to dependencies
 
-  const getNextTrack = () => {
-    if (queue.length === 0) return null;
-    if (!currentTrack) return queue[0];
-    const currentIndex = queue.findIndex(
-      (track) => track.id === currentTrack.id
-    );
-    const nextIndex = (currentIndex + 1) % queue.length;
-    return queue[nextIndex];
-  };
-
   const handleCardClick = (beat: Track) => {
     // Re-fetch the main beat when a related beat is clicked to update the page
-    navigate(`/beat?beatId=${beat._id}`);
+    navigate(`/beat?beatId=${beat.id}`);
     // Consider adding a scroll to top here for a better UX
     window.scrollTo(0, 0);
   };
@@ -199,7 +178,6 @@ const MusicPlayer = () => {
     setIsLicenseModalOpen(true);
   };
 
-  const nextTrackInfo = getNextTrack();
   if (!currentTrack) return null;
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-black dark:border-t border-gray-800 px-4 py-3 z-[500] w-full">
@@ -207,15 +185,16 @@ const MusicPlayer = () => {
         <div className="flex items-center justify-between text-start ">
           {/* Current Track Info */}
           <div className="flex items-center gap-4 min-w-0 relative">
-            <img
-              src={currentTrack.image || currentTrack.s3_image_url}
-              alt={currentTrack.title}
-              className="rounded h-14 w-14 object-cover hidden sm:block"
-            />
             <button
               onClick={() => handleCardClick(currentTrack)}
-              className="!p-0 !m-0 text-start overflow-hidden"
+              className="!p-0 !m-0 text-start overflow-hidden flex items-center gap-4"
             >
+              <img
+                src={currentTrack.image || currentTrack.s3_image_url}
+                alt={currentTrack.title}
+                className="rounded h-14 w-14 object-cover hidden sm:block"
+              />
+
               <div className="min-w-0 flex-1">
                 <div className=" sm:block dark:text-white font-medium truncate md:max-w-64 ">
                   {currentTrack.title}

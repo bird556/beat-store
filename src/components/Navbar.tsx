@@ -1,44 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, User, ShoppingCart, Menu, X } from 'lucide-react';
-import Marquee from 'react-fast-marquee';
-import { Link, NavLink } from 'react-router';
+import { ShoppingCart, Menu, X } from 'lucide-react';
+// import Marquee from 'react-fast-marquee';
+import { NavLink } from 'react-router';
 import BirdieLogo from '../../src/Images/logo.png';
 import BirdieLogo1 from '../../src/Images/birdie2025-logo.png';
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownSection,
-  DropdownItem,
-} from '@heroui/dropdown';
-import Particles from './ui/ReactBits/Particles';
+
 import CartModal from './cart-modal';
 import { useCart } from '@/contexts/cart-context';
-import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const { totalItems } = useCart();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
 
   return (
     <>
       <nav className="!sticky !top-0 z-[500] border-b border-foreground/30  backdrop-blur-sm bg-background dark:bg-black/70">
-        {/* <div className="fixed h-full w-full top-0 left-0 z-0">
-          <Particles
-            particleColors={['#ffffff', '#ffffff']}
-            particleCount={50000}
-            particleSpread={70}
-            speed={0.1}
-            particleBaseSize={10}
-            moveParticlesOnHover={false}
-            alphaParticles={true}
-            disableRotation={true}
-          />
-        </div> */}
         {/* <div className="max-w-xl mx-auto">
           <Marquee
             gradient={false}

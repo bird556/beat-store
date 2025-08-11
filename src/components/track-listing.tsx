@@ -1,6 +1,7 @@
 // src/components/track-listing.tsx
 
 'use client';
+import type { Track } from '../types';
 import React from 'react';
 import { PlaceholdersAndVanishInput } from './ui/placeholders-and-vanish-input';
 import { useState, useEffect } from 'react';
@@ -13,20 +14,17 @@ import {
   Share2,
   Pause,
 } from 'lucide-react';
-import BirdieLogo from '/src/Images/logo.png';
 import BirdieLogo1 from '../Images/cropped.png';
-import { Link, NavLink, useNavigate } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
 import { usePlayer } from '@/contexts/PlayerContext';
 import StudioVideo from '/Videos/music-studio.mp4';
-import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useSearchParams } from 'react-router-dom';
 import { useCart } from '@/contexts/cart-context';
 import { useBeats } from '@/contexts/BeatsContext';
 import LicenseModal from './license-modal';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { debounce } from 'lodash';
 import {
   Pagination,
   PaginationContent,
@@ -47,14 +45,8 @@ import FadeContent from './ui/ReactBits/FadeContent';
  * @prop {function} setSearchTerm - A function to set the search term.
  */
 const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
-  const {
-    beats,
-    isBeatsLoaded,
-    fetchBeats,
-    totalBeats,
-    totalPages,
-    currentPage,
-  } = useBeats();
+  const { beats, isBeatsLoaded, fetchBeats, totalPages, currentPage } =
+    useBeats();
   const { items: cartItems } = useCart();
   const { playTrack, currentTrack, isPlaying, setQueue, pauseTrack } =
     usePlayer();
@@ -118,7 +110,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
 
   const handleDownloadClick = async (track: Track) => {
     try {
-      if (!track._id) {
+      if (!track.id) {
         toast.error('No track ID available.');
         return;
       }
@@ -127,7 +119,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
 
       // Call the backend download endpoint
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL_BACKEND}/api/download/${track._id}`
+        `${import.meta.env.VITE_API_BASE_URL_BACKEND}/api/download/${track.id}`
       );
       const { downloadUrl } = response.data;
 
@@ -147,9 +139,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
       toast.success(`Download started for ${track.title}`, { id: toastId });
     } catch (error) {
       console.error('Error initiating download:', error);
-      toast.error('Failed to download the track. Please try again later.', {
-        id: toastId,
-      });
+      toast.error('Failed to download the track. Please try again later.');
     }
   };
 
@@ -209,7 +199,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
 
   const handleCardClick = (beat: Track) => {
     // Re-fetch the main beat when a related beat is clicked to update the page
-    navigate(`/beat?beatId=${beat._id}`);
+    navigate(`/beat?beatId=${beat.id}`);
     // Consider adding a scroll to top here for a better UX
     window.scrollTo(0, 0);
   };
@@ -333,9 +323,9 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
   // Slice beats for display (6 on homepage, all on /beats)
   const displayedBeats = limitTrackCount ? beats.slice(0, 6) : beats;
 
-  const TrackCard = ({ track }) => {
-    const ref = useRef(null);
-    const isInView = useInView(ref, { once: true });
+  const TrackCard = ({ track }: { track: Track }) => {
+    // const ref = useRef(null);
+    // const isInView = useInView(ref, { once: true });
     return (
       <>
         {/* I only want it to animate once..I dont want to do ref or isInview anymore */}
@@ -433,7 +423,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
             </button>
 
             {/* Price/Cart Button */}
-            {isTrackInCart(track._id) ? (
+            {isTrackInCart(track.id) ? (
               <button
                 onClick={() => handleEditLicenseClick(track)}
                 className="min-sm:min-w-28  !bg-green-600 hover:!bg-green-800 text-nowrap !transition-colors !duration-300 text-foreground px-4 py-2 rounded font-medium text-sm  "

@@ -5,7 +5,6 @@ import {
   Modal,
   ModalContent,
   ModalHeader,
-  ModalBody,
   ModalFooter,
   useDisclosure,
 } from '@heroui/modal';
@@ -23,33 +22,26 @@ export const HoverEffect = ({
     title: string;
     description: string;
     link: string;
-    bulletPoints: Array;
-    licenseInfo: (clickTime?: Date) => string;
+    bulletPoints: Array<string>;
   }[];
   isLoading: boolean;
+  className?: string;
 }) => {
   let [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [size, setSize] = useState('4xl');
-  const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(
-    null
-  ); // Add this line
+  const { isOpen, onClose } = useDisclosure();
+  const [selectedItemIndex] = useState<number | null>(null); // Add this line
   const [isLoaded, setIsLoaded] = useState(false);
-  const handleOpen = (size: string, index: number) => {
-    setSize(size);
-    setSelectedItemIndex(index);
-    onOpen();
-  };
+
   const handleDownloadClick = async (license: string) => {
-    if (!license.id) {
+    if (!license) {
       toast.error('No track ID available.');
       return;
     }
 
     const downloadPromise = axios.get(
-      `${import.meta.env.VITE_API_BASE_URL_BACKEND}/api/licenses/download/${
-        license.id
-      }`
+      `${
+        import.meta.env.VITE_API_BASE_URL_BACKEND
+      }/api/licenses/download/${license}`
     );
 
     toast.promise(downloadPromise, {
@@ -64,7 +56,7 @@ export const HoverEffect = ({
         // Open PDF in a new tab instead of downloading
         window.open(downloadUrl, '_blank');
 
-        return `Preview opened for ${license.title}`;
+        return `Preview Opened`;
       },
       error: (error) => {
         console.error('Download error:', error);
@@ -172,7 +164,7 @@ export const HoverEffect = ({
                     </CardDescription>
                   </div>
                   <ul className="space-y-1 py-12">
-                    {item.bulletPoints.map((point, i) => (
+                    {item.bulletPoints.map((point: string, i: number) => (
                       <li
                         className={
                           idx === items.length - 1
@@ -188,7 +180,7 @@ export const HoverEffect = ({
                   <button
                     className=" dark:hover:bg-white dark:hover:text-background !transition-all !duration-600 hover:bg-background hover:text-foreground text-background dark:text-foreground bg-zinc-900"
                     // onClick={() => handleOpen(size, idx)}
-                    onClick={() => handleDownloadClick(item)}
+                    onClick={() => handleDownloadClick(item.id)}
                   >
                     Read Full License
                   </button>
@@ -235,7 +227,6 @@ export const HoverEffect = ({
                                 : ''}
                             </ModalHeader>
                           </div>
-                          {selectedItemIndex !== null && item.licenseInfo()}{' '}
                           {/* Only render if selectedItemIndex is not null */}
                           <ModalFooter className="bg-zinc-900 border-t border-zinc-700">
                             <button

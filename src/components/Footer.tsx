@@ -1,12 +1,9 @@
-import React from 'react';
 import BirdieLogo from '/src/Images/logo.png';
 import { FaCcVisa } from 'react-icons/fa';
 import { FaCcMastercard } from 'react-icons/fa';
 import { FaCcPaypal } from 'react-icons/fa';
 import { FaCcStripe } from 'react-icons/fa';
-import { SiCoinbase } from 'react-icons/si';
-import { MoveUp } from 'lucide-react';
-import { Link, NavLink } from 'react-router';
+import { NavLink } from 'react-router';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -25,7 +22,7 @@ const Footer = () => {
                 alt="Birdie Logo"
               />
             </NavLink>
-            <ul className="flex flex-wrap items-center mb-6 text-sm font-medium  sm:mb-0">
+            <ul className="flex flex-wrap items-center mb-6 text-sm font-medium  max-sm:justify-center sm:mb-0">
               <li>
                 <NavLink
                   to={'/refund-policy'}
@@ -68,17 +65,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          <div className="min-[300px]:flex min-[300px]:justify-center min-[300px]:items-center sm:flex sm:items-center sm:justify-between">
-            <a
-              href="https://flowbite.com/"
-              className=" hidenn flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse"
-            >
-              <img
-                src={BirdieLogo}
-                className="hidden h-8 translate-y-1"
-                alt="Flowbite Logo"
-              />
-            </a>
+          <div className="min-[300px]:flex min-[300px]:justify-center min-[300px]:items-center sm:flex sm:items-center sm:justify-end">
             <ul className="flex flex-wrap items-center mb-6 min-sm:my-3 text-sm font-medium space-x-6 sm:mb-0">
               <li>
                 <FaCcVisa size={30} />

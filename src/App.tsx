@@ -9,7 +9,7 @@ import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import Particles from './components/ui/ReactBits/Particles';
 import Contact from './components/Contact';
-import MusicPlayer from './components/musicplayer';
+import MusicPlayer from './components/MusicPlayer';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/helper/ScrollToTop';
 import { PlayerProvider } from './contexts/PlayerContext';

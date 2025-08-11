@@ -313,7 +313,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
                           const {
                             status,
                             orderId,
-                            items: orderItems,
+                            // items: orderItems,
                             error,
                           } = await response.json();
                           if (error) throw new Error(error);

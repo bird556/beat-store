@@ -184,12 +184,6 @@ export function PlaceholdersAndVanishInput({
     }
   };
 
-  const clearSearch = () => {
-    setValue(''); // Clear local input value
-    setAnimating(false); // Stop any ongoing animations
-    onSearch && onSearch(''); // Trigger empty search to reset table
-  };
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     vanishAndSubmit();

@@ -7,23 +7,27 @@ import {
   type ReactNode,
 } from 'react';
 import toast from 'react-hot-toast';
+import type { Track } from '../types';
 
-export interface CartItem {
-  id: string;
-  title: string;
-  artist: string;
-  price: number;
+interface CartItem extends Track {
   license: string;
-  image: string;
-  key: string;
-  bpm: number;
-  duration: string;
-  audioUrl: string;
-  dateAdded: string;
-  licenses: object[];
-  s3_mp3_url: string;
-  s3_image_url: string;
 }
+// export interface CartItem {
+//   id: string;
+//   title: string;
+//   artist: string;
+//   price: number;
+//   license: string;
+//   image: string;
+//   key: string;
+//   bpm: number;
+//   duration: string;
+//   audioUrl: string;
+//   dateAdded: string;
+//   licenses: object[];
+//   s3_mp3_url: string;
+//   s3_image_url: string;
+// }
 
 interface CartContextType {
   items: CartItem[];

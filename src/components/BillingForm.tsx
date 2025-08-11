@@ -13,16 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-interface CustomerInfo {
-  name: string;
-  email: string;
-  emailConfirm: string;
-  address: string;
-  city: string;
-  state: string;
-  zip: string;
-  country: string;
-}
+import type { CustomerInfo } from '../types';
 
 export default function BillingForm() {
   const navigate = useNavigate();

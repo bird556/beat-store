@@ -3,27 +3,27 @@ import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
   useCallback,
   useRef,
 } from 'react';
 import axios from 'axios';
-
-interface Track {
-  id: string;
-  title: string;
-  artist: string;
-  bpm: number;
-  key: string;
-  dateAdded: string;
-  duration: string;
-  price: number;
-  image: string;
-  audioUrl: string;
-  licenses: object[];
-  s3_mp3_url: string;
-  s3_image_url: string;
-}
+import { toast } from 'react-hot-toast';
+import type { Track } from '../types';
+// interface Track {
+//   id: string;
+//   title: string;
+//   artist: string;
+//   bpm: number;
+//   key: string;
+//   dateAdded: string;
+//   duration: string;
+//   price: number;
+//   image: string;
+//   audioUrl: string;
+//   licenses: object[];
+//   s3_mp3_url: string;
+//   s3_image_url: string;
+// }
 
 interface BeatsContextType {
   beats: Track[];
@@ -94,7 +94,7 @@ export const BeatsProvider: React.FC<{ children: React.ReactNode }> = ({
         currentPage: response.data.page,
         timestamp: Date.now(),
       });
-      console.log('Beats fetched successfully:', cacheKey);
+      // console.log('Beats fetched successfully:', cacheKey);
     } catch (error) {
       console.error('Error fetching beats:', error);
       toast.error('Failed to load beats. Retrying...');

@@ -1,12 +1,10 @@
-import React from 'react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import Particles from './ui/ReactBits/Particles';
-const FAQS = ({ size }) => {
+const FAQS = ({ size }: { size: string }) => {
   return (
     <div className="flex flex-col justify-center self-center md:min-w-6xl">
       <div className="z-50 flex flex-col gap-12">

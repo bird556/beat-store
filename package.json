@@ -33,6 +33,7 @@
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "@react-google-maps/api": "^2.20.7",
     "@stripe/react-stripe-js": "^3.8.1",
     "@stripe/stripe-js": "^7.7.0",
     "@tabler/icons-react": "^3.34.0",
@@ -68,6 +69,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
+    "@types/googlemaps": "^3.43.3",
     "@types/node": "^24.1.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",

@@ -1,4 +1,3 @@
-import React from 'react';
 import BillingForm from '@/components/BillingForm';
 const Billing = () => {
   return (

@@ -4,12 +4,13 @@ import { createContext, useContext, useEffect, useState } from 'react';
 // const LicenseContext = createContext([]);
 // export const useLicenses = () => useContext(LicenseContext);
 interface License {
-  id: string; // Example property
+  _id: string; // Example property
+  type: string;
   title: string;
-  description: string;
-  features: string[]; // Assuming 'features' is an array of strings
-  // Add other properties of a License here
   licenseDownloadLink: string;
+  features: string[]; // Assuming 'features' is an array of strings
+  description: string;
+  created_at: string;
 }
 
 // Define the shape of the context value
@@ -42,7 +43,9 @@ export const LicenseProvider = ({
   useEffect(() => {
     const fetchLicenses = async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/licenses');
+        const res = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL_BACKEND}/api/licenses`
+        );
         const data = await res.json();
         setLicenses(data);
         // setLoading(false);

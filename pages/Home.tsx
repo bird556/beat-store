@@ -6,11 +6,9 @@ import { MoveUp } from 'lucide-react';
 // import Particles from '@/components/ui/ReactBits/Particles';
 // import Background from '@/components/Background';
 import { useEffect, useState } from 'react';
-import Contact from '@/components/Contact';
 import YoutubeSection from '@/components/YouTube';
-const Home = ({ size }) => {
+const Home = ({ size }: { size: string }) => {
   document.title = `Birdie Bands | Home`;
-  const [searchTerm, setSearchTerm] = useState('');
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
@@ -40,7 +38,7 @@ const Home = ({ size }) => {
         // searchTerm={searchTerm}
         // setSearchTerm={setSearchTerm}
       />
-      <Artists size={size} setSearchTerm={setSearchTerm} />
+      <Artists size={size} />
       <Licenses />
       <FAQS size={size} />
       {/* <Contact fullscreen={false} /> */}

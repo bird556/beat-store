@@ -1,9 +1,7 @@
 // src/components/license-modal.tsx
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
 import toast from 'react-hot-toast';
-import type { Track } from '@/contexts/PlayerContext';
 import { useCart } from '@/contexts/cart-context';
 import {
   Modal,
@@ -19,6 +17,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import type { Track } from '../../src/types';
 
 interface LicenseModalProps {
   isOpen: boolean;
@@ -33,7 +32,7 @@ export default function LicenseModal({
 }: LicenseModalProps) {
   const [selectedLicense, setSelectedLicense] = useState<string | null>(null);
   const { addToCart } = useCart();
-  const [openItems, setOpenItems] = useState({});
+  const [openItems, setOpenItems] = useState<Record<string, string>>({});
   const [showError, setShowError] = useState(false); // New state for error message
 
   if (!isOpen || !track) return null;
@@ -189,19 +188,21 @@ export default function LicenseModal({
                             </AccordionTrigger>
                             <AccordionContent>
                               <ul className="space-y-1">
-                                {license.features.map((feature, i) => (
-                                  <li
-                                    key={i}
-                                    className="flex items-center text-sm text-gray-300"
-                                  >
-                                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                                    {feature === 'Receive Signed Contract' ? (
-                                      <span>*{feature}*</span>
-                                    ) : (
-                                      <span>{feature}</span>
-                                    )}
-                                  </li>
-                                ))}
+                                {license.features.map(
+                                  (feature: string, i: number) => (
+                                    <li
+                                      key={i}
+                                      className="flex items-center text-sm text-gray-300"
+                                    >
+                                      <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                      {feature === 'Receive Signed Contract' ? (
+                                        <span>*{feature}*</span>
+                                      ) : (
+                                        <span>{feature}</span>
+                                      )}
+                                    </li>
+                                  )
+                                )}
                               </ul>
                             </AccordionContent>
                           </AccordionItem>

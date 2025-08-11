@@ -1,4 +1,3 @@
-import React from 'react';
 import MusicStudioVideo from '/Videos/music-studio.mp4';
 const Background = () => {
   return (

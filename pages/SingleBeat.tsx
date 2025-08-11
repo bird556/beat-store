@@ -1,3 +1,4 @@
+// src/pages/SingleBeat.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -25,8 +26,27 @@ import LicenseModal from '@/components/license-modal'; // Assuming path
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import FadeContent from '@/components/ui/ReactBits/FadeContent';
-// --- SingleBeatPage Component ---
+import type { Track } from '../src/types';
 
+interface Beat {
+  artist: string;
+  available: boolean;
+  bpm: number;
+  created_at: string;
+  duration: string;
+  id: string;
+  key: string;
+  licenses: object[];
+  s3_image_url: string;
+  s3_mp3_url: string;
+  tags: string[];
+  title: string;
+  _id: string;
+  audioUrl?: string;
+  image?: string;
+}
+
+// --- SingleBeatPage Component ---
 export default function SingleBeatPage() {
   //   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -133,7 +153,7 @@ export default function SingleBeatPage() {
           setRelatedBeats([]);
         } else {
           setRelatedBeats(
-            data.map((b: any) => ({
+            data.map((b: Beat) => ({
               ...b,
               id: b._id, // Map _id to id for consistency
               audioUrl: b.s3_mp3_url || b.audioUrl, // Ensure audioUrl is correct
@@ -152,7 +172,7 @@ export default function SingleBeatPage() {
   }, [location.search]); // Depend on id to re-fetch if URL param changes
   const handleDownloadClick = async (beat: Track) => {
     try {
-      if (!beat._id) {
+      if (!beat.id) {
         toast.error('No beat ID available for download.');
         return;
       }
@@ -160,7 +180,7 @@ export default function SingleBeatPage() {
       const toastId = toast.loading('Starting download...');
 
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL_BACKEND}/api/download/${beat._id}`
+        `${import.meta.env.VITE_API_BASE_URL_BACKEND}/api/download/${beat.id}`
       );
       const { downloadUrl } = response.data;
 
@@ -179,14 +199,12 @@ export default function SingleBeatPage() {
       toast.success(`Download started for ${beat.title}`, { id: toastId });
     } catch (error) {
       console.error('Error initiating download:', error);
-      toast.error('Failed to download the track. Please try again later.', {
-        id: toastId,
-      });
+      toast.error('Failed to download the track. Please try again later.');
     }
   };
 
   const handleShareClick = (beat: Track) => {
-    const shareUrl = `${window.location.origin}/beat/${beat._id}`; // Use _id for the URL
+    const shareUrl = `${window.location.origin}/beat/${beat.id}`; // Use _id for the URL
     const shareText = `Check out this beat: "${beat.title}" by ${beat.artist} on Birdie Bands!`;
 
     if (navigator.share) {
@@ -227,12 +245,8 @@ export default function SingleBeatPage() {
     setIsLicenseModalOpen(true);
   };
 
-  const isCurrentBeatPlaying = currentTrack?.id === beat?.id && isPlaying; // Use .id for comparison
-  const isCurrentBeat = currentTrack?.id === beat?.id;
-
   const handleTrackPlay = (track: Track, e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('track', track._id);
     // If this is the current track and it's playing, pause it
     if (currentTrack?.id === track.id && isPlaying) {
       pauseTrack();
@@ -281,13 +295,13 @@ export default function SingleBeatPage() {
     const navigate = useNavigate(); // useNavigate hook should be called at the top level of the component
     const handleCardClick = () => {
       // Re-fetch the main beat when a related beat is clicked to update the page
-      navigate(`/beat?beatId=${beat._id}`);
+      navigate(`/beat?beatId=${beat.id}`);
       // Consider adding a scroll to top here for a better UX
       window.scrollTo(0, 0);
     };
 
     const currentBeatPlaying = currentTrack?.id === beat.id && isPlaying;
-    const currentBeat = currentTrack?.id === beat.id;
+    // const currentBeat = currentTrack?.id === beat.id;
 
     return (
       <div className="max-md:border-b-[1px] max-md:py-16 max-md:!flex max-md:!flex-col z-50 grid grid-cols-10 gap-4 items-center py-3 px-2 min-md:rounded-lg min-md:hover:bg-foreground/15 transition-colors group">
@@ -302,7 +316,8 @@ export default function SingleBeatPage() {
               src={beat.image || beat.s3_image_url || '/placeholder-beat.png'}
               alt={beat.title}
             />
-            {currentBeat?.id === beat.id && (
+            {currentTrack && currentTrack.id === beat.id && (
+              // {currentBeat?.id === beat.id && (
               <div className="cursor-pointer scale-125 absolute inset-0 !bg-black/50 !border-transparent flex items-center justify-center transition-opacity rounded opacity-100">
                 {currentBeatPlaying ? (
                   <Pause className="w-4 h-4 text-foreground fill-white" />
@@ -320,7 +335,7 @@ export default function SingleBeatPage() {
             </div>
           </button>
           <button
-            onClick={() => handleCardClick(beat)}
+            onClick={() => handleCardClick()}
             className="max-md:text-center min-w-0 !p-0 !m-0 text-start text-foreground hover:!text-green-400 !duration-200 !transition-colors"
           >
             <div className="font-medium truncate">{beat.title}</div>
@@ -380,7 +395,7 @@ export default function SingleBeatPage() {
           </button>
 
           {/* Price/Cart Button */}
-          {isTrackInCart(beat._id) ? (
+          {isTrackInCart(beat.id) ? (
             <button
               onClick={() => handleEditLicenseClick(beat)}
               className="!bg-green-600 text-foreground px-4 py-2 rounded font-medium text-sm lg:min-w-28"
@@ -496,7 +511,7 @@ export default function SingleBeatPage() {
               </div>
 
               {/* Metadata (BPM, Key, Date) */}
-              <div className="flex items-center space-x-6 text-lgtext-gray-700 dark:text-gray-300 mb-6">
+              <div className="flex items-center space-x-6 text-lg text-gray-700 dark:text-gray-300 mb-6">
                 <p className="flex items-center space-x-2">
                   <Music className="w-5 h-5 dark:text-gray-300" />
                   <span>BPM {beat.bpm}</span>
@@ -514,7 +529,7 @@ export default function SingleBeatPage() {
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                 {beat.licenses.length > 0 ? (
-                  isTrackInCart(beat._id) ? (
+                  isTrackInCart(beat.id) ? (
                     <button
                       onClick={() => handleEditLicenseClick(beat)}
                       className="flex-1 bg-green-500 text-black px-8 py-3 rounded-md text-lg font-bold flex items-center justify-center space-x-2 transition-colors"
@@ -532,7 +547,7 @@ export default function SingleBeatPage() {
                     </button>
                   )
                 ) : beat.price ? (
-                  isTrackInCart(beat._id) ? (
+                  isTrackInCart(beat.id) ? (
                     <button
                       className="flex-1 bg-green-500 text-black px-8 py-3 rounded-md text-lg font-bold flex items-center justify-center space-x-2 transition-colors"
                       disabled
@@ -595,7 +610,7 @@ export default function SingleBeatPage() {
               // Display Related Beats if loaded and exist
               <div className=" grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {relatedBeats.map((relatedBeat) => (
-                  <RelatedBeatCard key={relatedBeat._id} beat={relatedBeat} />
+                  <RelatedBeatCard key={relatedBeat.id} beat={relatedBeat} />
                 ))}
               </div>
             ) : (

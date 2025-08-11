@@ -1,8 +1,7 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import TiltedCard from './ui/ReactBits/TitledCard';
 import { useNavigate } from 'react-router-dom';
-const Artists = ({ size, setSearchTerm }) => {
+const Artists = ({ size }: { size: string }) => {
   const navigate = useNavigate();
   const handleCardClick = (term: string) => {
     navigate(`/beats?search=${encodeURIComponent(term)}`); // Navigates to the '/dashboard' route

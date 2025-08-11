@@ -9,7 +9,7 @@ const YoutubeSection = () => {
           <h2 className="text-foreground flex items-center gap-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
             <picture className="pointer-events-none">
               <source
-                srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.webp"
+                srcSet="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.webp"
                 type="image/webp"
               />
               <img
@@ -48,7 +48,7 @@ const YoutubeSection = () => {
             {/* 🚀 Visit & Subscribe */}
             <picture className="pointer-events-none">
               <source
-                srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.webp"
+                srcSet="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.webp"
                 type="image/webp"
               />
               <img

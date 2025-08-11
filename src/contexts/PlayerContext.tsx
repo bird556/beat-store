@@ -1,20 +1,21 @@
 // src/contexts/PlayerContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-export interface Track {
-  id: string;
-  title: string;
-  artist: string;
-  bpm: number;
-  key: string;
-  dateAdded: string;
-  duration: string;
-  price: number;
-  image: string;
-  audioUrl: string;
-  licenses: object[];
-  s3_mp3_url: string;
-  s3_image_url: string;
-}
+import type { Track } from '../types';
+// export interface Track {
+//   id: string;
+//   title: string;
+//   artist: string;
+//   bpm: number;
+//   key: string;
+//   dateAdded: string;
+//   duration: string;
+//   price: number;
+//   image: string;
+//   audioUrl: string;
+//   licenses: object[];
+//   s3_mp3_url: string;
+//   s3_image_url: string;
+// }
 
 interface PlayerContextType {
   currentTrack: Track | null;
