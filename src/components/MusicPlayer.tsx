@@ -282,7 +282,7 @@ const MusicPlayer = () => {
           ) : (
             <button
               onClick={() => handleBuyClick(currentTrack)}
-              className=" min-sm:min-w-28 cursor-pointer !bg-foreground  text-background px-4 py-2 rounded font-medium text-sm hover:!bg-gray-300 transition-colors flex items-center space-x-1"
+              className=" min-sm:min-w-28 cursor-pointer !bg-foreground  text-background px-4 py-2 rounded font-medium text-sm hover:!bg-white hover:!text-black dark:hover:!bg-gray-300 !transition-colors duration-300 flex items-center space-x-1"
             >
               <ShoppingCart className="max-sm:w-2 max-sm:scale-200 w-4 h-4" />
               <span className="hidden sm:block">

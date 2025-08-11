@@ -28,7 +28,9 @@ const FAQS = ({ size }: { size: string }) => {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-2">
-            <AccordionTrigger>o you offer refunds?</AccordionTrigger>
+            <AccordionTrigger className="!text-black dark:!text-white !bg-transparent">
+              Do you offer refunds?
+            </AccordionTrigger>
             <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
               <p>
                 All sales are final. Since our products are digital and
@@ -43,7 +45,7 @@ const FAQS = ({ size }: { size: string }) => {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-3">
-            <AccordionTrigger>
+            <AccordionTrigger className="!text-black dark:!text-white !bg-transparent">
               Can I resell your beats after purchasing?
             </AccordionTrigger>
             <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
@@ -55,7 +57,7 @@ const FAQS = ({ size }: { size: string }) => {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-4">
-            <AccordionTrigger>
+            <AccordionTrigger className="!text-black dark:!text-white !bg-transparent">
               Can I register the beat or song with YouTube Content ID?
             </AccordionTrigger>
             <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
@@ -74,7 +76,7 @@ const FAQS = ({ size }: { size: string }) => {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-5">
-            <AccordionTrigger>
+            <AccordionTrigger className="!text-black dark:!text-white !bg-transparent">
               Can I use the beat in multiple songs?
             </AccordionTrigger>
             <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
@@ -85,7 +87,7 @@ const FAQS = ({ size }: { size: string }) => {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-6">
-            <AccordionTrigger>
+            <AccordionTrigger className="!text-black dark:!text-white !bg-transparent">
               Do I own the beat after purchase?
             </AccordionTrigger>
             <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">
@@ -100,7 +102,7 @@ const FAQS = ({ size }: { size: string }) => {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-7">
-            <AccordionTrigger>
+            <AccordionTrigger className="!text-black dark:!text-white !bg-transparent">
               How should I credit the producer?
             </AccordionTrigger>
             <AccordionContent className="flex flex-col gap-4 text-start pl-6 max-sm:pl-6">

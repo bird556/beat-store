@@ -45,7 +45,7 @@ const Home = ({ size }: { size: string }) => {
       {showButton && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="z-50 fixed bottom-35 lg:right-20 right-5 transition-all duration-300 transform"
+          className="z-50 fixed bottom-35 lg:right-20 right-5 transition-all duration-300 transform !bg-transparent"
         >
           <MoveUp />
         </button>

@@ -265,7 +265,7 @@ export default function SingleBeatPage() {
   if (error) {
     return (
       <div className="z-50 relative max-w-4xl mx-auto px-4 py-16 min-h-[60vh] flex flex-col justify-center items-center">
-        <Card className="max-w-md mx-auto bg-card text-card-foreground shadow-lg">
+        <Card className="max-w-md mx-auto bg-card text-card-foreground shadow-lg border-none">
           <CardHeader>
             <CardTitle className="text-red-500 text-3xl font-bold">
               Error Loading Beat!
@@ -398,7 +398,7 @@ export default function SingleBeatPage() {
           {isTrackInCart(beat.id) ? (
             <button
               onClick={() => handleEditLicenseClick(beat)}
-              className="!bg-green-600 text-foreground px-4 py-2 rounded font-medium text-sm lg:min-w-28"
+              className="!bg-green-600  text-foreground px-4 py-2 rounded font-medium text-sm lg:min-w-28"
             >
               <ShoppingCart className="w-4 h-4 min-sm:hidden" />
               <span className="hidden sm:block">IN CART</span>
@@ -406,7 +406,7 @@ export default function SingleBeatPage() {
           ) : (
             <button
               onClick={() => handleBuyClick(beat)}
-              className="lg:min-w-28 cursor-pointer !bg-foreground text-background px-4 py-2 rounded font-medium text-sm hover:!bg-gray-300 transition-colors flex items-center space-x-1"
+              className="lg:min-w-28 cursor-pointer !bg-foreground text-background px-4 py-2 rounded font-medium text-sm hover:!bg-white hover:!text-black dark:hover:!bg-gray-300 !transition-colors duration-300 flex items-center space-x-1"
             >
               <ShoppingCart className="w-4 h-4" />
               <span className="hidden sm:block">
@@ -469,7 +469,7 @@ export default function SingleBeatPage() {
           {' '}
           {/* Use a React Fragment to return multiple top-level elements */}
           {/* Loaded Main Beat Content - Refactored to match the image, NOT using Card */}
-          <div className="dark:bg-zinc-900/0 dark:text-white shadow-lg rounded-lg overflow-hidden flex flex-col md:flex-row p-6 md:p-0">
+          <div className="dark:bg-zinc-900/0 dark:text-white shadow-xs rounded-lg overflow-hidden flex flex-col md:flex-row p-6 md:p-0">
             {/* Image Section */}
             <div className="w-full md:w-1/3 flex-shrink-0 relative  aspect-square">
               <img
@@ -532,7 +532,7 @@ export default function SingleBeatPage() {
                   isTrackInCart(beat.id) ? (
                     <button
                       onClick={() => handleEditLicenseClick(beat)}
-                      className="flex-1 bg-green-500 text-black px-8 py-3 rounded-md text-lg font-bold flex items-center justify-center space-x-2 transition-colors"
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-black px-8 py-3 rounded-md text-lg font-bold flex items-center justify-center space-x-2 transition-colors"
                     >
                       <ShoppingCart className="w-6 h-6" />
                       <span>In Cart</span>
@@ -540,7 +540,7 @@ export default function SingleBeatPage() {
                   ) : (
                     <button
                       onClick={() => handleBuyClick(beat)}
-                      className="flex-1 bg-white text-black px-8 py-3 rounded-md text-lg font-bold flex items-center justify-center space-x-2 hover:bg-gray-300 transition-colors"
+                      className="flex-1 px-8 py-3 !bg-foreground text-background rounded-md text-lg font-bold flex items-center justify-center space-x-2 hover:!bg-white hover:!text-black dark:hover:!bg-gray-300 !transition-colors duration-300 transition-colors"
                     >
                       <ShoppingCart className="w-6 h-6" />
                       <span>${beat.licenses[0].price}</span>
@@ -558,10 +558,10 @@ export default function SingleBeatPage() {
                   ) : (
                     <button
                       onClick={() => handleBuyClick(beat)}
-                      className="flex-1 bg-white text-black px-8 py-3 rounded-md text-lg font-bold flex items-center justify-center space-x-2 hover:bg-gray-300 transition-colors"
+                      className="flex-1 !bg-foreground text-background px-8 py-3 rounded-md text-lg font-bold flex items-center justify-center space-x-2 hover:bg-gray-300 transition-colors"
                     >
                       <ShoppingCart className="w-6 h-6" />
-                      <span>${beat.price}</span>
+                      <span>${beat.price} </span>
                     </button>
                   )
                 ) : null}

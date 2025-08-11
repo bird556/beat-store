@@ -186,10 +186,10 @@ const CartCheckOut = ({ size }: { size: string }) => {
                         <div className={`font-medium truncate text-foreground`}>
                           {track.title}
                         </div>
-                        <div className="text-gray-400 text-sm truncate">
+                        <div className="text-gray-600 dark:text-gray-300 text-sm truncate">
                           {track.artist} Type Beat
                         </div>
-                        <div className=" sm:block text-gray-500 text-xs">
+                        <div className=" sm:block text-gray-700 dark:text-gray-400 text-xs">
                           Key: {track.key} | {track.bpm} BPM
                         </div>
                         <button className="!m-0 !p-0 !font-normal !text-green-400 hover:!text-gray-200 !text-sm !truncate hover:underline !transition-colors !duration-300">
@@ -364,7 +364,9 @@ const CartCheckOut = ({ size }: { size: string }) => {
               <p className="font-bold text-sm">Important Notice</p>
               <p className="text-sm ">
                 By clicking the button you accept the product(s){' '}
-                <b>License Agreement(s)</b>,{' '}
+                <Link to={'/licenses'}>
+                  <b>License Agreement(s)</b>,{' '}
+                </Link>
                 <button className="!font-bold  !m-0 !p-0">
                   <Link to={'/terms-of-service'}>Terms of Service</Link>
                 </button>

@@ -130,8 +130,10 @@ export default function LicenseModal({
                     <p className="text-2xl font-bold text-white">
                       {track.title}
                     </p>
-                    <p className=" text-lg">{track.artist} Type Beat</p>
-                    <p className="font-light text-sm">
+                    <p className=" text-lg text-white/70">
+                      {track.artist} Type Beat
+                    </p>
+                    <p className="font-light text-sm text-white/70">
                       Key: {track.key} | {track.bpm} BPM
                     </p>
                   </ModalHeader>
@@ -161,7 +163,7 @@ export default function LicenseModal({
                             <h3 className="text-lg font-semibold text-white text-start">
                               {license.type} License
                             </h3>
-                            <div className="mt-1 text-start flex flex-col text-xs text-foreground/40">
+                            <div className="mt-1 text-start flex flex-col text-xs text-white/70">
                               <p>{license.features[0]}</p>
                               {index >= 2 && <p>{license.features[1]}</p>}
                             </div>
@@ -183,7 +185,7 @@ export default function LicenseModal({
                           }}
                         >
                           <AccordionItem value={accordionValue}>
-                            <AccordionTrigger className="flex-row-reverse justify-end !m-0 !-ml-1 gap-2 !p-0 !font-medium !text-sm text-foreground/50">
+                            <AccordionTrigger className="flex-row-reverse justify-end !m-0 !-ml-1 gap-2 !p-0 !font-medium !text-sm text-white/70">
                               {isOpen ? 'Hide usage terms' : 'Show usage terms'}
                             </AccordionTrigger>
                             <AccordionContent>

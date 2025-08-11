@@ -80,7 +80,7 @@ const Contact = ({ fullscreen }: { fullscreen?: boolean }) => {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className={`z-50 relative my-16  shadow-input mx-auto w-full max-w-md rounded-none bg-transparent px-4 md:rounded-2xl md:px-8 ${
+      className={`z-50 relative my-16  !shadow-none mx-auto w-full max-w-md rounded-none bg-transparent px-4 md:rounded-2xl md:px-8 ${
         fullscreen ? '' : ''
       } flex flex-col gap-4 justify-center`}
     >
