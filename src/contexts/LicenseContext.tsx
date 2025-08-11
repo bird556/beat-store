@@ -17,6 +17,7 @@ interface License {
 interface LicenseContextType {
   licenses: License[];
   loading: boolean;
+  error: string | null;
 }
 
 const LicenseContext = createContext<LicenseContextType | undefined>(undefined); // Initialize with undefined
@@ -38,17 +39,19 @@ export const LicenseProvider = ({
   const [licenses, setLicenses] = useState<License[]>([]);
   const [loading, setLoading] = useState(true);
   const [retries, setRetries] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const MAX_RETRIES = 3;
   const RETRY_DELAY = 1000; // 1 second
   useEffect(() => {
     const fetchLicenses = async () => {
+      setLoading(true); // Ensure loading is true at the start of each fetch
       try {
         const res = await fetch(
           `${import.meta.env.VITE_API_BASE_URL_BACKEND}/api/licenses`
         );
         const data = await res.json();
         setLicenses(data);
-        // setLoading(false);
+        setLoading(false); // Only set loading to false on success
         setTimeout(() => setLoading(false), 1000); // Set loading to false after 1 second
       } catch (error) {
         console.error('Failed to fetch licenses:', error);
@@ -58,7 +61,7 @@ export const LicenseProvider = ({
             setRetries(retries + 1);
           }, RETRY_DELAY);
         } else {
-          console.error('Max retries reached. Giving up.');
+          setError('Failed to load licenses after multiple attempts.');
           setLoading(false);
         }
       } finally {
@@ -71,7 +74,7 @@ export const LicenseProvider = ({
 
   return (
     // <LicenseContext.Provider value={licenses}>
-    <LicenseContext.Provider value={{ licenses, loading }}>
+    <LicenseContext.Provider value={{ licenses, loading, error }}>
       {children}
     </LicenseContext.Provider>
   );

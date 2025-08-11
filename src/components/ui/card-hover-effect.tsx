@@ -27,7 +27,7 @@ export const HoverEffect = ({
   isLoading: boolean;
   className?: string;
 }) => {
-  let [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const { isOpen, onClose } = useDisclosure();
   const [selectedItemIndex] = useState<number | null>(null); // Add this line
   const [isLoaded, setIsLoaded] = useState(false);
