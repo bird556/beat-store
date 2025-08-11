@@ -335,7 +335,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           <div className="gap-3 !bg-transparent !p-0 hover:!border-transparent z-50 !text-start col-span-5 md:col-span-4 flex items-center space-x-3">
             <button
               onClick={(e) => handleTrackPlay(track, e)}
-              className=" !relative !aspect-square !overflow-hidden !rounded !cursor-pointer !w-20 !min-w-20 !p-0 !m-0 !max-w-20"
+              className=" !relative !aspect-square !overflow-hidden !rounded !cursor-pointer !w-20 !min-w-20 !p-0 !m-0 !max-w-20 !border-none !outline-none hover:!outline-none hover:!border-none !bg-transparent hover:!bg-transparent"
             >
               <img
                 className="w-full h-full object-cover"
@@ -365,7 +365,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
             </button>
             <button
               onClick={() => handleCardClick(track)}
-              className="min-w-0 !p-0 !m-0 text-start text-foreground hover:!text-green-400 !duration-200 !transition-colors"
+              className="min-w-0 !p-0 !m-0 text-start text-foreground hover:!text-green-400 !duration-200 !transition-colors !border-none !outline-none hover:!outline-none hover:!border-none !bg-transparent hover:!bg-transparent"
             >
               <div className={`font-medium truncate `}>{track.title}</div>
               <div className=" text-sm truncate font-medium">
@@ -377,7 +377,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           {/* BPM */}
           <button
             onClick={() => handleCardClick(track)}
-            className="hidden text-nowrap !font-normal md:block md:col-span-1 text-foreground"
+            className="hidden text-nowrap !font-normal md:block md:col-span-1 text-foreground !border-none !outline-none hover:!outline-none hover:!border-none !bg-transparent hover:!bg-transparent"
           >
             {track.bpm} BPM
           </button>
@@ -385,7 +385,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           {/* Key */}
           <button
             onClick={() => handleCardClick(track)}
-            className="hidden text-nowrap !font-normal md:block md:col-span-2 text-foreground"
+            className="hidden text-nowrap !font-normal md:block md:col-span-2 text-foreground !border-none !outline-none hover:!outline-none hover:!border-none !bg-transparent hover:!bg-transparent"
           >
             {track.key}
           </button>
@@ -398,7 +398,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           {/* Duration */}
           <button
             onClick={() => handleCardClick(track)}
-            className="hidden text-nowrap !font-normal md:block col-span-2 md:col-span-1 text-foreground text-start -ml-6"
+            className="hidden text-nowrap !font-normal md:block col-span-2 md:col-span-1 text-foreground text-start -ml- !border-none !outline-none hover:!outline-none hover:!border-none !bg-transparent hover:!bg-transparent"
           >
             {track.duration}
           </button>
@@ -408,19 +408,19 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
             {/* Download Button */}
             <button
               onClick={() => handleDownloadClick(track)}
-              className="max-[900px]:hidden max-md:!block cursor-pointer bg-blue-600 text-foreground p-2 rounded font-medium text-sm hover:bg-blue-700 transition-colors flex items-center justify-center"
+              className="max-[900px]:hidden max-md:!block cursor-pointer !bg-blue-600 text-foreground p-2 rounded font-medium text-sm hover:!bg-blue-700 transition-colors flex items-center justify-center"
               title="Download"
             >
-              <Download className="w-4 h-4 text-white" />
+              <Download className="w-4 h-4 !text-white" />
             </button>
 
             {/* Share Button */}
             <button
               onClick={() => handleShareClick(track)}
-              className="max-[1140px]:hidden cursor-pointer bg-gray-600 text-foreground p-2 rounded font-medium text-sm hover:bg-gray-700 transition-colors flex items-center justify-center"
+              className="max-[1140px]:hidden cursor-pointer !bg-gray-600 text-foreground p-2 rounded font-medium text-sm hover:!bg-gray-700 transition-colors flex items-center justify-center"
               title="Share"
             >
-              <Share2 className="w-4 h-4 text-white" />
+              <Share2 className="w-4 h-4 !text-white" />
             </button>
 
             {/* Price/Cart Button */}

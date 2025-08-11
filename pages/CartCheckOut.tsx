@@ -112,7 +112,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
             </div>
             <div className="hidden md:block md:col-span-1 col-end-1 !z-5"></div>
             <div className="hidden md:block md:col-span-2"></div>
-            <div className="lg:block col-end-9 md:col-end-10 lg:col-end-10 text-xl font-bold">
+            <div className="lg:block col-end-9 md:col-end-10 lg:col-end-10 text-xl font-bold max-sm:-ml-2">
               Price
             </div>
           </div>
@@ -186,25 +186,29 @@ const CartCheckOut = ({ size }: { size: string }) => {
                         <div className={`font-medium truncate text-foreground`}>
                           {track.title}
                         </div>
-                        <div className="text-gray-600 dark:text-gray-300 text-sm truncate">
+                        <div className="text-gray-600 dark:text-gray-300 text-sm truncate max-sm:hidden">
                           {track.artist} Type Beat
                         </div>
-                        <div className=" sm:block text-gray-700 dark:text-gray-400 text-xs">
+                        <div className=" sm:block text-gray-700 dark:text-gray-400 text-xs max-sm:hidden">
                           Key: {track.key} | {track.bpm} BPM
                         </div>
-                        <button className="!m-0 !p-0 !font-normal !text-green-400 hover:!text-gray-200 !text-sm !truncate hover:underline !transition-colors !duration-300">
-                          {track.license} License
+                        <button className="!bg-transparent !border-none !outline-none hover:!outline-none hover:!border-none hover:!bg-transparent !m-0 !p-0 !font-normal !text-green-400 hover:!text-gray-200 !text-sm !truncate hover:underline !transition-colors !duration-300">
+                          {`${
+                            track.license == 'Exclusive'
+                              ? `${track.license} License`
+                              : `${track.license} Lease`
+                          }`}
                         </button>
                       </div>
                     </div>
 
                     {/* Price Per Beat */}
-                    <div className="col-end-9 md:col-end-10 lg:col-end-10 text-foreground font-bold text-xl">
+                    <div className="col-end-9 md:col-end-10 lg:col-end-10 text-foreground font-bold text-xl max-sm:-ml-4">
                       ${track.price}
                     </div>
                     <button
                       onClick={() => removeFromCart(track.id)}
-                      className="relative !z-50 text-red-400 hover:text-red-300 transition-colors col-start-10"
+                      className="!bg-transparent !border-none !outline-none hover:!outline-none hover:!border-none hover:!bg-transparent relative !z-50 text-red-400 hover:text-red-300 transition-colors col-start-10 max-sm:!-ml-4"
                     >
                       <Trash2 className="!z-0 w-4 h-4" />
                     </button>
@@ -357,7 +361,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
               </p>
               <Button
                 onClick={() => navigate('/billing')}
-                className="w-full bg-green-400 text-black hover:bg-green-500"
+                className="w-full !bg-green-400 !text-black hover:!bg-green-500"
               >
                 Proceed to Payment
               </Button>
@@ -371,15 +375,15 @@ const CartCheckOut = ({ size }: { size: string }) => {
                 <Link to={'/licenses'}>
                   <b>License Agreement(s)</b>,{' '}
                 </Link>
-                <button className="!font-bold  !m-0 !p-0">
+                <button className="!font-bold  !m-0 !p-0 !bg-transparent !border-none !outline-none hover:!outline-none hover:!border-none hover:!bg-transparent">
                   <Link to={'/terms-of-service'}>Terms of Service</Link>
                 </button>
                 ,{' '}
-                <button className="!font-bold  !m-0 !p-0">
+                <button className="!font-bold  !m-0 !p-0 !bg-transparent !border-none !outline-none hover:!outline-none hover:!border-none hover:!bg-transparent">
                   <Link to={'/privacy-policy'}>Privacy Policy</Link>
                 </button>{' '}
                 &{' '}
-                <button className="!font-bold !m-0 !p-0">
+                <button className="!font-bold !m-0 !p-0 !bg-transparent !border-none !outline-none hover:!outline-none hover:!border-none hover:!bg-transparent">
                   <Link to={'/refund-policy'}>Refund Policy</Link>
                 </button>
                 .
@@ -395,7 +399,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
               <p className="text-sm">
                 Please read our{' '}
                 <Link to={'/refund-policy'}>
-                  <button className="!p-0">
+                  <button className="!p-0 !bg-transparent !border-none !outline-none hover:!outline-none hover:!border-none hover:!bg-transparent">
                     <u>Refund Policy</u>
                   </button>
                 </Link>

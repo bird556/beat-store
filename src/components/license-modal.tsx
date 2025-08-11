@@ -119,21 +119,21 @@ export default function LicenseModal({
               {/* <ModalHeader className="flex flex-col gap-1 !bg-white/10 text-xl font-bold text-center">
                 Select License
               </ModalHeader> */}
-              <div className="relative  min-h-32 flex w-full items-center pt-3  overflow-hidden border-b-2 border-foreground/5">
+              <div className="relative min-h-32 max-sm:pb-3 max-sm:min-h-10 flex w-full items-center pt-3  overflow-hidden border-b-2 border-foreground/5">
                 <img
-                  className="h-44 aspect-square object-cover"
+                  className="h-44 aspect-square object-cover max-sm:hidden"
                   src={track.image ? track.image : track.s3_image_url}
                   alt={track.artist}
                 />
                 <div className="!text-start">
                   <ModalHeader className="flex flex-col !font-normal text-foreground/70">
-                    <p className="text-2xl font-bold text-white">
+                    <p className="text-2xl font-bold text-white max-sm:text-lg">
                       {track.title}
                     </p>
-                    <p className=" text-lg text-white/70">
+                    <p className=" text-lg text-white/70 max-sm:text-sm">
                       {track.artist} Type Beat
                     </p>
-                    <p className="font-light text-sm text-white/70">
+                    <p className="font-light text-sm text-white/70 max-sm:hidden">
                       Key: {track.key} | {track.bpm} BPM
                     </p>
                   </ModalHeader>
@@ -160,15 +160,20 @@ export default function LicenseModal({
                       >
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex flex-col">
-                            <h3 className="text-lg font-semibold text-white text-start">
-                              {license.type} License
+                            <h3 className="text-lg font-semibold text-white text-start max-sm:text-base">
+                              {/* {license.type} License */}
+                              {`${
+                                license.type == 'Exclusive'
+                                  ? `${license.type} License`
+                                  : `${license.type} Lease`
+                              }`}
                             </h3>
                             <div className="mt-1 text-start flex flex-col text-xs text-white/70">
                               <p>{license.features[0]}</p>
                               {index >= 2 && <p>{license.features[1]}</p>}
                             </div>
                           </div>
-                          <span className="text-2xl font-bold text-green-400">
+                          <span className="text-2xl font-bold text-green-400 max-sm:text-lg">
                             ${license.price}
                           </span>
                         </div>
@@ -185,7 +190,7 @@ export default function LicenseModal({
                           }}
                         >
                           <AccordionItem value={accordionValue}>
-                            <AccordionTrigger className="flex-row-reverse justify-end !m-0 !-ml-1 gap-2 !p-0 !font-medium !text-sm text-white/70">
+                            <AccordionTrigger className="flex-row-reverse justify-end !m-0 !-ml-1 gap-2 !p-0 !font-medium !text-sm text-white/70 !bg-transparent !border-none !outline-none hover:!bg-transparent hover:!border-none hover:!outline-none">
                               {isOpen ? 'Hide usage terms' : 'Show usage terms'}
                             </AccordionTrigger>
                             <AccordionContent>

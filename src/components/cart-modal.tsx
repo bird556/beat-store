@@ -62,10 +62,10 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
               {/* <ModalHeader className="flex flex-col gap-1 !bg-white/10 text-xl font-bold text-center">
                     Select License
                   </ModalHeader> */}
-              <div className="relative flex w-full items-center pt-3 pb-6 overflow-hidden border-b-2 border-foreground/5">
+              <div className="relative flex w-full items-center py-3 overflow-hidden border-b-2 border-foreground/5">
                 <div className="">
                   <ModalHeader className="flex flex-col   !font-normal dark:text-foreground/70">
-                    <p className="text-2xl font-bold text-white">
+                    <p className="text-2xl font-bold text-white max-sm:!text-lg">
                       Shopping Cart
                     </p>
                   </ModalHeader>
@@ -93,18 +93,18 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                             className=" overflow-hidden flex items-center space-x-4 bg-zinc-800 rounded-lg"
                           >
                             <img
-                              className="h-24 aspect-square object-cover"
+                              className="h-24 aspect-square object-cover max-sm:hidden"
                               src={item.image}
                               alt={item.title}
                             />
                             <div className="flex-1 min-w-0 p-3">
-                              <h3 className="text-white font-medium truncate">
+                              <h3 className="text-white font-medium truncate max-sm:text-start">
                                 {item.title}
                               </h3>
-                              <p className="text-gray-400 text-sm truncate">
+                              <p className="text-gray-400 text-sm truncate max-sm:text-start">
                                 {item.artist} Type Beat
                               </p>
-                              <p className="text-green-400 text-sm">
+                              <p className="text-green-400 text-sm max-sm:text-start">
                                 {item.license} License
                                 {/* item license */}
                               </p>
@@ -125,12 +125,12 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   </ModalBody>
                   <ModalFooter className="z-50 !w-full block">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-lg font-semibold text-white">
+                      <span className="text-lg font-semibold text-white max-sm:text-base">
                         Total: ${totalPrice.toFixed(2)}
                       </span>
                       <button
                         onClick={clearCart}
-                        className="text-red-400 hover:text-red-300 transition-colors text-sm"
+                        className="text-red-400 hover:text-red-300 transition-colors !text-sm !bg-transparent !border-none !outline-none hover:!bg-transparent hover:!border-none hover:!outline-none"
                       >
                         Clear Cart
                       </button>
@@ -143,7 +143,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                             navigate('/beats');
                           }
                         }}
-                        className="w-full !border-2 !border-white/10 hover:!border-white/50 px-6 py-2 !text-gray-300  transition-colors disabled:cursor-not-allowed dark:hover:!border-white/80 dark:hover:!text-white"
+                        className="max-sm:!text-sm !bg-transparent !border-none !outline-none hover:!bg-transparent hover:!border-none hover:!outline-none w-full !border-2 !border-white/10 hover:!border-white/50 px-6 py-2 !text-gray-300  transition-colors disabled:cursor-not-allowed dark:hover:!border-white/80 dark:hover:!text-white"
                       >
                         Continue Shopping
                       </button>
@@ -153,7 +153,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                           navigate('/checkout');
                           return;
                         }}
-                        className="w-full px-6 py-2 !bg-green-700 text-background dark:text-foreground font-medium rounded hover:!bg-green-600 transition-colors  disabled:cursor-not-allowed"
+                        className="max-sm:!text-sm w-full px-6 py-2 !bg-green-700 text-background dark:text-foreground font-medium rounded hover:!bg-green-600 transition-colors  disabled:cursor-not-allowed"
                       >
                         Checkout
                       </button>

@@ -362,7 +362,7 @@ export default function SingleBeatPage() {
         <div className="min-md:hidden max-md:flex items-center  space-x-6 text-md text-gray-300 mb-6">
           <p className="flex items-center space-x-2">
             <Music className="w-5 h-5 text-gray-300" />
-            <span>BPM {beat.bpm}</span>
+            <span>{beat.bpm} BPM</span>
           </p>
           <p className="flex items-center space-x-2">
             <span className="text-lg font-bold">♫</span>
@@ -379,19 +379,19 @@ export default function SingleBeatPage() {
           {/* Download Button */}
           <button
             onClick={() => handleDownloadClick(beat)}
-            className="max-[900px]:hidden max-md:!block cursor-pointer bg-blue-600 text-foreground p-2 rounded font-medium text-sm hover:bg-blue-700 transition-colors flex items-center justify-center"
+            className="max-[900px]:hidden max-md:!block cursor-pointer !bg-blue-600 text-foreground p-2 rounded font-medium text-sm hover:!bg-blue-700 transition-colors flex items-center justify-center"
             title="Download"
           >
-            <Download className="w-4 h-4 text-white" />
+            <Download className="w-4 h-4 !text-white" />
           </button>
 
           {/* Share Button */}
           <button
             onClick={() => handleShareClick(beat)}
-            className="max-[1140px]:hidden cursor-pointer bg-gray-600 text-foreground p-2 rounded font-medium text-sm hover:bg-gray-700 transition-colors flex items-center justify-center"
+            className="max-[1140px]:hidden cursor-pointer !bg-zinc-800 !text-white hover:!bg-zinc-900  p-2 rounded font-medium text-sm  transition-colors flex items-center justify-center"
             title="Share"
           >
-            <Share2 className="w-4 h-4 text-white" />
+            <Share2 className="w-4 h-4 !text-white" />
           </button>
 
           {/* Price/Cart Button */}
@@ -497,7 +497,7 @@ export default function SingleBeatPage() {
             <div className="flex-1 p-6 md:p-8 flex flex-col justify-center">
               <div className="flex items-center space-x-4 mb-4">
                 <div>
-                  <h1 className="!text-2xl font-bold dark:text-white !text-start">
+                  <h1 className="!text-2xl font-bold dark:text-white !text-start ">
                     {' '}
                     {/* Changed CardTitle to h1 */}
                     {beat.title}
@@ -511,17 +511,18 @@ export default function SingleBeatPage() {
               </div>
 
               {/* Metadata (BPM, Key, Date) */}
-              <div className="flex items-center space-x-6 text-lg text-gray-700 dark:text-gray-300 mb-6">
-                <p className="flex items-center space-x-2">
-                  <Music className="w-5 h-5 dark:text-gray-300" />
-                  <span>BPM {beat.bpm}</span>
+              <div className="flex items-center max-sm:justify-center space-x-6 text-lg  text-gray-700 dark:text-gray-300 mb-6">
+                <p className="flex items-center space-x-2 max-sm:!text-sm max-sm:space-x-1">
+                  <Music className="w-5 h-5 max-sm:w-4 max-sm:h-4 dark:text-gray-300" />
+                  <span>{beat.bpm} BPM</span>
                 </p>
-                <p className="flex items-center space-x-2">
-                  <span className="text-lg font-bold">♫</span>
+                <p className="flex items-center space-x-2 max-sm:!text-sm max-sm:space-x-1">
+                  <Music className="w-5 h-5 max-sm:w-4 max-sm:h-4 dark:text-gray-300" />
+
                   <span>{beat.key}</span>
                 </p>
-                <p className="flex items-center space-x-2">
-                  <Clock className="w-5 h-5 dark:text-gray-300" />
+                <p className="flex items-center space-x-2 max-sm:!text-sm max-sm:space-x-1">
+                  <Clock className="w-5 h-5 max-sm:w-4 max-sm:h-4 dark:text-gray-300" />
                   <span>{beat.duration}</span>
                 </p>
               </div>
@@ -568,7 +569,7 @@ export default function SingleBeatPage() {
 
                 <button
                   onClick={() => handleDownloadClick(beat)}
-                  className="flex-1 bg-blue-600 text-white hover:bg-blue-700 transition-colors text-lg flex items-center justify-center space-x-2"
+                  className="flex-1 !bg-blue-600 !text-white hover:!bg-blue-700 transition-colors text-lg flex items-center justify-center space-x-2"
                   title="Download"
                 >
                   <Download className="w-6 h-6" />
@@ -576,7 +577,7 @@ export default function SingleBeatPage() {
                 </button>
                 <button
                   onClick={() => handleShareClick(beat)}
-                  className="flex-1 bg-gray-700 text-white hover:bg-gray-600 transition-colors text-lg flex items-center justify-center space-x-2"
+                  className="flex-1 !bg-zinc-800 !text-white hover:!bg-zinc-900 transition-colors text-lg flex items-center justify-center space-x-2"
                   title="Share"
                 >
                   <Share2 className="w-6 h-6" />

@@ -395,7 +395,7 @@ export default function BillingForm() {
                     setFormData((prev) => ({ ...prev, country: value }))
                   }
                 >
-                  <SelectTrigger className="dark:bg-zinc-800 border-white/10 text-foreground">
+                  <SelectTrigger className="dark:!bg-zinc-800 border-white/10 text-foreground">
                     <SelectValue placeholder="Select a country" />
                   </SelectTrigger>
                   <SelectContent>
@@ -414,7 +414,7 @@ export default function BillingForm() {
 
             <Button
               type="submit"
-              className="w-full bg-green-400 text-black hover:bg-green-500"
+              className="w-full !bg-green-400 !text-black hover:!bg-green-500"
               disabled={isLoading}
             >
               {isLoading ? 'Processing...' : 'Submit Billing Information'}

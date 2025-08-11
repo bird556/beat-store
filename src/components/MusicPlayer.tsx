@@ -184,10 +184,10 @@ const MusicPlayer = () => {
       <div className="xl:w-7xl mx-auto z-50">
         <div className="flex items-center justify-between text-start ">
           {/* Current Track Info */}
-          <div className="flex items-center gap-4 min-w-0 relative">
+          <div className="flex items-center gap-4 min-w-0 relative max-sm:hidden">
             <button
               onClick={() => handleCardClick(currentTrack)}
-              className="!p-0 !m-0 text-start overflow-hidden flex items-center gap-4"
+              className="!p-0 !m-0 text-start overflow-hidden flex items-center gap-4 !border-none !outline-none hover:!outline-none hover:!border-none !bg-transparent hover:!bg-transparent"
             >
               <img
                 src={currentTrack.image || currentTrack.s3_image_url}
@@ -210,7 +210,7 @@ const MusicPlayer = () => {
           </div>
 
           {/* Audio Player */}
-          <div className="flex-1 max-w-6xl mx-4">
+          <div className="flex-1 max-w-6xl mx-4 max-sm:mx-0">
             <AudioPlayer
               // autoPlay={true}
               ref={audioPlayerRef}
@@ -274,9 +274,9 @@ const MusicPlayer = () => {
           {isTrackInCart(currentTrack.id) ? (
             <button
               onClick={() => handleEditLicenseClick(currentTrack)}
-              className=" min-sm:min-w-28 !bg-green-600 hover:!bg-green-800 !transition-colors duration-300 text-foreground px-4 py-2 rounded font-medium text-sm"
+              className="min-sm:min-w-28 !bg-green-600 hover:!bg-green-800 !transition-colors duration-300 text-foreground px-4 py-2 rounded font-medium text-sm"
             >
-              <ShoppingCart className="w-4 h-4 min-md:hidden" />
+              <ShoppingCart className="w-4 h-4 min-md:hidden max-md:mx-auto" />
               <span className="hidden md:block">IN CART</span>
             </button>
           ) : (
