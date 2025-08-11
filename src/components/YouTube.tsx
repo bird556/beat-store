@@ -30,12 +30,12 @@ const YoutubeSection = () => {
             />
           </div>
           {/* Subscriber Count */}
-          <div className="text-foreground dark:text-gray-400 text-lg font-medium">
+          <div className="!text-black dark:!text-gray-300 text-lg font-medium">
             🎧 Join{' '}
-            <span className="dark:text-white font-semibold">115,000+</span>{' '}
+            <span className="dark:!text-white font-semibold">115,000+</span>{' '}
             subscribers
           </div>
-          <p className="text-lg text-foreground dark:text-gray-300 max-w-xl">
+          <p className="text-lg !text-black dark:!text-gray-100 max-w-xl">
             Get exclusive beat drops, studio sessions, and behind-the-scenes
             vibes straight from the channel.
           </p>
@@ -44,7 +44,7 @@ const YoutubeSection = () => {
             // href="https://www.youtube.com/@BIRDIEBANDS" // Replace with your actual channel link
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-md !text-white font-semibold py-3 px-6 hover:bg-background hover:!text-foreground  dark:hover:bg-foreground dark:hover:!text-background  !transition-all !duration-600 bg-zinc-900"
+            className="flex items-center justify-center gap-2 rounded-md !text-white font-semibold py-3 px-6 hover:bg-background hover:!text-foreground  dark:hover:bg-foreground dark:hover:!text-background  !transition-all !duration-600 !bg-zinc-900"
           >
             {/* 🚀 Visit & Subscribe */}
             <picture className="pointer-events-none">
