@@ -112,5 +112,6 @@ COINBASE_WEBHOOK_SECRET
 .env.production.local
 .env.development
 .env.production
-
+/backend/.env
+backend/.env
 
