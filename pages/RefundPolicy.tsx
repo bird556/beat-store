@@ -49,7 +49,7 @@ const RefundPolicy: React.FC = () => {
               <p>Contact us for support</p>
               <ul className="flex items-center justify-center mt-2 space-y-1">
                 <Link to={'/contact'}>
-                  <button className="flex items-center gap-2 w-fit text-white hover:bg-foreground hover:text-background  !transition-all !duration-600 bg-zinc-900">
+                  <button className="flex items-center gap-2 w-fit !text-white hover:!bg-foreground hover:!text-background  !transition-all !duration-600 !bg-zinc-900">
                     Contact <Mail />
                   </button>
                 </Link>
