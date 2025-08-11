@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+backend/node_modules
 dist
 dist-ssr
 *.local
@@ -112,6 +113,7 @@ COINBASE_WEBHOOK_SECRET
 .env.production.local
 .env.development
 .env.production
-/backend/.env
 backend/.env
-
+backend/.env
+.env*
+backend/.env*
