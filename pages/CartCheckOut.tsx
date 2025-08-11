@@ -276,7 +276,9 @@ const CartCheckOut = ({ size }: { size: string }) => {
                             licenseType: item.license,
                           }));
                           const response = await fetch(
-                            'http://localhost:3001/api/paypal/create-order',
+                            `${
+                              import.meta.env.VITE_API_BASE_URL_BACKEND
+                            }/api/paypal/create-order`,
                             {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
@@ -299,7 +301,9 @@ const CartCheckOut = ({ size }: { size: string }) => {
                             licenseType: item.license,
                           }));
                           const response = await fetch(
-                            'http://localhost:3001/api/paypal/capture-order',
+                            `${
+                              import.meta.env.VITE_API_BASE_URL_BACKEND
+                            }/api/paypal/capture-order`,
                             {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },

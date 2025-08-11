@@ -20,11 +20,35 @@ import crypto from 'crypto';
 import iso3166 from 'iso-3166-1';
 //
 dotenv.config();
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://birdiebands.netlify.app',
+  'https://birdiebands.com',
+  'https://www.birdiebands.com',
+  'https://birdiebands.netlify.app',
+];
 const app = express();
-const PORT = 3001;
+let PORT;
 
+if (process.env.VITE_API_BASE_URL_BACKEND == 'http://localhost:3001') {
+  PORT = 3001;
+} else {
+  PORT = 'LIVE';
+}
 // app.use(cors());
-app.use(cors({ origin: process.env.APP_BASE_URL }));
+// app.use(cors({ origin: process.env.APP_BASE_URL }));
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+  })
+);
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 
 // Generate presigned URL for S3 file
