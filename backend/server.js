@@ -23,9 +23,6 @@ dotenv.config();
 const allowedOrigins = [
   'http://localhost:5173',
   'https://birdiebands.netlify.app',
-  'https://birdiebands.com',
-  'https://www.birdiebands.com',
-  'https://birdiebands.netlify.app',
 ];
 const app = express();
 let PORT;
