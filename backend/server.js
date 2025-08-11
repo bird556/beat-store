@@ -27,20 +27,20 @@ const allowedOrigins = [
 ];
 const app = express();
 const PORT = process.env.PORT || 3001; // Use Render's assigned port or fallback to 3001 locally
-// app.use(cors());
+app.use(cors());
 // app.use(cors({ origin: process.env.APP_BASE_URL }));
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-  })
-);
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       if (allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error('Not allowed by CORS'));
+//       }
+//     },
+//   })
+// );
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 
 // Generate presigned URL for S3 file

@@ -178,7 +178,7 @@ export const HoverEffect = ({
                     ))}
                   </ul>
                   <button
-                    className=" dark:hover:bg-white dark:hover:text-background !transition-all !duration-600 hover:bg-background hover:text-foreground text-background dark:text-foreground bg-zinc-900"
+                    className=" dark:hover:!bg-white dark:hover:!text-background !transition-all !duration-600 hover:!bg-background hover:!text-foreground !text-background dark:!text-foreground !bg-zinc-900"
                     // onClick={() => handleOpen(size, idx)}
                     onClick={() => handleDownloadClick(item.id)}
                   >

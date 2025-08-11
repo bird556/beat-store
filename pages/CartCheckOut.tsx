@@ -250,7 +250,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
                   variant="outline"
                   size="sm"
                   onClick={handleEditInfo}
-                  className="bg-foreground text-background dark:text-foreground  border-white/10 dark:hover:bg-zinc-800 "
+                  className="!bg-zinc-800 !text-background dark:!text-foreground  border-white/10 dark:hover:bg-zinc-800 "
                 >
                   <Edit className="w-4 h-4 mr-2" /> Edit Info
                 </Button>
@@ -265,9 +265,6 @@ const CartCheckOut = ({ size }: { size: string }) => {
                 </Button> */}
                 <div style={{ colorScheme: 'none' }}>
                   <PayPalScriptProvider
-                    // options={{
-                    //   'client-id': import.meta.env.VITE_PAYPAL_CLIENT_ID,
-                    // }}
                     options={{
                       clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
                     }}
@@ -321,11 +318,12 @@ const CartCheckOut = ({ size }: { size: string }) => {
                           const {
                             status,
                             orderId,
-                            // items: orderItems,
+                            items: orderItems,
                             error,
                           } = await response.json();
                           if (error) throw new Error(error);
                           if (status === 'success') {
+                            console.log('Order items:', orderItems); // Use orderItems here
                             navigate(`/download?orderId=${orderId}`);
                           }
                         } catch (err) {
