@@ -23,15 +23,10 @@ dotenv.config();
 const allowedOrigins = [
   'http://localhost:5173',
   'https://birdiebands.netlify.app',
+  'https://birdiebands.netlify.app/', // Add with trailing slash to match
 ];
 const app = express();
-let PORT;
-
-if (process.env.VITE_API_BASE_URL_BACKEND == 'http://localhost:3001') {
-  PORT = 3001;
-} else {
-  PORT = 'LIVE';
-}
+const PORT = process.env.PORT || 3001; // Use Render's assigned port or fallback to 3001 locally
 // app.use(cors());
 // app.use(cors({ origin: process.env.APP_BASE_URL }));
 
