@@ -7,7 +7,7 @@ import React, {
   useRef,
 } from 'react';
 import axios from 'axios';
-import { toast } from 'react-hot-toast';
+// import { toast } from 'react-hot-toast';
 import type { Track } from '../types';
 // interface Track {
 //   id: string;
@@ -67,7 +67,7 @@ export const BeatsProvider: React.FC<{ children: React.ReactNode }> = ({
       setTotalPages(cachedData.totalPages);
       setCurrentPage(cachedData.currentPage);
       setIsBeatsLoaded(true);
-      console.log('Beats retrieved from cache:', cacheKey);
+      // console.log('Beats retrieved from cache:', cacheKey);
       return;
     }
 
@@ -97,7 +97,7 @@ export const BeatsProvider: React.FC<{ children: React.ReactNode }> = ({
       // console.log('Beats fetched successfully:', cacheKey);
     } catch (error) {
       console.error('Error fetching beats:', error);
-      toast.error('Failed to load beats. Retrying...');
+      // toast.error('Failed to load beats. Retrying...');
       setTimeout(() => fetchBeats(page, limit, search), 5000);
       setIsBeatsLoaded(false);
     }

@@ -546,11 +546,11 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           variants={containerVariants}
           className="space-y-2 z-10"
         >
-          {isFetching && (
+          {/* {isFetching && (
             <div className="text-center py-4">
               <p className="text-gray-400">Loading...</p>
             </div>
-          )}
+          )} */}
           {!isFetching && displayedBeats.length === 0 && isBeatsLoaded && (
             <motion.div variants={itemVariants} className="text-center py-8">
               <p className="text-gray-400">
