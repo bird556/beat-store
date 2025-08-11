@@ -597,14 +597,14 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           <button
             className={`${
               !isBeatsLoaded && 'hidden'
-            } w-fit text-white hover:bg-foreground hover:text-background  !transition-all !duration-600 bg-zinc-900`}
+            } w-fit !text-white hover:!bg-white hover:!text-black  !transition-all !duration-600 !bg-zinc-900`}
           >
             Browse All Beats
           </button>
         </NavLink>
       ) : (
         <NavLink to="/" className="z-50">
-          <button className="w-fit text-white hover:bg-foreground hover:text-background  !transition-all !duration-600 bg-zinc-900">
+          <button className="w-fit !text-white hover:!bg-white hover:!text-black  !transition-all !duration-600 !bg-zinc-900">
             Back To Home
           </button>
         </NavLink>
