@@ -67,7 +67,7 @@ const getPresignedUrl = async (key, expires = 3600, disposition = null) => {
 
 // PayPal setup
 const paypalClient = new paypal.core.PayPalHttpClient(
-  new paypal.core.SandboxEnvironment(
+  new paypal.core.LiveEnvironment(
     process.env.PAYPAL_CLIENT_ID,
     process.env.PAYPAL_CLIENT_SECRET
   )
@@ -511,12 +511,11 @@ app.post('/api/paypal/create-order', async (req, res) => {
     // console.log('Validated Items:', validatedItems, 'Total Price:', totalPrice);
 
     const paypalClient = new paypal.core.PayPalHttpClient(
-      new paypal.core.SandboxEnvironment(
+      new paypal.core.LiveEnvironment(
         process.env.PAYPAL_CLIENT_ID,
         process.env.PAYPAL_CLIENT_SECRET
       )
     );
-
     const request = new paypal.orders.OrdersCreateRequest();
     request.prefer('return=representation');
     request.requestBody({
