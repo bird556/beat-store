@@ -190,8 +190,8 @@ export default function DownloadPage() {
               </div>
 
               <p className="text-muted-foreground mt-4">
-                A detailed purchase receipt and additional download instructions
-                have been sent to{' '}
+                A detailed purchase receipt, license agreement and additional
+                download instructions have been sent to{' '}
                 <span className="font-semibold text-primary">
                   {order.customerEmail}
                 </span>
