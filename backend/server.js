@@ -42,9 +42,6 @@ app.use(
     },
   })
 );
-
-app.options('*', cors());
-
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 
 // Generate presigned URL for S3 file
