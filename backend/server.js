@@ -39,8 +39,14 @@ app.use(
         callback(new Error('Not allowed by CORS'));
       }
     },
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+
+// Handle preflight requests
+app.options('*', cors());
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 
 // Generate presigned URL for S3 file
