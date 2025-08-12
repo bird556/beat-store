@@ -33,13 +33,16 @@ const PORT = process.env.PORT || 3001; // Use Render's assigned port or fallback
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        console.log('origin', origin);
+        console.log('Blocked by CORS:', origin);
         callback(new Error('Not allowed by CORS'));
       }
     },
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
