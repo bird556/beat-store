@@ -48,7 +48,7 @@ const generatePurchaseConfirmationEmail = (data) => {
     downloadLink,
     paymentType,
   } = data;
-
+  console.log(data, 'data from generatePurchaseConfirmationEmail');
   return `
 <!DOCTYPE html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -417,6 +417,9 @@ const generateSaleConfirmationEmail = (data) => {
       paymentType,
     } = data;
 
+    console.log('Generating sales-focused email...');
+    console.log(data, 'data from generateSaleConfirmationEmail function');
+
     // 2. Generate the HTML email with the new sales-focused message and download link
     return `
 <!DOCTYPE html>
@@ -666,8 +669,8 @@ const generateSaleConfirmationEmail = (data) => {
 
 // --- Your generateContractPdf function ---
 async function generateContractPdf(item, customerName) {
-  // console.log('item from generateContractPdf', item);
-  // console.log('customerName from generateContractPdf', customerName);
+  console.log('item from generateContractPdf', item);
+  console.log('customerName from generateContractPdf', customerName);
   // 1. Extract and Format Dynamic Data
   const purchaseTimestamp = new Date(); // For testing, use current time. In production, use webhookData.payment.created_at
   const formattedDate = purchaseTimestamp.toLocaleDateString('en-US', {
@@ -790,6 +793,7 @@ async function generateContractPdf(item, customerName) {
 
   // 4. Save the Filled PDF
   const filledPdfBytes = await pdfDoc.save();
+  console.log('Contract PDF generated successfully!');
   return {
     filename: `${customerName.replace(/[^a-zA-Z0-9]/g, '')}_${beatName.replace(
       /[^a-zA-Z0-9]/g,
@@ -946,6 +950,7 @@ router.post('/', async (req, res) => {
     }
 
     res.status(200).json({ message: 'Email(s) sent successfully' });
+    console.log('Email(s) sent successfully');
   } catch (error) {
     console.error('Email send error:'.red, error);
     res.status(500).json({ error: 'Failed to send emails' });

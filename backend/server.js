@@ -464,9 +464,6 @@ app.get('/api/licenses', async (req, res) => {
 app.post('/api/paypal/create-order', async (req, res) => {
   const { cartItems, customerInfo } = req.body;
   const newOrderId = generateOrderId();
-  console.log(newOrderId, 'newOrderId');
-  console.log(customerInfo, 'customerInfo');
-  console.log(cartItems, 'cartItems');
   // const country = iso3166.whereCountry(customerInfo.country);
   // if (!country) {
   //   return res.status(400).json({ error: 'Invalid country code' });
