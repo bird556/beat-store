@@ -33,11 +33,9 @@ const PORT = process.env.PORT || 3001; // Use Render's assigned port or fallback
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        // Log the blocked origin for debugging
-        console.error('Blocked CORS origin:', origin);
         callback(new Error('Not allowed by CORS'));
       }
     },
