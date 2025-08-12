@@ -759,17 +759,6 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
     const { validatedItems, totalPrice } = await validateCartItems(cartItems);
     // console.log(validatedItems, 'validatedItems');
     const newOrderId = generateOrderId();
-    // Create dynamic statement descriptor suffix with fallback
-    let statementDescriptorSuffix = 'BEATS'; // Default fallback
-    if (validatedItems.length > 0) {
-      statementDescriptorSuffix =
-        validatedItems[0].title
-          .replace(/[<>\\'"*]/g, '')
-          .substring(0, 13)
-          .trim() || 'BEATS'; // Fallback to "BEATS" if title is empty
-    }
-    console.log('Statement Descriptor Suffix:', statementDescriptorSuffix);
-
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: validatedItems.map((item) => {
@@ -795,7 +784,6 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
       cancel_url: `${process.env.APP_BASE_URL}/checkout`,
       customer_email: customerInfo.email,
       client_reference_id: newOrderId,
-      statement_descriptor_suffix: statementDescriptorSuffix, // Dynamic suffix
       metadata: {
         orderId: newOrderId,
         // cartItems: JSON.stringify(cartItems),
@@ -820,7 +808,6 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
         // ),
       },
     });
-    console.log('Full Session:', session); // Log session to verify descriptor
 
     res.json({ sessionId: session.id });
   } catch (err) {
