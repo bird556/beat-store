@@ -468,10 +468,7 @@ app.get('/api/licenses', async (req, res) => {
 app.post('/api/paypal/create-order', async (req, res) => {
   const { cartItems, customerInfo } = req.body;
   const newOrderId = generateOrderId();
-  // const country = iso3166.whereCountry(customerInfo.country);
-  // if (!country) {
-  //   return res.status(400).json({ error: 'Invalid country code' });
-  // }
+
   // Check if country is an ISO code or name
   let countryCode = customerInfo.country;
   if (!/^[A-Z]{2}$/.test(customerInfo.country)) {
@@ -721,7 +718,25 @@ app.post('/api/paypal/capture-order', async (req, res) => {
 // Stripe: Create Checkout Session
 app.post('/api/stripe/create-checkout-session', async (req, res) => {
   const { cartItems, customerInfo } = req.body;
-  // console.log(customerInfo, 'customerInfo');
+
+  // Check if country is an ISO code or name
+  let countryCode = customerInfo.country;
+  if (!/^[A-Z]{2}$/.test(customerInfo.country)) {
+    // Try to resolve as a country name
+    const country = iso3166.whereCountry(customerInfo.country);
+    if (!country) {
+      return res.status(400).json({ error: 'Invalid country name or code' });
+    }
+    countryCode = country.alpha2;
+  } else {
+    // Verify it's a valid ISO code
+    const country = iso3166.whereAlpha2(customerInfo.country);
+    if (!country) {
+      return res.status(400).json({ error: 'Invalid country code' });
+    }
+    countryCode = customerInfo.country; // Already an ISO code
+  }
+
   // save customer info to MONGO DB
   // save to my customers collection but if customer already exists, update it
   await Customer.findOneAndUpdate(
@@ -782,6 +797,11 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
         customerInfo: JSON.stringify({
           name: customerInfo.name,
           email: customerInfo.email,
+          address: customerInfo.address,
+          city: customerInfo.city,
+          state: customerInfo.state,
+          zip: customerInfo.zip,
+          country: countryCode, // Use validated ISO country code
         }),
         // imageUrls: JSON.stringify(
         //   validatedItems.map((item) => item.s3_image_url)

@@ -47,8 +47,8 @@ const CartCheckOut = ({ size }: { size: string }) => {
 
   const handleStripeCheckout = async () => {
     // Implement Stripe checkout logic here
-    console.log('Initiating Stripe checkout with:', customerInfo);
-    console.log('Items For Stripe:', items);
+    // console.log('Initiating Stripe checkout with:', customerInfo);
+    // console.log('Items For Stripe:', items);
 
     if (!customerInfo) return;
 
@@ -70,11 +70,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
         }
       );
       const { sessionId, error } = await response.json();
-      console.log(
-        'Frontend Stripe Key:',
-        import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY.slice(0, 8)
-      );
-      console.log('Session ID:', sessionId);
+
       if (error) {
         setPaymentStatus('error');
         return;
