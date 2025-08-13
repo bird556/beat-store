@@ -199,7 +199,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
                         <div className=" sm:block text-gray-700 dark:text-gray-400 text-xs max-sm:hidden">
                           Key: {track.key} | {track.bpm} BPM
                         </div>
-                        <button className="!bg-transparent !border-none !outline-none hover:!outline-none hover:!border-none hover:!bg-transparent !m-0 !p-0 !font-normal !text-green-400 hover:!text-gray-200 !text-sm !truncate hover:underline !transition-colors !duration-300">
+                        <button className="!bg-transparent !border-none !outline-none hover:!outline-none hover:!border-none hover:!bg-transparent !m-0 !p-0 !font-normal dark:!text-green-400 hover:!text-gray-200 !text-sm !truncate hover:underline !transition-colors !duration-300">
                           {`${
                             track.license == 'Exclusive'
                               ? `${track.license} License`
