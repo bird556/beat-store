@@ -131,7 +131,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
                   onClick={() => {
                     navigate('/');
                   }}
-                  className="!bg-zinc-900 max-w-2xl hover:!bg-foreground hover:!text-background !transition-colors !duration-300"
+                  className="!bg-zinc-900 text-white max-w-2xl hover:!bg-white hover:text-black dark:hover:!bg-foreground dark:hover:!text-background !transition-colors !duration-300"
                 >
                   Go Back Home
                 </button>
@@ -271,7 +271,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
                   Pay with PayPal
                 </Button> */}
                 {paymentStatus === 'processing' && (
-                  <div className="flex items-center justify-center gap-2 text-yellow-400">
+                  <div className="flex items-center justify-center gap-2 dark:text-yellow-400">
                     <Loader2 className="w-5 h-5 animate-spin" />
                     <span>Processing Payment...</span>
                   </div>

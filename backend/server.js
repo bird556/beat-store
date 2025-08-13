@@ -562,7 +562,7 @@ app.post('/api/paypal/create-order', async (req, res) => {
         return_url: `${process.env.APP_BASE_URL}/download?orderId=${newOrderId}`, // Success URL
         cancel_url: `${process.env.APP_BASE_URL}/checkout`, // Cancel URL
         // shipping_preference: 'NO_SHIPPING', // Since you're selling digital beats
-        shipping_preference: 'SET_PROVIDED_ADDRESS', // Since you're selling digital beats
+        shipping_preference: 'SET_PROVIDED_ADDRESS',
         user_action: 'PAY_NOW', // Changes button text to "Pay Now"
         brand_name: 'Birdie Bands', // Appears on PayPal checkout page
       },

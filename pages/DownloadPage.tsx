@@ -95,7 +95,7 @@ export default function DownloadPage() {
             </CardHeader>
             <CardContent>
               <p className="text-lg text-red-400 font-medium">{error}</p>
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-sm dark:text-muted-foreground mt-2">
                 Please verify your link or contact support if the issue
                 persists.
               </p>
@@ -160,7 +160,7 @@ export default function DownloadPage() {
                 Thank you for your purchase. Here are your order details and
                 download links.
                 <br />
-                <span className="text-sm text-yellow-300">
+                <span className="text-sm text-red-500 dark:text-yellow-300">
                   Please note: These download links are active for 7 days.
                 </span>
               </CardDescription>

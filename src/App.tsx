@@ -1,6 +1,6 @@
 // src/App.tsx
 import './App.css';
-import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeProvider } from '@/contexts/theme-provider';
 import Home from '../pages/Home';
 import Beats from '../pages/Beats';
 import CartCheckOut from '../pages/CartCheckOut';
@@ -33,7 +33,7 @@ function App() {
 
   return (
     <>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <CartProvider>
           <BeatsProvider>
             <PlayerProvider>

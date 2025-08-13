@@ -417,7 +417,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
             {/* Share Button */}
             <button
               onClick={() => handleShareClick(track)}
-              className="max-[1140px]:hidden cursor-pointer !bg-gray-600 text-foreground p-2 rounded font-medium text-sm hover:!bg-gray-700 transition-colors flex items-center justify-center"
+              className="max-[1140px]:hidden cursor-pointer !bg-zinc-700 text-foreground p-2 rounded font-medium text-sm hover:!bg-gray-800 transition-colors flex items-center justify-center"
               title="Share"
             >
               <Share2 className="w-4 h-4 !text-white" />

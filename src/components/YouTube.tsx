@@ -44,7 +44,7 @@ const YoutubeSection = () => {
             // href="https://www.youtube.com/@BIRDIEBANDS" // Replace with your actual channel link
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-md !text-white font-semibold py-3 px-6 hover:bg-background hover:!text-foreground  dark:hover:bg-foreground dark:hover:!text-background  !transition-all !duration-600 !bg-zinc-900"
+            className="flex items-center justify-center gap-2 rounded-md !text-white font-semibold py-3 px-6 hover:!bg-white hover:!text-foreground  dark:hover:bg-foreground dark:hover:!text-background  !transition-all !duration-600 !bg-zinc-900"
           >
             {/* 🚀 Visit & Subscribe */}
             <picture className="pointer-events-none">

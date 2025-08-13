@@ -14,6 +14,7 @@ const Footer = () => {
           <div className="sm:flex sm:items-center sm:justify-between">
             <NavLink
               to={'/'}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse"
             >
               <img
@@ -87,12 +88,13 @@ const Footer = () => {
           <hr className="my-6 border-foreground sm:mx-auto dark:border-foreground/30 lg:my-8" />
           <span className="block text-sm text-gray-500 sm:text-center dark:text-gray-400">
             © {currentYear}{' '}
-            <a
-              href="https://flowbite.com/"
-              className="!text-foreground hover:underline"
+            <button
+              // on click scroll to top
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="!text-foreground hover:underline !p-0 !m-0 "
             >
               Birdie Bands™
-            </a>
+            </button>
             . All Rights Reserved.
           </span>
         </div>

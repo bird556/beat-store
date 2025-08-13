@@ -6,9 +6,10 @@ import { ShoppingCart, Menu, X } from 'lucide-react';
 import { NavLink } from 'react-router';
 import BirdieLogo from '../../src/Images/logo.png';
 import BirdieLogo1 from '../../src/Images/birdie2025-logo.png';
-
+import { ThemeToggle } from './ThemeToggle';
 import CartModal from './cart-modal';
 import { useCart } from '@/contexts/cart-context';
+import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 
 const Navbar = () => {
   const { totalItems } = useCart();
@@ -115,7 +116,8 @@ const Navbar = () => {
             {/* <button className="text-foreground hover:text-green-400 transition-colors cursor-pointer !bg-transparent hover:!border-transparent">
               <User className="w-6 h-6" />
             </button> */}
-
+            {/* Theme Toggle */}
+            <ThemeToggle />
             {/* Cart */}
             <button
               onClick={() => setIsCartOpen(true)}
@@ -130,7 +132,7 @@ const Navbar = () => {
             </button>
 
             {/* Hamburger Menu - Visible on mobile */}
-            <button
+            {/* <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden text-foreground hover:text-green-400 transition-colors !bg-transparent focus:!outline-transparent focus:!border-transparent hover:!border-transparent focus-visible:!outline-transparent focus-visible:!border-transparent"
             >
@@ -139,53 +141,57 @@ const Navbar = () => {
               ) : (
                 <Menu className="w-6 h-6 !outline-transparent" />
               )}
-            </button>
+            </button> */}
+            {/* Hamburger Menu - Visible on mobile */}
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="md:hidden text-foreground hover:text-green-400 transition-colors !bg-transparent focus:!outline-none focus:!border-none hover:!border-none focus-visible:!outline-transparent focus-visible:!border-transparent !outline-none !border-none"
+                >
+                  {isMobileMenuOpen ? (
+                    <X className="hidden w-6 h-6 !outline-transparent focus:!outline-transparent" />
+                  ) : (
+                    <Menu className="w-6 h-6 !outline-transparent" />
+                  )}
+                </button>
+              </SheetTrigger>
+              <SheetContent className="bg-background dark:bg-black/90 border-l border-foreground/30 z-[600]">
+                <div className="flex flex-col items-center h-full justify-center space-y-4 pt-4 list-none">
+                  <NavLink
+                    to="/"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="!bg-transparent hover:!border-transparent"
+                  >
+                    <li className="text-foreground hover:text-green-400 transition-colors text-lg">
+                      Home
+                    </li>
+                  </NavLink>
+                  <NavLink
+                    to="/beats"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="!bg-transparent hover:!border-transparent"
+                  >
+                    <li className="text-foreground hover:text-green-400 transition-colors text-lg">
+                      Beats
+                    </li>
+                  </NavLink>
+                  <NavLink
+                    to="/contact"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="!bg-transparent hover:!border-transparent"
+                  >
+                    <li className="text-foreground hover:text-green-400 transition-colors text-lg">
+                      Contact
+                    </li>
+                  </NavLink>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
 
         {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden mt-4 pb-4 border-t border-foreground/30 ">
-            <div className="flex flex-col space-y-4 pt-4 list-none transition-all duration-500">
-              <NavLink
-                to="/"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="!bg-transparent hover:!border-transparent"
-              >
-                <li className="text-foreground hover:text-green-400 transition-colors">
-                  Home
-                </li>
-              </NavLink>
-              <NavLink
-                to="/beats"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="!bg-transparent hover:!border-transparent"
-              >
-                <li className="text-foreground hover:text-green-400 transition-colors">
-                  Beats
-                </li>
-              </NavLink>
-              {/* <NavLink
-                to="/about"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="!bg-transparent hover:!border-transparent"
-              >
-                <li className="text-foreground hover:text-green-400 transition-colors">
-                  About
-                </li>
-              </NavLink> */}
-              <NavLink
-                to="/contact"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="!bg-transparent hover:!border-transparent"
-              >
-                <li className="text-foreground hover:text-green-400 transition-colors">
-                  Contact
-                </li>
-              </NavLink>
-            </div>
-          </div>
-        )}
 
         {/* Mobile Search - Always visible on smaller screens */}
         {/* <div className="mt-4 lg:hidden">

@@ -73,7 +73,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
               </div>
               {items.length === 0 ? (
                 <div className="text-center py-8">
-                  <ModalBody className="p-6 space-y-4 dark:text-gray-400">
+                  <ModalBody className="p-6 space-y-4 text-white dark:text-gray-400">
                     Your cart is empty
                   </ModalBody>
                 </div>
