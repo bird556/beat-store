@@ -180,11 +180,11 @@ const MusicPlayer = () => {
 
   if (!currentTrack) return null;
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-black dark:border-t border-gray-800 px-4 py-3 z-[500] w-full">
+    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-black dark:border-t border-gray-800 px-4 py-3 [@media(max-height:745px)]:py-0 z-[500] w-full">
       <div className="xl:w-7xl mx-auto z-50">
         <div className="flex items-center justify-between text-start ">
           {/* Current Track Info */}
-          <div className="flex items-center gap-4 min-w-0 relative max-sm:hidden">
+          <div className="flex items-center gap-4 min-w-0 relative max-sm:hidden [@media(max-height:460px)]:hidden">
             <button
               onClick={() => handleCardClick(currentTrack)}
               className="!p-0 !m-0 text-start overflow-hidden flex items-center gap-4 !border-none !outline-none hover:!outline-none hover:!border-none !bg-transparent hover:!bg-transparent"

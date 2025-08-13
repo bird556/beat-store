@@ -492,7 +492,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
   return (
     <div className="z-50 flex flex-col justify-between relative">
       <div
-        className={`bg-black py-16 flex flex-col justify-center items-center px-4 relative overflow-hidden`}
+        className={` bg-black py-16 flex flex-col justify-center items-center px-4 relative overflow-hidden`}
       >
         <video
           autoPlay
@@ -507,7 +507,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           transition={{ duration: 1.0, ease: 'easeOut', delay: 0.3 }}
         >
           <img
-            className="max-sm:w-[12rem] w-xs mb-5 sm:mb-10 z-[50] relative !pointer-events-none"
+            className="max-sm:w-[12rem] w-xs mb-5 sm:mb-10 z-[50] relative !pointer-events-none [@media(max-height:745px)]:max-w-24"
             src={BirdieLogo1}
             alt="Birdie Logo"
           />
@@ -518,7 +518,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           </p> */}
           <SplitText
             text="Search Beats Here"
-            className="mb-10 sm:mb-2 font-medium text-sm text-center sm:text-lg text-white"
+            className="mb-10 sm:mb-2 font-medium text-sm text-center sm:text-lg text-white [@media(max-height:745px)]:text-xs"
             delay={100}
             duration={0.6}
             ease="power3.out"

@@ -9,6 +9,9 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { loadStripe } from '@stripe/stripe-js';
 import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
+import { Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
+
 // Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 interface CustomerInfo {
@@ -73,12 +76,14 @@ const CartCheckOut = ({ size }: { size: string }) => {
 
       if (error) {
         setPaymentStatus('error');
+        toast.error('Failed to initiate Stripe payment');
         return;
       }
 
       const stripe = await stripePromise;
       if (!stripe) {
         setPaymentStatus('error');
+        toast.error('Stripe initialization failed');
         return;
       }
 
@@ -88,6 +93,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
       if (redirectError) {
         console.error('Stripe redirect error:', redirectError);
         setPaymentStatus('error');
+        toast.error('Error redirecting to Stripe checkout');
       }
     } catch (err) {
       console.error('Stripe checkout error:', err);
@@ -102,7 +108,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
       className=" max-w-6xl mx-auto px-4 py-16 z-5"
     >
       <h2 className={` ${size} text-4xl font-bold text-start`}>Cart</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-3 py-8 mx-auto gap-6 relative">
+      <div className="grid grid-cols-1 min-[1200px]:grid-cols-3 py-8 mx-auto gap-6 relative">
         <div className="col-span-1 lg:col-span-2 z-5">
           {/* Header */}
           <div
@@ -125,7 +131,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
                   onClick={() => {
                     navigate('/');
                   }}
-                  className="dark:bg-zinc-900 max-w-2xl hover:bg-foreground hover:text-background !transition-colors !duration-300"
+                  className="!bg-zinc-900 max-w-2xl hover:!bg-foreground hover:!text-background !transition-colors !duration-300"
                 >
                   Go Back Home
                 </button>
@@ -264,6 +270,12 @@ const CartCheckOut = ({ size }: { size: string }) => {
                   <IoLogoPaypal className="max-w-full max-h-6 scale-150 mr-2" />
                   Pay with PayPal
                 </Button> */}
+                {paymentStatus === 'processing' && (
+                  <div className="flex items-center justify-center gap-2 text-yellow-400">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Processing Payment...</span>
+                  </div>
+                )}
                 <div style={{ colorScheme: 'none' }}>
                   <PayPalScriptProvider
                     options={{
@@ -271,68 +283,98 @@ const CartCheckOut = ({ size }: { size: string }) => {
                     }}
                   >
                     <PayPalButtons
-                      createOrder={async () => {
-                        try {
-                          const cartItems = items.map((item) => ({
-                            beatId: item.id,
-                            licenseType: item.license,
-                          }));
-                          const response = await fetch(
-                            `${
-                              import.meta.env.VITE_API_BASE_URL_BACKEND
-                            }/api/paypal/create-order`,
-                            {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ cartItems, customerInfo }),
+                      createOrder={() =>
+                        toast.promise(
+                          async () => {
+                            try {
+                              const cartItems = items.map((item) => ({
+                                beatId: item.id,
+                                licenseType: item.license,
+                              }));
+                              const response = await fetch(
+                                `${
+                                  import.meta.env.VITE_API_BASE_URL_BACKEND
+                                }/api/paypal/create-order`,
+                                {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                  },
+                                  body: JSON.stringify({
+                                    cartItems,
+                                    customerInfo,
+                                  }),
+                                }
+                              );
+                              const { orderId, error } = await response.json();
+                              if (error) throw new Error(error);
+                              return orderId;
+                            } catch (err) {
+                              console.error('PayPal create order error:', err);
+                              setPaymentStatus('error');
+                              return '';
                             }
-                          );
-                          const { orderId, error } = await response.json();
-                          if (error) throw new Error(error);
-                          return orderId;
-                        } catch (err) {
-                          console.error('PayPal create order error:', err);
-                          setPaymentStatus('error');
-                          return '';
-                        }
-                      }}
-                      onApprove={async (data) => {
-                        try {
-                          const cartItems = items.map((item) => ({
-                            beatId: item.id,
-                            licenseType: item.license,
-                          }));
-                          const response = await fetch(
-                            `${
-                              import.meta.env.VITE_API_BASE_URL_BACKEND
-                            }/api/paypal/capture-order`,
-                            {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                orderId: data.orderID,
-                                cartItems,
-                                customerInfo,
-                              }),
-                            }
-                          );
-                          const {
-                            status,
-                            orderId,
-                            items: orderItems,
-                            error,
-                          } = await response.json();
-                          if (error) throw new Error(error);
-                          if (status === 'success') {
-                            console.log('Order items:', orderItems); // Use orderItems here
-                            navigate(`/download?orderId=${orderId}`);
+                          },
+                          {
+                            loading: 'Initiating PayPal payment...',
+                            success:
+                              'PayPal order created! Please complete the payment.',
+                            error: 'Failed to initiate PayPal payment.',
                           }
-                        } catch (err) {
-                          console.error('PayPal capture error:', err);
-                          setPaymentStatus('error');
-                        }
+                        )
+                      }
+                      onApprove={(data) =>
+                        toast.promise(
+                          async () => {
+                            try {
+                              const cartItems = items.map((item) => ({
+                                beatId: item.id,
+                                licenseType: item.license,
+                              }));
+                              const response = await fetch(
+                                `${
+                                  import.meta.env.VITE_API_BASE_URL_BACKEND
+                                }/api/paypal/capture-order`,
+                                {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                  },
+                                  body: JSON.stringify({
+                                    orderId: data.orderID,
+                                    cartItems,
+                                    customerInfo,
+                                  }),
+                                }
+                              );
+                              const {
+                                status,
+                                orderId,
+                                items: orderItems,
+                                error,
+                              } = await response.json();
+                              if (error) throw new Error(error);
+                              if (status === 'success') {
+                                console.log('Order items:', orderItems); // Use orderItems here
+                                navigate(`/download?orderId=${orderId}`);
+                              }
+                            } catch (err) {
+                              console.error('PayPal capture error:', err);
+                              setPaymentStatus('error');
+                            }
+                          },
+                          {
+                            loading: 'Processing your payment...',
+                            success:
+                              'Payment successful! Redirecting to download...',
+                            error: 'Failed to process PayPal payment.',
+                          }
+                        )
+                      }
+                      onError={() => {
+                        setPaymentStatus('error');
+                        toast.error('An error occurred during PayPal payment.');
                       }}
-                      onError={() => setPaymentStatus('error')}
                     />
                   </PayPalScriptProvider>
                 </div>

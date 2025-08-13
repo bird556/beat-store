@@ -67,6 +67,10 @@ const getPresignedUrl = async (key, expires = 3600, disposition = null) => {
 
 // PayPal setup
 const paypalClient = new paypal.core.PayPalHttpClient(
+  // new paypal.core.SandboxEnvironment(
+  //   process.env.PAYPAL_CLIENT_ID,
+  //   process.env.PAYPAL_CLIENT_SECRET
+  // )
   new paypal.core.LiveEnvironment(
     process.env.PAYPAL_CLIENT_ID,
     process.env.PAYPAL_CLIENT_SECRET
@@ -511,6 +515,10 @@ app.post('/api/paypal/create-order', async (req, res) => {
     // console.log('Validated Items:', validatedItems, 'Total Price:', totalPrice);
 
     const paypalClient = new paypal.core.PayPalHttpClient(
+      // new paypal.core.SandboxEnvironment(
+      //   process.env.PAYPAL_CLIENT_ID,
+      //   process.env.PAYPAL_CLIENT_SECRET
+      // )
       new paypal.core.LiveEnvironment(
         process.env.PAYPAL_CLIENT_ID,
         process.env.PAYPAL_CLIENT_SECRET
@@ -539,12 +547,22 @@ app.post('/api/paypal/create-order', async (req, res) => {
             quantity: 1,
           })),
           custom_id: newOrderId,
+          shipping: {
+            address: {
+              address_line_1: customerInfo.address,
+              admin_area_2: customerInfo.city,
+              admin_area_1: customerInfo.state,
+              postal_code: customerInfo.zip,
+              country_code: countryCode,
+            },
+          },
         },
       ],
       application_context: {
         return_url: `${process.env.APP_BASE_URL}/download?orderId=${newOrderId}`, // Success URL
         cancel_url: `${process.env.APP_BASE_URL}/checkout`, // Cancel URL
-        shipping_preference: 'NO_SHIPPING', // Since you're selling digital beats
+        // shipping_preference: 'NO_SHIPPING', // Since you're selling digital beats
+        shipping_preference: 'SET_PROVIDED_ADDRESS', // Since you're selling digital beats
         user_action: 'PAY_NOW', // Changes button text to "Pay Now"
         brand_name: 'Birdie Bands', // Appears on PayPal checkout page
       },

@@ -119,9 +119,9 @@ export default function LicenseModal({
               {/* <ModalHeader className="flex flex-col gap-1 !bg-white/10 text-xl font-bold text-center">
                 Select License
               </ModalHeader> */}
-              <div className="relative min-h-32 max-sm:pb-3 max-sm:min-h-10 flex w-full items-center pt-3  overflow-hidden border-b-2 border-foreground/5">
+              <div className="relative min-h-32 max-sm:pb-3 max-sm:min-h-10 [@media(max-height:745px)]:min-h-12  flex w-full items-center pt-3  overflow-hidden border-b-2 border-foreground/5">
                 <img
-                  className="h-44 aspect-square object-cover max-sm:hidden"
+                  className="h-44 aspect-square object-cover max-sm:hidden [@media(max-height:745px)]:hidden"
                   src={track.image ? track.image : track.s3_image_url}
                   alt={track.artist}
                 />
@@ -130,10 +130,10 @@ export default function LicenseModal({
                     <p className="text-2xl font-bold text-white max-sm:text-lg">
                       {track.title}
                     </p>
-                    <p className=" text-lg text-white/70 max-sm:text-sm">
+                    <p className=" text-lg text-white/70 max-sm:text-sm [@media(max-height:745px)]:hidden">
                       {track.artist} Type Beat
                     </p>
-                    <p className="font-light text-sm text-white/70 max-sm:hidden">
+                    <p className="font-light text-sm text-white/70 max-sm:hidden [@media(max-height:745px)]:hidden">
                       Key: {track.key} | {track.bpm} BPM
                     </p>
                   </ModalHeader>
