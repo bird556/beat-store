@@ -91,7 +91,7 @@ const Footer = () => {
             <button
               // on click scroll to top
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="!text-foreground hover:underline !p-0 !m-0 "
+              className="!text-foreground hover:underline !p-0 !m-0 !bg-transparent hover:!bg-transparent !transition-all !duration-300"
             >
               Birdie Bands™
             </button>
