@@ -260,7 +260,7 @@ export default function DownloadPage() {
             <CardFooter className="flex justify-end pt-6">
               <button
                 onClick={() => navigate('/')}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="bg-black text-white hover:bg-white hover:text-black dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 transition-colors"
               >
                 Back to Home
               </button>
