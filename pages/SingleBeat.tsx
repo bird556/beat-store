@@ -359,9 +359,9 @@ export default function SingleBeatPage() {
         <div className="hidden md:block col-span-2 md:col-span-1 text-foreground text-start">
           {beat.duration}
         </div>
-        <div className="min-md:hidden max-md:flex items-center  space-x-6 text-md text-gray-300 mb-6">
+        <div className="min-md:hidden max-md:flex items-center  space-x-6 text-md dark:text-gray-300 mb-6">
           <p className="flex items-center space-x-2">
-            <Music className="w-5 h-5 text-gray-300" />
+            <Music className="w-5 h-5 dark:text-gray-300" />
             <span>{beat.bpm} BPM</span>
           </p>
           <p className="flex items-center space-x-2">

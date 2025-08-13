@@ -7,7 +7,7 @@ const TermsOfUse = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <section className="max-w-4xl mx-auto py-16 !mt-16 px-6 dark:text-white h-[65vh] flex flex-col items-center justify-center">
+      <section className="max-w-4xl mx-auto py-16 !mt-16 px-6 dark:text-white h-[100vh] flex flex-col items-center justify-center">
         <h1 className="text-3xl font-bold mb-6">Terms of Use</h1>
         <article className="whitespace-pre-wrap leading-relaxed text-lg">
           By accessing Birdie Bands, you agree to use our products lawfully.

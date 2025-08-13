@@ -8,7 +8,7 @@ const PrivacyPolicy = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <section className="max-w-4xl mx-auto py-16 my-16 px-6 dark:text-white h-[65vh] flex flex-col items-center justify-center">
+      <section className="max-w-4xl mx-auto py-16 my-16 px-6 dark:text-white h-[100vh] flex flex-col items-center justify-center">
         <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
         <article className="whitespace-pre-wrap leading-relaxed text-lg">
           Birdie Bands respects your privacy. We collect personal information

@@ -228,7 +228,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
         </div>
         <div className="mx-auto max-w-2xl lg:max-w-6xl flex flex-col gap-8 justify-between z-50 dark:!bg-zinc-900/85 rounded-sm outline-1 !outline-white/10 p-3">
           <div className="flex flex-col gap-3">
-            <div className="flex text-green-400 justify-between w-full">
+            <div className="flex dark:text-green-400 justify-between w-full">
               <p className="text-2xl  text-default-500 font-bold">Item Total</p>
               {/* Show only decimal 2 */}
               <p className="text-2xl text-default-500 font-bold">
