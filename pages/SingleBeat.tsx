@@ -309,7 +309,7 @@ export default function SingleBeatPage() {
         <div className="max-md:!flex max-md:!flex-col max-md:w-96 gap-3 !bg-transparent !p-0 hover:!border-transparent z-50 !text-start col-span-5 md:col-span-4 flex items-center space-x-3">
           <button
             onClick={(e) => handleTrackPlay(beat, e)}
-            className="!relative !aspect-square !overflow-hidden !rounded-lg !cursor-pointer min-md:!w-20 min-md:!min-w-20 !p-0 !m-0 min-md:!max-w-20"
+            className="!relative !aspect-square !overflow-hidden !rounded-lg !cursor-pointer min-md:!w-20 min-md:!min-w-20 !p-0 !m-0 min-md:!max-w-20 !bg-transparent"
           >
             <img
               className="w-full h-full max-w-xs object-cover max-md:!rounded-lg"
@@ -369,7 +369,7 @@ export default function SingleBeatPage() {
             <span>{beat.key}</span>
           </p>
           <p className="flex items-center space-x-2">
-            <Clock className="w-5 h-5 text-gray-300" />
+            <Clock className="w-5 h-5 dark:text-gray-300" />
             <span>{beat.duration}</span>
           </p>
         </div>

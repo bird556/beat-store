@@ -317,8 +317,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
                           },
                           {
                             loading: 'Initiating PayPal payment...',
-                            success:
-                              'PayPal order created! Please complete the payment.',
+                            success: 'Please complete the payment.',
                             error: 'Failed to initiate PayPal payment.',
                           }
                         )
