@@ -14,6 +14,7 @@ import Beat from './models/Beat.js';
 import License from './models/License.js';
 import Order from './models/Order.js';
 import Customer from './models/Customer.js';
+import Coupon from './models/Coupon.js';
 import paypal from '@paypal/checkout-server-sdk';
 import Stripe from 'stripe';
 import crypto from 'crypto';
@@ -108,7 +109,8 @@ app.post(
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
-      const { orderId, cartItems, customerInfo } = session.metadata;
+      // const { orderId, cartItems, customerInfo } = session.metadata;
+      const { orderId, cartItems, customerInfo, couponCode } = session.metadata;
       // console.log(
       //   cartItems.length + customerInfo.length + orderId.length,
       //   'full length of metadata'
@@ -117,13 +119,71 @@ app.post(
         const parsedCartItems = JSON.parse(cartItems);
         const parsedCustomerInfo = JSON.parse(customerInfo);
         // const parsedImageUrls = JSON.parse(imageUrls);
-        const { validatedItems, totalPrice } = await validateCartItems(
+        // const { validatedItems, totalPrice } = await validateCartItems(
+        //   parsedCartItems
+        // );
+        const { validatedItems, subtotal } = await validateCartItems(
           parsedCartItems
         );
 
-        if (session.amount_total !== Math.round(parseFloat(totalPrice) * 100)) {
+        const groups = {};
+        validatedItems.forEach((item) => {
+          if (item.licenseType === 'Exclusive') return;
+          if (!groups[item.licenseType]) groups[item.licenseType] = [];
+          groups[item.licenseType].push(item);
+        });
+
+        for (const lic in groups) {
+          const groupItems = groups[lic];
+          if (groupItems.length < 2) continue;
+          groupItems.sort((a, b) => a.price - b.price);
+          const free = Math.floor(groupItems.length / 2);
+          for (let i = 0; i < free; i++) {
+            groupItems[i].effectivePrice = 0;
+          }
+          for (let i = free; i < groupItems.length; i++) {
+            groupItems[i].effectivePrice = groupItems[i].price;
+          }
+        }
+
+        validatedItems.forEach((item) => {
+          if (item.effectivePrice === undefined)
+            item.effectivePrice = item.price;
+        });
+        const afterBogo = validatedItems.reduce(
+          (sum, item) => sum + item.effectivePrice,
+          0
+        );
+
+        // Added: Compute coupon discount if couponCode provided
+        let couponDisc = 0;
+        let coupon = null;
+        if (couponCode) {
+          coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
+          if (!coupon) {
+            throw new Error('Invalid coupon');
+          }
+          couponDisc =
+            coupon.discountType === 'fixed'
+              ? coupon.discountValue
+              : (afterBogo * coupon.discountValue) / 100;
+        }
+        const finalTotal = afterBogo - couponDisc;
+
+        if (session.amount_total !== Math.round(finalTotal * 100)) {
           throw new Error('Amount mismatch');
         }
+
+        // if (session.amount_total !== Math.round(parseFloat(totalPrice) * 100)) {
+        //   throw new Error('Amount mismatch');
+        // }
+
+        // Apply coupon proportionally to effective prices for display
+        const factor = afterBogo > 0 ? finalTotal / afterBogo : 0;
+
+        validatedItems.forEach((item) => {
+          item.displayPrice = item.effectivePrice * factor;
+        });
 
         const orderItems = await Promise.all(
           validatedItems.map(async (item, index) => {
@@ -140,9 +200,15 @@ app.post(
             const plainBeat = beat.toObject(); // ✅ Converts to a clean object
 
             return {
-              ...item,
+              // ...item,
+              beatId: item.beatId,
+              licenseType: item.licenseType,
+              price: item.displayPrice.toFixed(2),
+              title: item.title,
+              artist: item.artist,
               bpm: plainBeat?.bpm ?? null, // ✅ Add bpm
               key: plainBeat?.key ?? null, // ✅ Add key
+              effectivePrice: item.effectivePrice,
               s3_file_url: await getPresignedUrl(
                 item.s3_file_url.replace(
                   `s3://${process.env.AWS_S3_BUCKET}/`,
@@ -164,7 +230,8 @@ app.post(
           stripePaymentIntentId: session.payment_intent,
           customerInfo: parsedCustomerInfo,
           items: orderItems,
-          totalPrice: parseFloat(totalPrice),
+          // totalPrice: parseFloat(totalPrice),
+          totalPrice: finalTotal.toFixed(2),
         });
         // // save to my customers collection but if customer already exists, update it
 
@@ -207,12 +274,21 @@ app.post(
               orderId: orderId,
               purchaseDate: purchaseDate,
               orderItems: orderItems, // This array now correctly contains BPM and Key
-              totalPrice: totalPrice,
+              totalPrice: finalTotal.toFixed(2),
+              // totalPrice: totalPrice,
               downloadLink: `${process.env.APP_BASE_URL}/download?orderId=${orderId}`,
               paymentType: 'Stripe',
             },
           }),
         });
+
+        // Added: Increment coupon uses if coupon was applied
+        if (couponCode && coupon) {
+          await Coupon.findOneAndUpdate(
+            { code: couponCode.toUpperCase() },
+            { $inc: { currentUses: 1 } }
+          );
+        }
 
         res.json({ received: true });
       } catch (err) {
@@ -237,21 +313,6 @@ const s3 = new S3Client({
   region: process.env.AWS_REGION,
 });
 
-// let environment;
-// if (process.env.NODE_ENV === 'production') {
-//   environment = new paypal.core.LiveEnvironment(
-//     process.env.PAYPAL_CLIENT_ID,
-//     process.env.PAYPAL_CLIENT_SECRET
-//   );
-// } else {
-//   environment = new paypal.core.SandboxEnvironment(
-//     process.env.PAYPAL_CLIENT_ID,
-//     process.env.PAYPAL_CLIENT_SECRET
-//   );
-// }
-
-// const paypalClient = new paypal.core.PayPalHttpClient(environment);
-
 // Stripe setup
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2022-11-15',
@@ -262,7 +323,9 @@ const generateOrderId = () => crypto.randomUUID();
 
 // Validate cart items against MongoDB
 const validateCartItems = async (cartItems) => {
-  let totalPrice = 0;
+  // let totalPrice = 0;
+  // let totalPrice = 0;
+  let subtotal = 0;
   const validatedItems = [];
 
   for (const item of cartItems) {
@@ -276,11 +339,14 @@ const validateCartItems = async (cartItems) => {
         `License ${item.licenseType} not found for beat ${item.beatId}`
       );
     }
-    totalPrice += parseFloat(license.price);
+    // totalPrice += parseFloat(license.price);
+    const price = parseFloat(license.price);
+    subtotal += price;
     validatedItems.push({
       beatId: item.beatId,
       licenseType: item.licenseType,
-      price: parseFloat(license.price),
+      price,
+      effectivePrice: price, // Initialize effectivePrice
       title: beat.title,
       artist: beat.artist,
       s3_image_url: item.s3_image_url,
@@ -288,7 +354,8 @@ const validateCartItems = async (cartItems) => {
     });
   }
 
-  return { validatedItems, totalPrice: totalPrice.toFixed(2) };
+  // return { validatedItems, totalPrice: totalPrice.toFixed(2) };
+  return { validatedItems, subtotal };
 };
 
 async function startServer() {
@@ -468,26 +535,68 @@ app.get('/api/licenses', async (req, res) => {
   }
 });
 
+// Added: Endpoint to validate coupon (case-insensitive, checks validity, returns details if valid)
+app.post('/api/coupons/validate', async (req, res) => {
+  const { code, subtotal } = req.body;
+  try {
+    const coupon = await Coupon.findOne({
+      code: code.toUpperCase(),
+      isActive: true,
+    });
+    if (!coupon) {
+      return res.status(404).json({ error: 'Coupon not found' });
+    }
+    const now = new Date();
+    if (now < coupon.validFrom || now > coupon.validUntil) {
+      return res.status(400).json({ error: 'Coupon expired' });
+    }
+    if (coupon.maxUses !== null && coupon.currentUses >= coupon.maxUses) {
+      return res.status(400).json({ error: 'Coupon usage limit reached' });
+    }
+    if (subtotal < coupon.minOrderAmount) {
+      return res.status(400).json({ error: 'Minimum order amount not met' });
+    }
+    res.json({
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue,
+    });
+  } catch (err) {
+    console.error('Coupon validation error:'.red, err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // PayPal: Create Order
 app.post('/api/paypal/create-order', async (req, res) => {
-  const { cartItems, customerInfo } = req.body;
+  // const { cartItems, customerInfo } = req.body;
+
+  const { cartItems, customerInfo, couponCode } = req.body;
+
   const newOrderId = generateOrderId();
 
   // Check if country is an ISO code or name
+
   let countryCode = customerInfo.country;
+
   if (!/^[A-Z]{2}$/.test(customerInfo.country)) {
     // Try to resolve as a country name
+
     const country = iso3166.whereCountry(customerInfo.country);
+
     if (!country) {
       return res.status(400).json({ error: 'Invalid country name or code' });
     }
+
     countryCode = country.alpha2;
   } else {
     // Verify it's a valid ISO code
+
     const country = iso3166.whereAlpha2(customerInfo.country);
+
     if (!country) {
       return res.status(400).json({ error: 'Invalid country code' });
     }
+
     countryCode = customerInfo.country; // Already an ISO code
   }
 
@@ -495,23 +604,136 @@ app.post('/api/paypal/create-order', async (req, res) => {
     if (!customerInfo.email || !customerInfo.name) {
       throw new Error('Missing customerInfo fields');
     }
+
     // save customer info to MONGO DB
+
     await Customer.findOneAndUpdate(
       { email: customerInfo.email },
+
       {
         $set: {
           name: customerInfo.name,
+
           email: customerInfo.email,
+
           address: customerInfo.address,
+
           city: customerInfo.city,
+
           state: customerInfo.state,
+
           zip: customerInfo.zip,
+
           country: customerInfo.country,
         },
       },
+
       { upsert: true }
     );
-    const { validatedItems, totalPrice } = await validateCartItems(cartItems);
+
+    const { validatedItems, subtotal } = await validateCartItems(cartItems);
+
+    // const { validatedItems, totalPrice } = await validateCartItems(cartItems);
+
+    // Added: Compute BOGO
+
+    const groups = {};
+
+    validatedItems.forEach((item) => {
+      if (item.licenseType === 'Exclusive') return;
+
+      if (!groups[item.licenseType]) groups[item.licenseType] = [];
+
+      groups[item.licenseType].push(item);
+    });
+
+    for (const lic in groups) {
+      const groupItems = groups[lic];
+
+      if (groupItems.length < 2) continue;
+
+      groupItems.sort((a, b) => a.price - b.price);
+
+      const free = Math.floor(groupItems.length / 2);
+
+      for (let i = 0; i < free; i++) {
+        groupItems[i].effectivePrice = 0;
+      }
+
+      for (let i = free; i < groupItems.length; i++) {
+        groupItems[i].effectivePrice = groupItems[i].price;
+      }
+    }
+
+    validatedItems.forEach((item) => {
+      if (item.effectivePrice === undefined) item.effectivePrice = item.price;
+    });
+
+    let afterBogo = validatedItems.reduce(
+      (sum, item) => sum + item.effectivePrice,
+
+      0
+    );
+
+    // Added: Validate and compute coupon discount
+
+    let couponDisc = 0;
+
+    let coupon = null;
+
+    if (couponCode) {
+      coupon = await Coupon.findOne({
+        code: couponCode.toUpperCase(),
+
+        isActive: true,
+      });
+
+      if (!coupon) {
+        throw new Error('Coupon not found');
+      }
+
+      const now = new Date();
+
+      if (now < coupon.validFrom || now > coupon.validUntil) {
+        throw new Error('Coupon expired');
+      }
+
+      if (coupon.maxUses !== null && coupon.currentUses >= coupon.maxUses) {
+        throw new Error('Coupon usage limit reached');
+      }
+
+      if (subtotal < coupon.minOrderAmount) {
+        throw new Error('Minimum order amount not met');
+      }
+
+      couponDisc =
+        coupon.discountType === 'fixed'
+          ? coupon.discountValue
+          : (afterBogo * coupon.discountValue) / 100;
+    }
+
+    let finalTotal = afterBogo - couponDisc;
+
+    // Added: Apply coupon discount proportionally to effective prices
+
+    const factor = afterBogo > 0 ? finalTotal / afterBogo : 0;
+
+    validatedItems.forEach((item) => {
+      item.displayPrice =
+        item.effectivePrice > 0 ? item.effectivePrice * factor : 0;
+
+      item.finalPrice =
+        item.effectivePrice > 0 ? item.effectivePrice * factor : 0;
+    });
+
+    // finalTotal = validatedItems.reduce((sum, item) => sum + item.finalPrice, 0); // Recompute for precision
+
+    finalTotal = validatedItems.reduce(
+      (sum, item) => sum + item.displayPrice,
+
+      0
+    ); // Recompute for precision
+
     // console.log('Validated Items:', validatedItems, 'Total Price:', totalPrice);
 
     const paypalClient = new paypal.core.PayPalHttpClient(
@@ -519,34 +741,50 @@ app.post('/api/paypal/create-order', async (req, res) => {
       //   process.env.PAYPAL_CLIENT_ID,
       //   process.env.PAYPAL_CLIENT_SECRET
       // )
+
       new paypal.core.LiveEnvironment(
         process.env.PAYPAL_CLIENT_ID,
         process.env.PAYPAL_CLIENT_SECRET
       )
     );
+
     const request = new paypal.orders.OrdersCreateRequest();
+
     request.prefer('return=representation');
+
     request.requestBody({
       intent: 'CAPTURE',
+
       purchase_units: [
         {
           amount: {
             currency_code: 'USD',
-            value: totalPrice,
+            value: finalTotal.toFixed(2), // Updated to finalTotal // value: totalPrice,
             breakdown: {
-              item_total: { currency_code: 'USD', value: totalPrice },
+              item_total: {
+                currency_code: 'USD',
+                value: finalTotal.toFixed(2),
+              },
+
+              // item_total: { currency_code: 'USD', value: totalPrice },
             },
           },
+
           items: validatedItems.map((item) => ({
             name: `${item.title} (${
               item.licenseType == 'Exclusive'
                 ? `${item.licenseType} License`
                 : `${item.licenseType} Lease`
             })`,
-            unit_amount: { currency_code: 'USD', value: item.price.toFixed(2) },
+            unit_amount: {
+              currency_code: 'USD',
+              value: item.displayPrice.toFixed(2),
+            },
+            // unit_amount: { currency_code: 'USD', value: item.price.toFixed(2) },
             quantity: 1,
           })),
-          custom_id: newOrderId,
+          // custom_id: newOrderId,
+          custom_id: couponCode ? `${newOrderId}|${couponCode}` : newOrderId,
           shipping: {
             address: {
               address_line_1: customerInfo.address,
@@ -558,6 +796,7 @@ app.post('/api/paypal/create-order', async (req, res) => {
           },
         },
       ],
+
       application_context: {
         return_url: `${process.env.APP_BASE_URL}/download?orderId=${newOrderId}`, // Success URL
         cancel_url: `${process.env.APP_BASE_URL}/checkout`, // Cancel URL
@@ -566,6 +805,7 @@ app.post('/api/paypal/create-order', async (req, res) => {
         user_action: 'PAY_NOW', // Changes button text to "Pay Now"
         brand_name: 'Birdie Bands', // Appears on PayPal checkout page
       },
+
       payer: {
         // name: { given_name: customerInfo.name },
         name: {
@@ -573,7 +813,6 @@ app.post('/api/paypal/create-order', async (req, res) => {
           surname:
             customerInfo.name.split(' ').slice(1).join(' ') || 'Customer',
         }, // PayPal requires given_name and surname
-
         email_address: customerInfo.email,
         address: {
           address_line_1: customerInfo.address,
@@ -586,11 +825,15 @@ app.post('/api/paypal/create-order', async (req, res) => {
     });
 
     const response = await paypalClient.execute(request);
+
     console.log('Paypal order created', response.result);
+
     res.json({ orderId: response.result.id });
+
     // res.json({ orderId: newOrderId });
   } catch (err) {
     console.error('PayPal create order error:'.red, err);
+
     res.status(500).json({ error: 'Failed to create PayPal order' });
   }
 });
@@ -602,15 +845,73 @@ app.post('/api/paypal/capture-order', async (req, res) => {
   // console.log(cartItems, 'cartItems from paypal capture endpoint');
   // console.log(customerInfo, 'customerInfo from paypal capture endpoint');
   try {
-    const { validatedItems, totalPrice } = await validateCartItems(cartItems);
+    // const { validatedItems, totalPrice } = await validateCartItems(cartItems);
+    const { validatedItems, subtotal } = await validateCartItems(cartItems);
 
     // Verify PayPal order amount
     const request = new paypal.orders.OrdersGetRequest(orderId);
     const order = await paypalClient.execute(request);
+
+    // Added: Extract couponCode from custom_id
+    const [customOrderId, couponCode] =
+      order.result.purchase_units[0].custom_id.split('|');
+
+    // Added: Compute BOGO and coupon for validation
+    const groups = {};
+    validatedItems.forEach((item) => {
+      if (item.licenseType === 'Exclusive') return;
+      if (!groups[item.licenseType]) groups[item.licenseType] = [];
+      groups[item.licenseType].push(item);
+    });
+    for (const lic in groups) {
+      const groupItems = groups[lic];
+      if (groupItems.length < 2) continue;
+      groupItems.sort((a, b) => a.price - b.price);
+      const free = Math.floor(groupItems.length / 2);
+      for (let i = 0; i < free; i++) {
+        groupItems[i].effectivePrice = 0;
+      }
+      for (let i = free; i < groupItems.length; i++) {
+        groupItems[i].effectivePrice = groupItems[i].price;
+      }
+    }
+    validatedItems.forEach((item) => {
+      if (item.effectivePrice === undefined) item.effectivePrice = item.price;
+    });
+    const afterBogo = validatedItems.reduce(
+      (sum, item) => sum + item.effectivePrice,
+      0
+    );
+
+    let couponDisc = 0;
+    let coupon = null;
+    if (couponCode) {
+      coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
+      if (!coupon) {
+        throw new Error('Invalid coupon');
+      }
+      couponDisc =
+        coupon.discountType === 'fixed'
+          ? coupon.discountValue
+          : (afterBogo * coupon.discountValue) / 100;
+    }
+    const finalTotal = afterBogo - couponDisc;
+
+    // Apply coupon proportionally
+    const factor = afterBogo > 0 ? finalTotal / afterBogo : 0;
+    validatedItems.forEach((item) => {
+      item.displayPrice = item.effectivePrice * factor;
+    });
+    // finalTotal = validatedItems.reduce(
+    //   (sum, item) => sum + item.displayPrice,
+    //   0
+    // );
+
     if (
       order.result.status !== 'APPROVED' ||
       parseFloat(order.result.purchase_units[0].amount.value) !==
-        parseFloat(totalPrice)
+        parseFloat(finalTotal.toFixed(2))
+      // parseFloat(totalPrice)
     ) {
       throw new Error('Invalid order or amount mismatch');
     }
@@ -639,6 +940,7 @@ app.post('/api/paypal/capture-order', async (req, res) => {
             ...item,
             bpm: plainBeat?.bpm ?? null, // ✅ Add bpm
             key: plainBeat?.key ?? null, // ✅ Add key
+            price: item.displayPrice.toFixed(2),
             s3_file_url: await getPresignedUrl(
               item.s3_file_url.replace(
                 `s3://${process.env.AWS_S3_BUCKET}/`,
@@ -661,7 +963,8 @@ app.post('/api/paypal/capture-order', async (req, res) => {
         paypalOrderId: orderId,
         customerInfo,
         items: orderItems,
-        totalPrice: parseFloat(totalPrice),
+        // totalPrice: parseFloat(totalPrice),
+        totalPrice: finalTotal.toFixed(2),
       });
 
       // Send email
@@ -705,12 +1008,21 @@ app.post('/api/paypal/capture-order', async (req, res) => {
             orderId: orderId,
             purchaseDate: purchaseDate,
             orderItems: orderItems, // This array now correctly contains BPM and Key
-            totalPrice: totalPrice,
+            // totalPrice: totalPrice,
+            totalPrice: finalTotal.toFixed(2),
             downloadLink: `${process.env.APP_BASE_URL}/download?orderId=${orderId}`,
             paymentType: 'PayPal',
           },
         }),
       });
+
+      // Added: Increment coupon uses if coupon was applied
+      if (couponCode && coupon) {
+        await Coupon.findOneAndUpdate(
+          { code: couponCode.toUpperCase() },
+          { $inc: { currentUses: 1 } }
+        );
+      }
 
       res.json({
         status: 'success',
@@ -721,6 +1033,7 @@ app.post('/api/paypal/capture-order', async (req, res) => {
           artist: item.artist,
           imageUrl: item.s3_image_url,
           licenseType: item.licenseType,
+          effectivePrice: item.effectivePrice,
         })),
       });
     } else {
@@ -734,7 +1047,8 @@ app.post('/api/paypal/capture-order', async (req, res) => {
 
 // Stripe: Create Checkout Session
 app.post('/api/stripe/create-checkout-session', async (req, res) => {
-  const { cartItems, customerInfo } = req.body;
+  // const { cartItems, customerInfo } = req.body;
+  const { cartItems, customerInfo, couponCode } = req.body;
 
   // Check if country is an ISO code or name
   let countryCode = customerInfo.country;
@@ -773,8 +1087,75 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
   );
 
   try {
-    const { validatedItems, totalPrice } = await validateCartItems(cartItems);
+    const { validatedItems, subtotal } = await validateCartItems(cartItems);
+    // const { validatedItems, totalPrice } = await validateCartItems(cartItems);
     // console.log(validatedItems, 'validatedItems');
+
+    // Added: Compute BOGO
+    const groups = {};
+    validatedItems.forEach((item) => {
+      if (item.licenseType === 'Exclusive') return;
+      if (!groups[item.licenseType]) groups[item.licenseType] = [];
+      groups[item.licenseType].push(item);
+    });
+    for (const lic in groups) {
+      const groupItems = groups[lic];
+      if (groupItems.length < 2) continue;
+      groupItems.sort((a, b) => a.price - b.price);
+      const free = Math.floor(groupItems.length / 2);
+      for (let i = 0; i < free; i++) {
+        groupItems[i].effectivePrice = 0;
+      }
+      for (let i = free; i < groupItems.length; i++) {
+        groupItems[i].effectivePrice = groupItems[i].price;
+      }
+    }
+    validatedItems.forEach((item) => {
+      if (item.effectivePrice === undefined) item.effectivePrice = item.price;
+    });
+    let afterBogo = validatedItems.reduce(
+      (sum, item) => sum + item.effectivePrice,
+      0
+    );
+
+    // Added: Validate and compute coupon discount
+    let couponDisc = 0;
+    let coupon = null;
+    if (couponCode) {
+      coupon = await Coupon.findOne({
+        code: couponCode.toUpperCase(),
+        isActive: true,
+      });
+      if (!coupon) {
+        throw new Error('Coupon not found');
+      }
+      const now = new Date();
+      if (now < coupon.validFrom || now > coupon.validUntil) {
+        throw new Error('Coupon expired');
+      }
+      if (coupon.maxUses !== null && coupon.currentUses >= coupon.maxUses) {
+        throw new Error('Coupon usage limit reached');
+      }
+      if (subtotal < coupon.minOrderAmount) {
+        throw new Error('Minimum order amount not met');
+      }
+      couponDisc =
+        coupon.discountType === 'fixed'
+          ? coupon.discountValue
+          : (afterBogo * coupon.discountValue) / 100;
+    }
+    let finalTotal = afterBogo - couponDisc;
+
+    // Added: Apply coupon discount proportionally to effective prices
+    const factor = afterBogo > 0 ? finalTotal / afterBogo : 0;
+    validatedItems.forEach((item) => {
+      item.displayPrice = item.effectivePrice * factor;
+    });
+    finalTotal = validatedItems.reduce(
+      (sum, item) => sum + item.displayPrice,
+      0
+    ); // Recompute for precision
+
     const newOrderId = generateOrderId();
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -791,7 +1172,8 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
               images: [item.s3_image_url],
               description: `${item.artist} Type Beat`,
             },
-            unit_amount: Math.round(item.price * 100),
+            unit_amount: Math.round(item.displayPrice * 100),
+            // unit_amount: Math.round(item.price * 100),
           },
           quantity: 1,
         };
@@ -820,6 +1202,7 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
           zip: customerInfo.zip,
           country: countryCode, // Use validated ISO country code
         }),
+        couponCode: couponCode || '',
         // imageUrls: JSON.stringify(
         //   validatedItems.map((item) => item.s3_image_url)
         // ),

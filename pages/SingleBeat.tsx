@@ -27,6 +27,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import FadeContent from '@/components/ui/ReactBits/FadeContent';
 import type { Track } from '../src/types';
+import BirdieLogo from '../src/Images/birdie2025-logo.png';
 
 interface Beat {
   artist: string;
@@ -320,17 +321,17 @@ export default function SingleBeatPage() {
               // {currentBeat?.id === beat.id && (
               <div className="cursor-pointer scale-125 absolute inset-0 !bg-black/50 !border-transparent flex items-center justify-center transition-opacity rounded opacity-100">
                 {currentBeatPlaying ? (
-                  <Pause className="w-4 h-4 text-foreground fill-white" />
+                  <Pause className="w-4 h-4 text-foreground fill-white !outline-transparent !border-transparent !stroke-transparent" />
                 ) : (
-                  <Play className="w-4 h-4 text-foreground fill-white" />
+                  <Play className="w-4 h-4 text-foreground fill-white !outline-transparent !border-transparent !stroke-transparent" />
                 )}
               </div>
             )}
             <div className="cursor-pointer scale-125 absolute inset-0 !bg-black/50 !border-transparent flex items-center justify-center transition-opacity rounded opacity-0 group-hover:opacity-100">
               {currentBeatPlaying ? (
-                <Pause className="w-4 h-4 text-foreground fill-white" />
+                <Pause className="w-4 h-4 text-foreground fill-white !outline-transparent !border-transparent !stroke-transparent" />
               ) : (
-                <Play className="w-4 h-4 text-foreground fill-white" />
+                <Play className="w-4 h-4 text-foreground fill-white !outline-transparent !border-transparent !stroke-transparent" />
               )}
             </div>
           </button>
@@ -469,13 +470,13 @@ export default function SingleBeatPage() {
           {' '}
           {/* Use a React Fragment to return multiple top-level elements */}
           {/* Loaded Main Beat Content - Refactored to match the image, NOT using Card */}
-          <div className="dark:bg-zinc-900/0 dark:text-white shadow-xs rounded-lg overflow-hidden flex flex-col md:flex-row p-6 md:p-0">
+          <div className="dark:bg-zinc-900/0 dark:text-white  rounded-lg overflow-hidden flex flex-col md:flex-row p-6 md:p-0">
             {/* Image Section */}
             <div className="w-full md:w-1/3 flex-shrink-0 relative  aspect-square">
               <img
-                src={beat.image || beat.s3_image_url || '/placeholder-beat.png'}
+                src={beat.s3_image_url ? beat.s3_image_url : BirdieLogo}
                 alt={beat.title}
-                className="w-full h-full object-cover rounded-lg "
+                className="w-full h-full object-cover rounded-lg pointer-none: "
               />
               <div
                 className={`absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity duration-300 
@@ -486,9 +487,9 @@ export default function SingleBeatPage() {
                 }}
               >
                 {currentTrack?.id === beat.id && isPlaying ? (
-                  <Pause className="w-16 h-16 text-white fill-white cursor-pointer" />
+                  <Pause className="w-16 h-16 text-white fill-white cursor-pointer !outline-transparent !border-transparent !stroke-transparent" />
                 ) : (
-                  <Play className="w-16 h-16 text-white fill-white cursor-pointer" />
+                  <Play className="w-16 h-16 text-white fill-white cursor-pointer !outline-transparent !border-transparent !stroke-transparent" />
                 )}
               </div>
             </div>

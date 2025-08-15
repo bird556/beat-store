@@ -72,7 +72,6 @@ const FAQS = ({ size }: { size: string }) => {
                 you gain full ownership of the beat and may register your song
                 with YouTube Content ID and other platforms.
               </p>
-              D
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-5">

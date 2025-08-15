@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ShoppingCart, Menu, X } from 'lucide-react';
-// import Marquee from 'react-fast-marquee';
+import Marquee from 'react-fast-marquee';
 import { NavLink } from 'react-router';
 import BirdieLogo from '../../src/Images/logo.png';
 import BirdieLogo1 from '../../src/Images/birdie2025-logo.png';
@@ -10,25 +10,60 @@ import { ThemeToggle } from './ThemeToggle';
 import CartModal from './cart-modal';
 import { useCart } from '@/contexts/cart-context';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { useTheme } from '@/contexts/theme-provider'; // Adjust the import path to your ThemeProvider
 
 const Navbar = () => {
   const { totalItems } = useCart();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+  const { theme } = useTheme();
   return (
     <>
       <nav className="!sticky !top-0 z-[500] border-b border-foreground/30  backdrop-blur-sm bg-background dark:bg-black/70">
-        {/* <div className="max-w-xl mx-auto">
+        <div className="max-w-xl mx-auto">
           <Marquee
-            gradient={false}
-            gradientWidth={100}
-            gradientColor="#0a0a0a"
-            className="!bg-transparent font-medium"
+            gradient={true}
+            pauseOnHover={true}
+            gradientWidth={50}
+            speed={35}
+            // gradientColor="#0a0a0a"
+            gradientColor={theme === 'light' ? '#ffffff' : '#000000'}
+            className="!bg-transparent font-medium bg-gradient-to-l-"
           >
-            15% OFF Code: BIRDIE15 🚀
+            <button className="min-w-3xl !flex items-center justify-center   !bg-transparent hover:!bg-transparent  !p-0 hover:!p-0 !m-0 hover:!m-0">
+              25% OFF Code: BIRDIE25{' '}
+              <picture className="pointer-events-none">
+                <source
+                  srcSet="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.webp"
+                  type="image/webp"
+                />
+                <img
+                  src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.gif"
+                  alt="🔥"
+                  width="24"
+                  height="24"
+                  className="ml-2"
+                />
+              </picture>
+            </button>
+            <button className="min-w-2xl !flex items-center justify-center  !bg-transparent hover:!bg-transparent  !p-0 hover:!p-0 !m-0 hover:!m-0">
+              Buy 1 Get 1 Free On All Leases. Excludes Exclusive Licenses.{' '}
+              <picture className="pointer-events-none">
+                <source
+                  srcSet="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.webp"
+                  type="image/webp"
+                />
+                <img
+                  src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.gif"
+                  alt="🔥"
+                  width="24"
+                  height="24"
+                  className="ml-2"
+                />
+              </picture>
+            </button>
           </Marquee>
-        </div> */}
+        </div>
 
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-4">
           {/* Logo */}
@@ -156,7 +191,7 @@ const Navbar = () => {
                   )}
                 </button>
               </SheetTrigger>
-              <SheetContent className="bg-background dark:bg-black/90 border-l border-foreground/30 z-[600]">
+              <SheetContent className="bg-background/90 dark:bg-black/90 border-l border-foreground/30 z-[600]">
                 <div className="flex flex-col items-center h-full justify-center space-y-4 pt-4 list-none">
                   <NavLink
                     to="/"

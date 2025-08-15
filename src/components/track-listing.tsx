@@ -339,7 +339,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
             >
               <img
                 className="w-full h-full object-cover"
-                src={track.image ? track.image : track.s3_image_url}
+                src={track.s3_image_url ? track.s3_image_url : BirdieLogo1}
                 alt={track.title}
               />
               {currentTrack?.id === track.id && (
@@ -347,9 +347,9 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
                   className={`cursor-pointer scale-125 absolute inset-0 !bg-black/50 !border-transparent flex items-center justify-center transition-opacity rounded opacity-100`}
                 >
                   {currentTrack?.id === track.id && isPlaying ? (
-                    <Pause className="w-4 h-4 text-foreground fill-white" />
+                    <Pause className="w-4 h-4 text-foreground fill-white !outline-transparent !border-transparent !stroke-transparent" />
                   ) : (
-                    <Play className="w-4 h-4 text-foreground fill-white" />
+                    <Play className="w-4 h-4 text-foreground fill-white !outline-transparent !border-transparent !stroke-transparent" />
                   )}
                 </div>
               )}
@@ -357,9 +357,9 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
                 className={`cursor-pointer scale-125 absolute inset-0 !bg-black/50 !border-transparent flex items-center justify-center transition-opacity rounded opacity-0 group-hover:opacity-100`}
               >
                 {currentTrack?.id === track.id && isPlaying ? (
-                  <Pause className="w-4 h-4 text-foreground fill-white" />
+                  <Pause className="w-4 h-4 text-foreground fill-white  !outline-transparent !border-transparent !stroke-transparent" />
                 ) : (
-                  <Play className="w-4 h-4 text-foreground fill-white" />
+                  <Play className="w-4 h-4 text-foreground fill-white  !outline-transparent !border-transparent !stroke-transparent" />
                 )}
               </div>
             </button>
@@ -398,7 +398,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           {/* Duration */}
           <button
             onClick={() => handleCardClick(track)}
-            className="hidden text-nowrap !font-normal md:block col-span-2 md:col-span-1 text-foreground text-start -ml- !border-none !outline-none hover:!outline-none hover:!border-none !bg-transparent hover:!bg-transparent"
+            className="hidden text-nowrap !font-normal md:block col-span-2 md:col-span-1 text-foreground text-start !p-0 !m-0 !border-none !outline-none hover:!outline-none hover:!border-none !bg-transparent hover:!bg-transparent"
           >
             {track.duration}
           </button>

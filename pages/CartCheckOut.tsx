@@ -11,6 +11,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { Input } from '@/components/ui/input'; // Added import for Input (assuming Shadcn UI)
 
 // Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -26,13 +27,21 @@ interface CustomerInfo {
 
 const CartCheckOut = ({ size }: { size: string }) => {
   document.title = `Birdie Bands | Checkout`;
-  const { items, removeFromCart, totalPrice } = useCart();
+  // const { items, removeFromCart, totalPrice } = useCart();
+  const { items, removeFromCart, originalTotal, bogoDiscount, totalPrice } =
+    useCart(); // Updated to use new context values
   const { playTrack, currentTrack, isPlaying } = usePlayer();
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [couponCode, setCouponCode] = useState(''); // Added for coupon input
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    discountType: 'percentage' | 'fixed';
+    discountValue: number;
+  } | null>(null); // Added for applied coupon details
+  const [couponDiscount, setCouponDiscount] = useState(0); // Added for coupon discount amount
+  const [finalTotal, setFinalTotal] = useState(0); // Added for final total after all discounts
 
-  // Load customer info from sessionStorage
   useEffect(() => {
     const savedInfo = sessionStorage.getItem('customerInfo');
     if (savedInfo) {
@@ -44,8 +53,61 @@ const CartCheckOut = ({ size }: { size: string }) => {
     }
   }, []);
 
+  // Added: Update finalTotal when totalPrice or couponDiscount changes
+  useEffect(() => {
+    setFinalTotal(totalPrice - couponDiscount);
+  }, [totalPrice, couponDiscount]); // NEW: Reset checkout state when cart becomes empty
+
+  useEffect(() => {
+    if (items.length === 0) {
+      // removeCoupon();
+      setAppliedCoupon(null);
+      setCouponDiscount(0);
+      setCouponCode('');
+    }
+  }, [items]);
+
   const handleEditInfo = () => {
     navigate('/billing');
+  };
+
+  // Added: Function to apply coupon
+  const applyCoupon = async () => {
+    if (!couponCode) {
+      toast.error('Enter a coupon code');
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL_BACKEND}/api/coupons/validate`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: couponCode, subtotal: originalTotal }),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Invalid coupon');
+      }
+      setAppliedCoupon(data);
+      const disc =
+        data.discountType === 'fixed'
+          ? data.discountValue
+          : (totalPrice * data.discountValue) / 100;
+      setCouponDiscount(disc);
+      toast.success('Coupon applied!');
+    } catch (err: any) {
+      toast.error(err.message || 'Error applying coupon');
+    }
+  };
+
+  // Added: Function to remove applied coupon
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponDiscount(0);
+    setCouponCode('');
+    toast.success('Coupon removed');
   };
 
   const handleStripeCheckout = async () => {
@@ -69,7 +131,12 @@ const CartCheckOut = ({ size }: { size: string }) => {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cartItems, customerInfo }),
+          // body: JSON.stringify({ cartItems, customerInfo }),
+          body: JSON.stringify({
+            cartItems,
+            customerInfo,
+            couponCode: appliedCoupon ? couponCode : null,
+          }), // Added couponCode
         }
       );
       const { sessionId, error } = await response.json();
@@ -100,6 +167,9 @@ const CartCheckOut = ({ size }: { size: string }) => {
       setPaymentStatus('error');
     }
   };
+  // NEW: Function to check if payment buttons should be disabled
+  const isCheckoutDisabled =
+    items.length === 0 || !customerInfo || paymentStatus === 'processing';
 
   return (
     <motion.div
@@ -108,6 +178,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
       className=" max-w-6xl mx-auto px-4 py-16 z-5"
     >
       <h2 className={` ${size} text-4xl font-bold text-start`}>Cart</h2>
+
       <div className="grid grid-cols-1 min-[1200px]:grid-cols-3 py-8 mx-auto gap-6 relative">
         <div className="col-span-1 lg:col-span-2 z-5">
           {/* Header */}
@@ -123,6 +194,11 @@ const CartCheckOut = ({ size }: { size: string }) => {
               Price
             </div>
           </div>
+          {items.length > 0 && (
+            <p className="text-sm font-medium dark:text-green-400 mb-4">
+              Buy 1 Get 1 Free on all leases except Exclusive Licenses!
+            </p>
+          )}
           <div className="space-y-2 z-10 ">
             {items.length == 0 ? (
               <div className="text-center py-8 flex flex-col justify-center items-center gap-3">
@@ -138,7 +214,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
               </div>
             ) : (
               <div
-                className={`flex flex-col gap-6 max-lg:mb-16 ${
+                className={`flex flex-col max-h-[50vh] gap-6 max-lg:mb-16 ${
                   items.length >= 5 ? '!overflow-y-scroll' : ''
                 } lg:!max-h-[50vh]`}
               >
@@ -183,13 +259,6 @@ const CartCheckOut = ({ size }: { size: string }) => {
                       </button>
 
                       <div className="min-w-0">
-                        {/* <div
-                      className={`font-medium truncate ${
-                        isCurrentTrack(track.id)
-                          ? 'text-green-400'
-                          : 'text-foreground'}
-                          `}
-                    > */}
                         <div className={`font-medium truncate text-foreground`}>
                           {track.title}
                         </div>
@@ -210,8 +279,20 @@ const CartCheckOut = ({ size }: { size: string }) => {
                     </div>
 
                     {/* Price Per Beat */}
-                    <div className="col-end-9 md:col-end-10 lg:col-end-10 text-foreground font-bold text-xl max-sm:-ml-4">
+                    {/* <div className="col-end-9 md:col-end-10 lg:col-end-10 text-foreground font-bold text-xl max-sm:-ml-4">
                       ${track.price}
+                    </div> */}
+                    <div className="col-end-9 md:col-end-10 lg:col-end-10 text-foreground font-bold text-xl max-sm:-ml-4">
+                      {track.effectivePrice < track.price ? (
+                        <>
+                          {/* <s className="text-gray-400 mr-2">
+                            ${track.price.toFixed(2)}
+                          </s> */}
+                          ${track.effectivePrice.toFixed(2)}
+                        </>
+                      ) : (
+                        `$${track.price.toFixed(2)}`
+                      )}
                     </div>
                     <button
                       onClick={() => removeFromCart(track.id)}
@@ -224,18 +305,42 @@ const CartCheckOut = ({ size }: { size: string }) => {
               </div>
             )}
           </div>
-          {/* Checkout Card */}
         </div>
+        {/* Checkout Card */}
         <div className="mx-auto max-w-2xl lg:max-w-6xl flex flex-col gap-8 justify-between z-50 dark:!bg-zinc-900/85 rounded-sm outline-1 !outline-white/10 p-3">
           <div className="flex flex-col gap-3">
             <div className="flex dark:text-green-400 justify-between w-full">
               <p className="text-2xl  text-default-500 font-bold">Item Total</p>
               {/* Show only decimal 2 */}
               <p className="text-2xl text-default-500 font-bold">
-                ${totalPrice.toFixed(2)}
+                {/* ${totalPrice.toFixed(2)} */}${originalTotal.toFixed(2)}
               </p>
             </div>
+            {bogoDiscount > 0 && (
+              <div className="flex justify-between w-full text-red-500">
+                <p className="text-base">Buy 1 Get 1 Discount(s)</p>
+                <p className="text-base ">-${bogoDiscount.toFixed(2)}</p>
+              </div>
+            )}
+            {couponDiscount > 0 && (
+              <div className="flex justify-between w-full text-red-500">
+                <p className="text-base">Coupon Discount</p>
+                <p className="text-base">-${couponDiscount.toFixed(2)}</p>
+              </div>
+            )}
             <hr className="w-full " />
+            <div className="flex justify-between w-full items-center">
+              <p className="text-2xl font-bold">Total</p>
+              <p className="text-2xl font-bold">
+                {bogoDiscount > 0 || couponDiscount > 0 ? (
+                  <s className="!text-xl !font-normal">
+                    ${originalTotal.toFixed(2)}
+                  </s>
+                ) : null}{' '}
+                ${finalTotal.toFixed(2)}{' '}
+                {/* Added strikethrough if discounts applied */}
+              </p>
+            </div>
           </div>
 
           {/* <p className=" text-sm">
@@ -262,6 +367,43 @@ const CartCheckOut = ({ size }: { size: string }) => {
                   <Edit className="w-4 h-4 mr-2" /> Edit Info
                 </Button>
               </div>
+              {/* Added: Coupon input field and apply/remove buttons */}
+              <div className="flex items-center gap-2">
+                <Input
+                  value={couponCode}
+                  onChange={(e) =>
+                    setCouponCode(e.target.value.toLocaleUpperCase())
+                  }
+                  placeholder="Coupon code"
+                  disabled={!!appliedCoupon}
+                  className="dark:bg-zinc-800 dark:text-white !grow-1"
+                />
+                {!appliedCoupon ? (
+                  <Button
+                    onClick={applyCoupon}
+                    disabled={items.length === 0}
+                    className="!bg-green-400 hover:!bg-green-700 w-full !shrink-16"
+                  >
+                    Apply
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={removeCoupon}
+                    className="!bg-red-600 text-black dark:text-white hover:!bg-red-700 w-full !shrink-16"
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+              {appliedCoupon && (
+                <p className="text-sm text-green-400">
+                  Applied: {couponCode} (-
+                  {appliedCoupon.discountType === 'percentage'
+                    ? `${appliedCoupon.discountValue}%`
+                    : `$${appliedCoupon.discountValue}`}
+                  )
+                </p>
+              )}
               <div className="w-full relative flex flex-col gap-3">
                 {/* <Button
                   onClick={handlePaypalCheckout}
@@ -276,111 +418,128 @@ const CartCheckOut = ({ size }: { size: string }) => {
                     <span>Processing Payment...</span>
                   </div>
                 )}
-                <div style={{ colorScheme: 'none' }}>
-                  <PayPalScriptProvider
-                    options={{
-                      clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
-                    }}
-                  >
-                    <PayPalButtons
-                      createOrder={() =>
-                        toast.promise(
-                          async () => {
-                            try {
-                              const cartItems = items.map((item) => ({
-                                beatId: item.id,
-                                licenseType: item.license,
-                              }));
-                              const response = await fetch(
-                                `${
-                                  import.meta.env.VITE_API_BASE_URL_BACKEND
-                                }/api/paypal/create-order`,
-                                {
-                                  method: 'POST',
-                                  headers: {
-                                    'Content-Type': 'application/json',
-                                  },
-                                  body: JSON.stringify({
-                                    cartItems,
-                                    customerInfo,
-                                  }),
-                                }
-                              );
-                              const { orderId, error } = await response.json();
-                              if (error) throw new Error(error);
-                              return orderId;
-                            } catch (err) {
-                              console.error('PayPal create order error:', err);
-                              setPaymentStatus('error');
-                              return '';
-                            }
-                          },
-                          {
-                            loading: 'Initiating PayPal payment...',
-                            success: 'Please complete the payment.',
-                            error: 'Failed to initiate PayPal payment.',
-                          }
-                        )
-                      }
-                      onApprove={(data) =>
-                        toast.promise(
-                          async () => {
-                            try {
-                              const cartItems = items.map((item) => ({
-                                beatId: item.id,
-                                licenseType: item.license,
-                              }));
-                              const response = await fetch(
-                                `${
-                                  import.meta.env.VITE_API_BASE_URL_BACKEND
-                                }/api/paypal/capture-order`,
-                                {
-                                  method: 'POST',
-                                  headers: {
-                                    'Content-Type': 'application/json',
-                                  },
-                                  body: JSON.stringify({
-                                    orderId: data.orderID,
-                                    cartItems,
-                                    customerInfo,
-                                  }),
-                                }
-                              );
-                              const {
-                                status,
-                                orderId,
-                                items: orderItems,
-                                error,
-                              } = await response.json();
-                              if (error) throw new Error(error);
-                              if (status === 'success') {
-                                console.log('Order items:', orderItems); // Use orderItems here
-                                navigate(`/download?orderId=${orderId}`);
-                              }
-                            } catch (err) {
-                              console.error('PayPal capture error:', err);
-                              setPaymentStatus('error');
-                            }
-                          },
-                          {
-                            loading: 'Processing your payment...',
-                            success:
-                              'Payment successful! Redirecting to download...',
-                            error: 'Failed to process PayPal payment.',
-                          }
-                        )
-                      }
-                      onError={() => {
-                        setPaymentStatus('error');
-                        toast.error('An error occurred during PayPal payment.');
+                {items.length > 0 && (
+                  <div style={{ colorScheme: 'none' }}>
+                    <PayPalScriptProvider
+                      options={{
+                        clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
                       }}
-                    />
-                  </PayPalScriptProvider>
-                </div>
+                    >
+                      <PayPalButtons
+                        createOrder={() =>
+                          toast.promise(
+                            async () => {
+                              try {
+                                const cartItems = items.map((item) => ({
+                                  beatId: item.id,
+                                  licenseType: item.license,
+                                }));
+                                const response = await fetch(
+                                  `${
+                                    import.meta.env.VITE_API_BASE_URL_BACKEND
+                                  }/api/paypal/create-order`,
+                                  {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                      cartItems,
+                                      customerInfo,
+                                      couponCode: appliedCoupon
+                                        ? couponCode
+                                        : null, // Added couponCode
+                                    }),
+                                    // body: JSON.stringify({
+                                    //   cartItems,
+                                    //   customerInfo,
+                                    // }),
+                                  }
+                                );
+                                const { orderId, error } =
+                                  await response.json();
+                                if (error) throw new Error(error);
+                                return orderId;
+                              } catch (err) {
+                                console.error(
+                                  'PayPal create order error:',
+                                  err
+                                );
+                                setPaymentStatus('error');
+                                return '';
+                              }
+                            },
+                            {
+                              loading: 'Initiating PayPal payment...',
+                              success: 'Please complete the payment.',
+                              error: 'Failed to initiate PayPal payment.',
+                            }
+                          )
+                        }
+                        onApprove={(data) =>
+                          toast.promise(
+                            async () => {
+                              try {
+                                const cartItems = items.map((item) => ({
+                                  beatId: item.id,
+                                  licenseType: item.license,
+                                }));
+                                const response = await fetch(
+                                  `${
+                                    import.meta.env.VITE_API_BASE_URL_BACKEND
+                                  }/api/paypal/capture-order`,
+                                  {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                      orderId: data.orderID,
+                                      cartItems,
+                                      customerInfo,
+                                    }),
+                                  }
+                                );
+                                const {
+                                  status,
+                                  orderId,
+                                  items: orderItems,
+                                  error,
+                                } = await response.json();
+                                if (error) throw new Error(error);
+                                if (status === 'success') {
+                                  console.log('Order items:', orderItems); // Use orderItems here
+                                  navigate(`/download?orderId=${orderId}`);
+                                }
+                              } catch (err) {
+                                console.error('PayPal capture error:', err);
+                                setPaymentStatus('error');
+                              }
+                            },
+                            {
+                              loading: 'Processing your payment...',
+                              success:
+                                'Payment successful! Redirecting to download...',
+                              error: 'Failed to process PayPal payment.',
+                            }
+                          )
+                        }
+                        onError={() => {
+                          setPaymentStatus('error');
+                          toast.error(
+                            'An error occurred during PayPal payment.'
+                          );
+                        }}
+                      />
+                    </PayPalScriptProvider>
+                  </div>
+                )}
 
                 <Button
                   onClick={handleStripeCheckout}
-                  disabled={paymentStatus === 'processing'}
+                  disabled={
+                    paymentStatus === 'processing' || isCheckoutDisabled
+                  }
                   className="flex items-center min-h-10 justify-center w-full !bg-indigo-600 !text-white !px-4 !py-2 !rounded !font-semibold !transition-all !duration-300 hover:!bg-indigo-700 overflow-hidden"
                 >
                   <FaStripe className="max-w-full max-h-6 scale-150 mr-2" />

@@ -54,6 +54,7 @@ export default function LicenseModal({
       audioUrl: track.audioUrl,
       dateAdded: track.dateAdded,
       licenses: track.licenses,
+      effectivePrice: license.price,
       s3_mp3_url: track.s3_mp3_url,
       s3_image_url: track.s3_image_url,
     };

@@ -1,3 +1,4 @@
+// src/components/cart-modal.tsx
 import { Trash2 } from 'lucide-react';
 import { useCart } from '@/contexts/cart-context';
 import {
@@ -8,7 +9,6 @@ import {
   ModalFooter,
 } from '@heroui/modal';
 import { useNavigate, useLocation } from 'react-router-dom';
-
 interface CartModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -17,7 +17,15 @@ interface CartModalProps {
 export default function CartModal({ isOpen, onClose }: CartModalProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { items, removeFromCart, totalPrice, clearCart } = useCart();
+  // const { items, removeFromCart, totalPrice, clearCart } = useCart();
+  const {
+    items,
+    removeFromCart,
+    originalTotal,
+    bogoDiscount,
+    totalPrice,
+    clearCart,
+  } = useCart(); // Added originalTotal, bogoDiscount
   if (!isOpen) return null;
   return (
     <>
@@ -109,8 +117,20 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                                 {/* item license */}
                               </p>
                             </div>
-                            <div className="text-white font-bold">
+                            {/* <div className="text-white font-bold">
                               ${item.price}
+                            </div> */}
+                            <div className="text-white font-bold">
+                              {item.effectivePrice < item.price ? (
+                                <>
+                                  <s className="text-gray-400 mr-2">
+                                    ${item.price.toFixed(2)}
+                                  </s>
+                                  ${item.effectivePrice.toFixed(2)}
+                                </>
+                              ) : (
+                                `$${item.price.toFixed(2)}`
+                              )}
                             </div>
                             <button
                               onClick={() => removeFromCart(item.id)}
@@ -126,7 +146,15 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   <ModalFooter className="z-50 !w-full block">
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-lg font-semibold text-white max-sm:text-base">
-                        Total: ${totalPrice.toFixed(2)}
+                        {/* Total: ${totalPrice.toFixed(2)} */}
+                        Total:{' '}
+                        {bogoDiscount > 0 ? (
+                          <s className="text-base">
+                            ${originalTotal.toFixed(2)}
+                          </s>
+                        ) : null}{' '}
+                        ${totalPrice.toFixed(2)}{' '}
+                        {/* Added strikethrough for original if BOGO applied */}
                       </span>
                       <button
                         onClick={clearCart}

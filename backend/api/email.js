@@ -323,7 +323,7 @@ const generatePurchaseConfirmationEmail = (data) => {
                                            <li style="margin-bottom: 15px; background-color: #1f1f1f; padding: 15px; border-radius: 10px;">
                                                <p style="margin: 0; font-size: 16px; color: #f0f0f0;">${
                                                  item.title
-                                               } - $${item.price.toFixed(2)}</p>
+                                               } - $${item.price}</p>
                                                <p style="margin: 0px 0 0; font-size: 14px; color: #bbb;">${
                                                  item.bpm || 'N/A'
                                                } BPM | Key: ${
@@ -581,7 +581,7 @@ const generateSaleConfirmationEmail = (data) => {
                                         <li style="margin-bottom: 15px; background-color: #1f1f1f; padding: 15px; border-radius: 10px;">
                                           <p style="margin: 0; font-size: 16px; color: #f0f0f0;">${
                                             item.title
-                                          } - $${item.price.toFixed(2)}</p>
+                                          } - $${item.price}</p>
                                           <p style="margin: 0px 0 0; font-size: 14px; color: #bbb;">${
                                             item.bpm || 'N/A'
                                           } BPM | Key: ${item.key || 'N/A'}</p>
@@ -681,7 +681,7 @@ async function generateContractPdf(item, customerName) {
 
   const beatName = item.title;
   const leaseType = item.licenseType;
-  const pricePaidText = `${item.price.toFixed(2)}`;
+  const pricePaidText = `${item.price}`;
 
   // --- Dynamic values based on leaseType ---
   let contractTitlePrefix;
@@ -800,6 +800,7 @@ async function generateContractPdf(item, customerName) {
 router.post('/', async (req, res) => {
   try {
     const { email, subject, message, template, data } = req.body;
+    console.log(data);
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
