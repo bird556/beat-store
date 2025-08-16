@@ -12,7 +12,7 @@ import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Input } from '@/components/ui/input'; // Added import for Input (assuming Shadcn UI)
-
+import { useTheme } from '@/contexts/theme-provider';
 // Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 interface CustomerInfo {
@@ -41,6 +41,8 @@ const CartCheckOut = ({ size }: { size: string }) => {
   } | null>(null); // Added for applied coupon details
   const [couponDiscount, setCouponDiscount] = useState(0); // Added for coupon discount amount
   const [finalTotal, setFinalTotal] = useState(0); // Added for final total after all discounts
+
+  const { theme } = useTheme();
 
   useEffect(() => {
     const savedInfo = sessionStorage.getItem('customerInfo');
@@ -74,7 +76,12 @@ const CartCheckOut = ({ size }: { size: string }) => {
   // Added: Function to apply coupon
   const applyCoupon = async () => {
     if (!couponCode) {
-      toast.error('Enter a coupon code');
+      toast.error('Enter a coupon code', {
+        style: {
+          background: theme === 'dark' ? '#333' : '#fff',
+          color: theme === 'dark' ? '#fff' : '#333',
+        },
+      });
       return;
     }
     try {
@@ -96,9 +103,19 @@ const CartCheckOut = ({ size }: { size: string }) => {
           ? data.discountValue
           : (totalPrice * data.discountValue) / 100;
       setCouponDiscount(disc);
-      toast.success('Coupon applied!');
+      toast.success('Coupon applied!', {
+        style: {
+          background: theme === 'dark' ? '#333' : '#fff',
+          color: theme === 'dark' ? '#fff' : '#333',
+        },
+      });
     } catch (err: any) {
-      toast.error(err.message || 'Error applying coupon');
+      toast.error(err.message || 'Error applying coupon', {
+        style: {
+          background: theme === 'dark' ? '#333' : '#fff',
+          color: theme === 'dark' ? '#fff' : '#333',
+        },
+      });
     }
   };
 
@@ -107,7 +124,12 @@ const CartCheckOut = ({ size }: { size: string }) => {
     setAppliedCoupon(null);
     setCouponDiscount(0);
     setCouponCode('');
-    toast.success('Coupon removed');
+    toast.success('Coupon removed', {
+      style: {
+        background: theme === 'dark' ? '#333' : '#fff',
+        color: theme === 'dark' ? '#fff' : '#333',
+      },
+    });
   };
 
   const handleStripeCheckout = async () => {
@@ -143,14 +165,24 @@ const CartCheckOut = ({ size }: { size: string }) => {
 
       if (error) {
         setPaymentStatus('error');
-        toast.error('Failed to initiate Stripe payment');
+        toast.error('Failed to initiate Stripe payment', {
+          style: {
+            background: theme === 'dark' ? '#333' : '#fff',
+            color: theme === 'dark' ? '#fff' : '#333',
+          },
+        });
         return;
       }
 
       const stripe = await stripePromise;
       if (!stripe) {
         setPaymentStatus('error');
-        toast.error('Stripe initialization failed');
+        toast.error('Stripe initialization failed', {
+          style: {
+            background: theme === 'dark' ? '#333' : '#fff',
+            color: theme === 'dark' ? '#fff' : '#333',
+          },
+        });
         return;
       }
 
@@ -160,7 +192,12 @@ const CartCheckOut = ({ size }: { size: string }) => {
       if (redirectError) {
         console.error('Stripe redirect error:', redirectError);
         setPaymentStatus('error');
-        toast.error('Error redirecting to Stripe checkout');
+        toast.error('Error redirecting to Stripe checkout', {
+          style: {
+            background: theme === 'dark' ? '#333' : '#fff',
+            color: theme === 'dark' ? '#fff' : '#333',
+          },
+        });
       }
     } catch (err) {
       console.error('Stripe checkout error:', err);
@@ -241,6 +278,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
                             className="w-full h-full object-cover"
                             src={track.image ? track.image : track.s3_image_url}
                             alt={track.title}
+                            loading="lazy"
                           />
                           <div
                             className={`cursor-pointer scale-125 absolute inset-0 !bg-black/50 !border-transparent flex items-center justify-center transition-opacity rounded ${
@@ -527,7 +565,13 @@ const CartCheckOut = ({ size }: { size: string }) => {
                         onError={() => {
                           setPaymentStatus('error');
                           toast.error(
-                            'An error occurred during PayPal payment.'
+                            'An error occurred during PayPal payment.',
+                            {
+                              style: {
+                                background: theme === 'dark' ? '#333' : '#fff',
+                                color: theme === 'dark' ? '#fff' : '#333',
+                              },
+                            }
                           );
                         }}
                       />

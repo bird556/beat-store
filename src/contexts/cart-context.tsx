@@ -8,7 +8,7 @@ import {
 } from 'react';
 import toast from 'react-hot-toast';
 import type { Track } from '../types';
-
+import { useTheme } from './theme-provider';
 interface CartItem extends Track {
   license: string;
   effectivePrice: number; // Added to store price after BOGO
@@ -35,6 +35,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [bogoDiscount, setBogoDiscount] = useState(0); // Added
   const [totalPrice, setTotalPrice] = useState(0); // Added
 
+  const { theme } = useTheme();
+
   const addToCart = (item: CartItem) => {
     setItems((prev) => {
       const exists = prev.some((i) => i.id === item.id);
@@ -48,12 +50,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const removeFromCart = (id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
-    toast.error('Beat removed from cart.');
+    toast.error('Beat removed from cart.', {
+      style: {
+        background: theme === 'dark' ? '#333' : '#fff',
+        color: theme === 'dark' ? '#fff' : '#333',
+      },
+    });
   };
 
   const clearCart = () => {
     setItems([]);
-    // toast.error('Cart cleared.');
+    // toast.error('Cart cleared.', {
+    //   style: {
+    //     background: theme === 'dark' ? '#333' : '#fff',
+    //     color: theme === 'dark' ? '#fff' : '#333',
+    //   },
+    // });
   };
 
   const totalItems = items.length;

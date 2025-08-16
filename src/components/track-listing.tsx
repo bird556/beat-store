@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/pagination';
 import FadeContent from './ui/ReactBits/FadeContent';
 import SplitText from './ui/ReactBits/SplitText';
+import { Helmet } from 'react-helmet'; // Added for SEO
 /**
  * A track listing component that displays a list of tracks and allows the user to search
  * through them. It also allows the user to play, download, and share tracks.
@@ -145,23 +146,24 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
   };
 
   const handleShareClick = (track: Track) => {
-    // For demo purposes, copy to clipboard. In production, this could open a share modal
-    const shareText = `Check out this beat: ${track.title} by ${track.artist}`;
+    const shareUrl = `${import.meta.env.VITE_APP_BASE_URL}/beat?beatId=${
+      track.id
+    }`;
+    const shareText = `Check out this beat: "${track.title}" by ${track.artist} on Birdie Bands!`;
     if (navigator.share) {
       navigator
         .share({
           title: track.title,
           text: shareText,
-          url: window.location.href,
+          url: shareUrl,
         })
         .catch(() => {
-          // Fallback to clipboard
-          navigator.clipboard.writeText(shareText);
-          alert('Share link copied to clipboard!');
+          navigator.clipboard.writeText(shareUrl);
+          toast.success('Share link copied to clipboard!');
         });
     } else {
-      navigator.clipboard.writeText(shareText);
-      alert('Share link copied to clipboard!');
+      navigator.clipboard.writeText(shareUrl);
+      toast.success('Share link copied to clipboard!');
     }
   };
 
@@ -341,6 +343,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
                 className="w-full h-full object-cover"
                 src={track.s3_image_url ? track.s3_image_url : BirdieLogo1}
                 alt={track.title}
+                loading="lazy"
               />
               {currentTrack?.id === track.id && (
                 <div
@@ -491,6 +494,35 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
   };
   return (
     <div className="z-50 flex flex-col justify-between relative">
+      {/* SEO Meta Tags */}
+      <Helmet>
+        <title>Beats | Birdie Bands</title>
+        <meta
+          name="description"
+          content="Browse and download high-quality type beats and instrumentals for music production. Find beats inspired by top artists at Birdie Bands."
+        />
+        <meta
+          name="keywords"
+          content="type beats, instrumentals, music production, hip hop beats, trap beats, rap beats, Birdie Bands"
+        />
+        <link rel="canonical" href="https://www.birdiebands.com/beats" />
+        <meta property="og:title" content="Beats | Birdie Bands" />
+        <meta
+          property="og:description"
+          content="Browse and download high-quality type beats and instrumentals for music production. Find beats inspired by top artists at Birdie Bands."
+        />
+        <meta property="og:image" content={BirdieLogo1} />
+        <meta property="og:url" content="https://www.birdiebands.com/beats" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Birdie Bands" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Beats | Birdie Bands" />
+        <meta
+          name="twitter:description"
+          content="Browse and download high-quality type beats and instrumentals for music production. Find beats inspired by top artists at Birdie Bands."
+        />
+        <meta name="twitter:image" content={BirdieLogo1} />
+      </Helmet>
       <div
         className={` bg-black py-16 flex flex-col justify-center items-center px-4 relative overflow-hidden`}
       >
@@ -510,6 +542,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
             className="max-sm:w-[12rem] w-xs mb-5 sm:mb-10 z-[50] relative !pointer-events-none [@media(max-height:745px)]:max-w-24"
             src={BirdieLogo1}
             alt="Birdie Logo"
+            loading="lazy"
           />
         </motion.div>
         <div className="w-full z-2">

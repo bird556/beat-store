@@ -1,6 +1,8 @@
+// src/components/Artists.tsx
 import { motion } from 'framer-motion';
 import TiltedCard from './ui/ReactBits/TitledCard';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet'; // Added for SEO
 const Artists = ({ size }: { size: string }) => {
   const navigate = useNavigate();
   const handleCardClick = (term: string) => {
@@ -14,6 +16,19 @@ const Artists = ({ size }: { size: string }) => {
         transition={{ duration: 0.3, ease: [0, 0.71, 0.2, 1.01] }}
         className="flex flex-col gap-12"
       >
+        {/* SEO Meta Tags */}
+        <Helmet>
+          <title>Artist Type Beats | Birdie Bands</title>
+          <meta
+            name="description"
+            content="Explore type beats inspired by top artists like Key Glock, Larry June, and Gunna at Birdie Bands. Download high-quality instrumentals for your music production."
+          />
+          <meta
+            name="keywords"
+            content="Key Glock type beats, Larry June type beats, Gunna type beats, music production, instrumentals, Birdie Bands"
+          />
+          <link rel="canonical" href="https://www.birdiebands.com/" />
+        </Helmet>
         <h2 className={`font-bold ${size}`}>Artist Type Beats</h2>
         <div className="flex gap-24 flex-wrap justify-center z-10">
           <div onClick={() => handleCardClick('Key Glock')}>

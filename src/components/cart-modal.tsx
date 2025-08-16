@@ -104,6 +104,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                               className="h-24 aspect-square object-cover max-sm:hidden"
                               src={item.image}
                               alt={item.title}
+                              loading="lazy"
                             />
                             <div className="flex-1 min-w-0 p-3">
                               <h3 className="text-white font-medium truncate max-sm:text-start">

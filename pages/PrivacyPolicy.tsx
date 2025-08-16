@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-
+import { Helmet } from 'react-helmet';
 const PrivacyPolicy = () => {
   return (
     <motion.div
@@ -8,6 +8,17 @@ const PrivacyPolicy = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
+      <Helmet>
+        <title>Privacy Policy | Birdie Bands</title>
+        <meta
+          name="description"
+          content="Read the Privacy Policy for Birdie Bands to understand how we handle your data and protect your privacy."
+        />
+        <link
+          rel="canonical"
+          href="https://www.birdiebands.com/privacy-policy"
+        />
+      </Helmet>
       <section className="max-w-4xl mx-auto py-16 my-16 px-6 dark:text-white h-[100vh] flex flex-col items-center justify-center">
         <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
         <article className="whitespace-pre-wrap leading-relaxed text-lg">

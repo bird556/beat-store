@@ -23,6 +23,7 @@ export interface Track {
   licenses: License[];
   s3_mp3_url: string;
   s3_image_url: string;
+  tags: string[];
 }
 
 export interface CustomerInfo {

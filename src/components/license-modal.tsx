@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useCart } from '@/contexts/cart-context';
+import { useTheme } from '@/contexts/theme-provider';
 import {
   Modal,
   ModalContent,
@@ -34,6 +35,7 @@ export default function LicenseModal({
   const { addToCart } = useCart();
   const [openItems, setOpenItems] = useState<Record<string, string>>({});
   const [showError, setShowError] = useState(false); // New state for error message
+  const { theme } = useTheme();
 
   if (!isOpen || !track) return null;
 
@@ -57,11 +59,17 @@ export default function LicenseModal({
       effectivePrice: license.price,
       s3_mp3_url: track.s3_mp3_url,
       s3_image_url: track.s3_image_url,
+      tags: track.tags,
     };
 
     addToCart(updatedItem);
     setShowError(false); // Clear error on successful add
-    toast.success('Beat added to cart.');
+    toast.success('Beat added to cart.', {
+      style: {
+        background: theme === 'dark' ? '#333' : '#fff',
+        color: theme === 'dark' ? '#fff' : '#333',
+      },
+    });
     onClose();
     setSelectedLicense(null);
   };
@@ -69,7 +77,12 @@ export default function LicenseModal({
   const handleAddToCart = () => {
     if (!selectedLicense) {
       setShowError(true); // Show error if no license selected
-      toast.error('Please select a license.');
+      toast.error('Please select a license.', {
+        style: {
+          background: theme === 'dark' ? '#333' : '#fff',
+          color: theme === 'dark' ? '#fff' : '#333',
+        },
+      });
       return;
     }
     setShowError(false); // Clear error if license is selected
@@ -125,6 +138,7 @@ export default function LicenseModal({
                   className="h-44 aspect-square object-cover max-sm:hidden [@media(max-height:745px)]:hidden"
                   src={track.image ? track.image : track.s3_image_url}
                   alt={track.artist}
+                  loading="lazy"
                 />
                 <div className="!text-start">
                   <ModalHeader className="flex flex-col !font-normal text-foreground/70">

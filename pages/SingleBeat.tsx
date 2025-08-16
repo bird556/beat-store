@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Helmet } from 'react-helmet';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -251,7 +252,7 @@ export default function SingleBeatPage() {
     // If this is the current track and it's playing, pause it
     if (currentTrack?.id === track.id && isPlaying) {
       pauseTrack();
-      console.log('pause', isPlaying);
+      // console.log('pause', isPlaying);
     }
     // If this is the current track but paused, resume playback
     else if (currentTrack?.id === track.id && !isPlaying) {
@@ -316,6 +317,7 @@ export default function SingleBeatPage() {
               className="w-full h-full max-w-xs object-cover max-md:!rounded-lg"
               src={beat.image || beat.s3_image_url || '/placeholder-beat.png'}
               alt={beat.title}
+              loading="lazy"
             />
             {currentTrack && currentTrack.id === beat.id && (
               // {currentBeat?.id === beat.id && (
@@ -420,8 +422,77 @@ export default function SingleBeatPage() {
     );
   };
 
+  // Construct absolute URLs for SEO meta tags (assuming s3_image_url is absolute; adjust if needed)
+  const baseUrl = window.location.origin;
+  const canonicalUrl = `${baseUrl}/beat?beatId=${beat?.id || ''}`;
+  const imageUrl = beat?.s3_image_url || BirdieLogo; // Use absolute if possible; prepend base if relative
+  const description = beat
+    ? `Download "${beat.title}" - a ${beat.artist} type beat. BPM: ${beat.bpm}, Key: ${beat.key}, Duration: ${beat.duration}. High-quality instrumental for music production on Birdie Bands.`
+    : 'Discover high-quality type beats on Birdie Bands.';
+  const keywords = beat?.tags
+    ? [
+        ...beat.tags,
+        'type beat',
+        'instrumental',
+        'music production',
+        'beat download',
+        'birdie bands',
+        'birdie type beat',
+      ].join(', ')
+    : 'type beat, instrumental, music production, beat download';
+  const title = beat
+    ? `${beat.title} - ${beat.artist} Type Beat | Birdie Bands`
+    : 'Birdie Bands - Type Beats';
+
   return (
     <div className="z-50 relative max-w-6xl mx-auto px-4 py-16 min-h-[60vh]">
+      {/* React Helmet for dynamic SEO meta tags */}
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <meta name="keywords" content={keywords} />
+        <link rel="canonical" href={canonicalUrl} />
+
+        {/* Open Graph for social sharing (Facebook, LinkedIn, etc.) */}
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={imageUrl} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:type" content="music.song" />
+        <meta property="og:site_name" content="Birdie Bands" />
+
+        {/* Twitter Card for X (formerly Twitter) */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={imageUrl} />
+
+        {/* Optional: Structured Data (JSON-LD) for rich snippets */}
+        {beat && (
+          <script type="application/ld+json">
+            {JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'MusicRecording',
+              name: beat.title,
+              byArtist: {
+                '@type': 'Person',
+                name: beat.artist,
+              },
+              duration: beat.duration,
+              image: imageUrl,
+              url: canonicalUrl,
+              genre: beat.tags || ['Instrumental', 'Type Beat'],
+              offers: {
+                '@type': 'Offer',
+                url: canonicalUrl,
+                priceCurrency: 'USD',
+                price: beat.price || beat.licenses[0]?.price || '0',
+                availability: 'https://schema.org/InStock',
+              },
+            })}
+          </script>
+        )}
+      </Helmet>
       {isLoading ? (
         // Main Beat Skeleton Loading State
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -477,9 +548,10 @@ export default function SingleBeatPage() {
                 src={beat.s3_image_url ? beat.s3_image_url : BirdieLogo}
                 alt={beat.title}
                 className="w-full h-full object-cover rounded-lg pointer-none: "
+                loading="lazy"
               />
               <div
-                className={`absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity duration-300 
+                className={`absolute rounded-lg inset-0 bg-black/50 flex items-center justify-center transition-opacity duration-300 
                   opacity-100city-0 hover:opacity-100'}`}
                 onClick={(e) => {
                   e.stopPropagation();
