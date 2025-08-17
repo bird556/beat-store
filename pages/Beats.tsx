@@ -1,3 +1,4 @@
+import MailerLitePopUp from '@/components/MailerlitePopUp';
 import TrackListing from '@/components/track-listing';
 
 const Beats = () => {
@@ -6,6 +7,7 @@ const Beats = () => {
   return (
     <>
       <TrackListing />
+      <MailerLitePopUp />
     </>
   );
 };

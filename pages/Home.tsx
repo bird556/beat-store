@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import YoutubeSection from '@/components/YouTube';
 // import MailerLitePopup from '@/components/MailerlitePopUp';
 // import { MailerlitePopup } from '@/components/mailerlite-popup'; // Correct import
-// import TestDialog from '@/components/TestDialog';
+import MailerLitePopUp from '@/components/MailerlitePopUp';
 const Home = ({ size }: { size: string }) => {
   document.title = `Birdie Bands | Home`;
   const [showButton, setShowButton] = useState(false);
@@ -93,7 +93,7 @@ const Home = ({ size }: { size: string }) => {
           })}
         </script>
       </Helmet>
-      {/* <TestDialog /> */}
+      <MailerLitePopUp />
       <TrackListing
         limitTrackCount={50}
         // searchTerm={searchTerm}

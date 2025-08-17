@@ -397,7 +397,6 @@ app.post('/api/mailerlite/subscribe', async (req, res) => {
   const { name, email } = req.body;
   const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
   const MAILERLITE_GROUP_ID = process.env.MAILERLITE_GROUP_ID;
-
   if (!MAILERLITE_API_KEY || !MAILERLITE_GROUP_ID) {
     console.error('MailerLite API key or Group ID is not set.');
     return res.status(500).json({ error: 'Server configuration error' });

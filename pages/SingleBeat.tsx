@@ -29,6 +29,7 @@ import toast from 'react-hot-toast';
 import FadeContent from '@/components/ui/ReactBits/FadeContent';
 import type { Track } from '../src/types';
 import BirdieLogo from '../src/Images/birdie2025-logo.png';
+import MailerLitePopUp from '@/components/MailerlitePopUp';
 
 interface Beat {
   artist: string;
@@ -703,6 +704,8 @@ export default function SingleBeatPage() {
         onClose={() => setIsLicenseModalOpen(false)}
         track={selectedTrack}
       />
+
+      <MailerLitePopUp />
     </div>
   );
 }
