@@ -19,6 +19,7 @@ import paypal from '@paypal/checkout-server-sdk';
 import Stripe from 'stripe';
 import crypto from 'crypto';
 import iso3166 from 'iso-3166-1';
+import fetch from 'node-fetch';
 //
 dotenv.config();
 const allowedOrigins = [
@@ -390,6 +391,51 @@ startServer();
 // Route for sending email
 app.use('/api/email', emailRouter);
 app.use('/api/emailTest', emailTestRouter);
+
+// New endpoint to handle MailerLite API subscription
+app.post('/api/mailerlite/subscribe', async (req, res) => {
+  const { name, email } = req.body;
+  const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
+  const MAILERLITE_GROUP_ID = process.env.MAILERLITE_GROUP_ID;
+
+  if (!MAILERLITE_API_KEY || !MAILERLITE_GROUP_ID) {
+    console.error('MailerLite API key or Group ID is not set.');
+    return res.status(500).json({ error: 'Server configuration error' });
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.mailerlite.com/api/v2/groups/${MAILERLITE_GROUP_ID}/subscribers`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-MailerLite-ApiKey': MAILERLITE_API_KEY,
+        },
+        body: JSON.stringify({
+          email: email,
+          name: name,
+          resubscribe: true, // This allows existing users to be re-added
+        }),
+      }
+    );
+
+    const data = await response.json();
+    if (!response.ok) {
+      console.error('MailerLite API error:', data);
+      return res
+        .status(response.status)
+        .json({ error: data.error.message || 'Failed to subscribe' });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: 'Subscribed successfully!', data });
+  } catch (error) {
+    console.error('Error subscribing to MailerLite:', error);
+    res.status(500).json({ error: 'Failed to subscribe' });
+  }
+});
 
 // Fetch all beats with presigned URLs for previews and images
 app.get('/api/beats', async (req, res) => {
