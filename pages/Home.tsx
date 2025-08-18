@@ -9,8 +9,6 @@ import BirdieLogo from '../src/Images/cropped.png';
 import { Helmet } from 'react-helmet'; // Import React Helmet for SEO
 import { useEffect, useState } from 'react';
 import YoutubeSection from '@/components/YouTube';
-// import MailerLitePopup from '@/components/MailerlitePopUp';
-// import { MailerlitePopup } from '@/components/mailerlite-popup'; // Correct import
 import MailerLitePopUp from '@/components/MailerlitePopUp';
 const Home = ({ size }: { size: string }) => {
   document.title = `Birdie Bands | Home`;
