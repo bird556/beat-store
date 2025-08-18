@@ -1,4 +1,4 @@
-import MailerLitePopUp from '../src/components/MailerLitePopUp';
+import MailerLitePopUp from '../src/components/MailerLitePopup';
 import TrackListing from '@/components/track-listing';
 
 const Beats = () => {
