@@ -37,6 +37,7 @@ import {
 import FadeContent from './ui/ReactBits/FadeContent';
 import SplitText from './ui/ReactBits/SplitText';
 import { Helmet } from 'react-helmet'; // Added for SEO
+import MailerLitePopUpDownload from './MailerLitePopUpDownload';
 /**
  * A track listing component that displays a list of tracks and allows the user to search
  * through them. It also allows the user to play, download, and share tracks.
@@ -58,6 +59,8 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
   const [isFetching, setIsFetching] = useState(false);
   const navigate = useNavigate();
   const defaultQuery = searchParams.get('search') || '';
+  const [showDownloadPopup, setShowDownloadPopup] = useState(false);
+  const [pendingDownload, setPendingDownload] = useState<Track | null>(null);
 
   const placeholders = [
     'Larry June Type Beat?',
@@ -110,7 +113,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
    * @param {Track} track The track to download
    */
 
-  const handleDownloadClick = async (track: Track) => {
+  const performDownload = async (track: Track) => {
     try {
       if (!track.id) {
         toast.error('No track ID available.');
@@ -119,7 +122,6 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
 
       const toastId = toast.loading('Starting download...');
 
-      // Call the backend download endpoint
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL_BACKEND}/api/download/${track.id}`
       );
@@ -130,10 +132,9 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
         return;
       }
 
-      // Create a temporary anchor element to trigger the download
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.download = `${track.artist} Type Beat - ${track.title} [Prod. Birdie Bands].mp3`; // Suggest a filename (optional, as backend sets it)
+      link.download = `${track.artist} Type Beat - ${track.title} [Prod. Birdie Bands].mp3`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -142,6 +143,17 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
     } catch (error) {
       console.error('Error initiating download:', error);
       toast.error('Failed to download the track. Please try again later.');
+    }
+  };
+
+  const handleDownloadClick = async (track: Track) => {
+    if (
+      localStorage.getItem('mailerlite_subscribed_for_downloads') === 'true'
+    ) {
+      performDownload(track);
+    } else {
+      setPendingDownload(track);
+      setShowDownloadPopup(true);
     }
   };
 
@@ -660,6 +672,17 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           </button>
         </NavLink>
       )}
+      <MailerLitePopUpDownload
+        open={showDownloadPopup}
+        onOpenChange={setShowDownloadPopup}
+        onSuccess={() => {
+          setShowDownloadPopup(false);
+          if (pendingDownload) {
+            performDownload(pendingDownload);
+            setPendingDownload(null);
+          }
+        }}
+      />
     </div>
   );
 };

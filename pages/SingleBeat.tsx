@@ -29,7 +29,7 @@ import toast from 'react-hot-toast';
 import FadeContent from '@/components/ui/ReactBits/FadeContent';
 import type { Track } from '../src/types';
 import BirdieLogo from '../src/Images/birdie2025-logo.png';
-import MailerLitePopUp from '@/components/MailerlitePopUp';
+import MailerLitePopUpDownload from '@/components/MailerLitePopUpDownload';
 
 interface Beat {
   artist: string;
@@ -66,6 +66,8 @@ export default function SingleBeatPage() {
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
   const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
   const [relatedBeats, setRelatedBeats] = useState<Track[]>([]); // New state for related beats
+  const [showDownloadPopup, setShowDownloadPopup] = useState(false);
+  const [pendingDownload, setPendingDownload] = useState<Track | null>(null);
 
   useEffect(() => {
     const beatId = new URLSearchParams(location.search).get('beatId');
@@ -173,7 +175,40 @@ export default function SingleBeatPage() {
 
     fetchBeat();
   }, [location.search]); // Depend on id to re-fetch if URL param changes
-  const handleDownloadClick = async (beat: Track) => {
+  // const handleDownloadClick = async (beat: Track) => {
+  //   try {
+  //     if (!beat.id) {
+  //       toast.error('No beat ID available for download.');
+  //       return;
+  //     }
+
+  //     const toastId = toast.loading('Starting download...');
+
+  //     const response = await axios.get(
+  //       `${import.meta.env.VITE_API_BASE_URL_BACKEND}/api/download/${beat.id}`
+  //     );
+  //     const { downloadUrl } = response.data;
+
+  //     if (!downloadUrl) {
+  //       toast.error('No download URL available.', { id: toastId });
+  //       return;
+  //     }
+
+  //     const link = document.createElement('a');
+  //     link.href = downloadUrl;
+  //     link.download = `${beat.artist} Type Beat - ${beat.title} [Prod. Birdie Bands].mp3`;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+
+  //     toast.success(`Download started for ${beat.title}`, { id: toastId });
+  //   } catch (error) {
+  //     console.error('Error initiating download:', error);
+  //     toast.error('Failed to download the track. Please try again later.');
+  //   }
+  // };
+
+  const performDownload = async (beat: Track) => {
     try {
       if (!beat.id) {
         toast.error('No beat ID available for download.');
@@ -203,6 +238,17 @@ export default function SingleBeatPage() {
     } catch (error) {
       console.error('Error initiating download:', error);
       toast.error('Failed to download the track. Please try again later.');
+    }
+  };
+
+  const handleDownloadClick = async (beat: Track) => {
+    if (
+      localStorage.getItem('mailerlite_subscribed_for_downloads') === 'true'
+    ) {
+      performDownload(beat);
+    } else {
+      setPendingDownload(beat);
+      setShowDownloadPopup(true);
     }
   };
 
@@ -705,7 +751,17 @@ export default function SingleBeatPage() {
         track={selectedTrack}
       />
 
-      <MailerLitePopUp />
+      <MailerLitePopUpDownload
+        open={showDownloadPopup}
+        onOpenChange={setShowDownloadPopup}
+        onSuccess={() => {
+          setShowDownloadPopup(false);
+          if (pendingDownload) {
+            performDownload(pendingDownload);
+            setPendingDownload(null);
+          }
+        }}
+      />
     </div>
   );
 }
