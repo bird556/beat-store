@@ -6,7 +6,7 @@ import Marquee from 'react-fast-marquee';
 import { NavLink } from 'react-router';
 import BirdieLogo from '../../src/Images/logo.png';
 // import BirdieLogo1 from '../../src/Images/birdie2025-logo.png';
-import BirdieLogo1 from '../../src/Images/LOGO-CROP-NOSTARS.png';
+import BirdieLogo1 from '../../src/Images/1LOGO-CROP-NOSTARS.png';
 import { ThemeToggle } from './ThemeToggle';
 import CartModal from './cart-modal';
 import { useCart } from '@/contexts/cart-context';
