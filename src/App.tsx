@@ -26,6 +26,7 @@ import DownloadPage from '../pages/DownloadPage';
 import SingleBeatPage from '../pages/SingleBeat';
 import NotFound from '../pages/NotFound';
 import LicensePage from '../pages/LicensePage';
+import NewsLetterSignUp from './components/NewsLetterSignUp';
 function App() {
   const headerText = 'text-2xl';
 
@@ -86,6 +87,10 @@ function App() {
 
                         <Route path="/download" element={<DownloadPage />} />
                         <Route path="/beat" element={<SingleBeatPage />} />
+                        <Route
+                          path="/newsletter"
+                          element={<NewsLetterSignUp />}
+                        />
                       </Routes>
                     </div>
                     <Footer />
