@@ -157,9 +157,8 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
   };
 
   const handleShareClick = (track: Track) => {
-    const shareUrl = `${import.meta.env.VITE_APP_BASE_URL}/beat?beatId=${
-      track.id
-    }`;
+    const shareUrl = `${window.location.origin}/beat?beatId=${track.id}`; // Use _id for the URL
+
     const shareText = `Check out this beat: "${track.title}" by ${track.artist} on Birdie Bands!`;
     if (navigator.share) {
       navigator

@@ -253,7 +253,7 @@ export default function SingleBeatPage() {
   };
 
   const handleShareClick = (beat: Track) => {
-    const shareUrl = `${window.location.origin}/beat/${beat.id}`; // Use _id for the URL
+    const shareUrl = `${window.location.origin}/beat?beatId=${beat.id}`; // Use _id for the URL
     const shareText = `Check out this beat: "${beat.title}" by ${beat.artist} on Birdie Bands!`;
 
     if (navigator.share) {
