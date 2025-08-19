@@ -25,7 +25,7 @@ import RefundPolicy from '../pages/RefundPolicy';
 import DownloadPage from '../pages/DownloadPage';
 import SingleBeatPage from '../pages/SingleBeat';
 import NotFound from '../pages/NotFound';
-import Licenses from './components/Licenses';
+import LicensePage from '../pages/LicensePage';
 function App() {
   const headerText = 'text-2xl';
 
@@ -60,7 +60,7 @@ function App() {
                         <Route path="/" element={<Home size={headerText} />} />
                         <Route path="*" element={<NotFound />} />
                         <Route path="/beats" element={<Beats />} />
-                        <Route path="/licenses" element={<Licenses />} />
+                        <Route path="/licenses" element={<LicensePage />} />
                         <Route path="/billing" element={<Billing />} />
                         <Route
                           path="/terms-of-service"

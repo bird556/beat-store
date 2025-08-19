@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import YoutubeSection from '@/components/YouTube';
 import MailerLitePopUp from '../src/components/MailerLitePopup';
 const Home = ({ size }: { size: string }) => {
-  document.title = `Birdie Bands | Home`;
+  // document.title = `Birdie Bands | Home`;
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
