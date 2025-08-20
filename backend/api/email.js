@@ -812,20 +812,7 @@ router.post('/', async (req, res) => {
     let htmlContent;
     let htmlSaleConfirmationContent;
     const attachments = [];
-    // for (const item of data.orderItems) {
-    //   try {
-    //     const pdfAttachment = await generateContractPdf(
-    //       item,
-    //       data.customerName
-    //     );
-    //     attachments.push(pdfAttachment);
-    //   } catch (pdfError) {
-    //     console.error(
-    //       `Error generating PDF for item ${item.description} (${item.leaseType}):`,
-    //       pdfError
-    //     );
-    //   }
-    // }
+
     if (template === 'purchaseConfirmation' || subject.includes('Purchase')) {
       for (const item of data.orderItems) {
         try {

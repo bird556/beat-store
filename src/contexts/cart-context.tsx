@@ -37,14 +37,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const { theme } = useTheme();
 
+  // const addToCart = (item: CartItem) => {
+  //   setItems((prev) => {
+  //     const exists = prev.some((i) => i.id === item.id);
+  //     if (exists) {
+  //       return prev.map((i) => (i.id === item.id ? item : i));
+  //     }
+  //     // return [...prev, item];
+  //     return [...prev, { ...item, effectivePrice: item.price }];
+  //   });
+  // };
+
   const addToCart = (item: CartItem) => {
     setItems((prev) => {
       const exists = prev.some((i) => i.id === item.id);
       if (exists) {
-        return prev.map((i) => (i.id === item.id ? item : i));
+        return prev.map((i) => (i.id === item.id ? { ...i, ...item } : i));
       }
-      // return [...prev, item];
-      return [...prev, { ...item, effectivePrice: item.price }];
+      return [...prev, { ...item }]; // No need to set effectivePrice here initially
     });
   };
 
@@ -60,94 +70,77 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => {
     setItems([]);
-    // toast.error('Cart cleared.', {
-    //   style: {
-    //     background: theme === 'dark' ? '#333' : '#fff',
-    //     color: theme === 'dark' ? '#fff' : '#333',
-    //   },
-    // });
   };
 
   const totalItems = items.length;
 
-  // const totalPrice = items.reduce((sum, item) => sum + item.price, 0);
-
-  // // Added: Compute originalTotal, bogoDiscount, and totalPrice whenever items change
-  // useEffect(() => {
-  //   const sum = items.reduce((acc, item) => acc + item.price, 0);
-
-  //   // Compute BOGO: Group by license (exclude Exclusive), sort prices ascending, free the cheapest floor(count/2)
-  //   const groups: { [key: string]: number[] } = {};
-  //   items.forEach((item) => {
-  //     if (item.license === 'Exclusive') return;
-  //     if (!groups[item.license]) groups[item.license] = [];
-  //     groups[item.license].push(item.price);
-  //   });
-
-  //   let discount = 0;
-  //   Object.values(groups).forEach((prices) => {
-  //     if (prices.length < 2) return;
-  //     const sorted = [...prices].sort((a, b) => a - b);
-  //     const free = Math.floor(sorted.length / 2);
-  //     for (let i = 0; i < free; i++) {
-  //       discount += sorted[i];
-  //     }
-  //   });
-
-  //   setOriginalTotal(sum);
-  //   setBogoDiscount(discount);
-  //   setTotalPrice(sum - discount);
-  // }, [items]);
-
-  // Compute originalTotal, bogoDiscount, totalPrice, and effectivePrice per item
   useEffect(() => {
-    const sum = items.reduce((acc, item) => acc + item.price, 0);
+    const nonExclusiveItems = items.filter(
+      (item) => item.license.toLowerCase() !== 'exclusive'
+    );
+    const exclusiveItems = items.filter(
+      (item) => item.license.toLowerCase() === 'exclusive'
+    );
 
-    // Compute BOGO: Group by license (exclude Exclusive), sort prices ascending, free the cheapest floor(count/2)
-    const groups: { [key: string]: CartItem[] } = {};
-    items.forEach((item) => {
-      if (item.license === 'Exclusive') return;
-      if (!groups[item.license]) groups[item.license] = [];
-      groups[item.license].push(item);
+    // Group non-exclusive items by license type
+    const groupedByLicense: { [key: string]: CartItem[] } = {};
+    nonExclusiveItems.forEach((item) => {
+      if (!groupedByLicense[item.license]) {
+        groupedByLicense[item.license] = [];
+      }
+      groupedByLicense[item.license].push(item);
     });
 
-    // Create a new items array with effectivePrice
-    const updatedItems = [...items];
-    Object.values(groups).forEach((groupItems) => {
-      if (groupItems.length < 2) return;
-      // Sort items by price ascending
-      groupItems.sort((a, b) => a.price - b.price);
-      const freeCount = Math.floor(groupItems.length / 2);
-      groupItems.forEach((item, index) => {
-        const itemIndex = updatedItems.findIndex((i) => i.id === item.id);
-        if (itemIndex !== -1) {
-          updatedItems[itemIndex].effectivePrice =
-            index < freeCount ? 0 : item.price;
-        }
+    // Calculate BOGO discount for each license group
+    const updatedItems = [
+      ...exclusiveItems.map((item) => ({
+        ...item,
+        effectivePrice: item.price,
+      })),
+    ];
+
+    Object.values(groupedByLicense).forEach((group) => {
+      // Sort beats by price within each group
+      const sortedGroup = [...group].sort((a, b) => a.price - b.price);
+      const freeCount = Math.floor(sortedGroup.length / 2);
+
+      // Apply the BOGO discount to the cheapest items in the group
+      sortedGroup.forEach((item, index) => {
+        const newEffectivePrice = index < freeCount ? 0 : item.price;
+        updatedItems.push({ ...item, effectivePrice: newEffectivePrice });
       });
     });
 
-    // Set effectivePrice for Exclusive licenses or single items
-    updatedItems.forEach((item, index) => {
-      if (
-        item.license === 'Exclusive' ||
-        !groups[item.license] ||
-        groups[item.license].length < 2
-      ) {
-        updatedItems[index].effectivePrice = item.price;
-      }
-    });
-
-    // Calculate discount and total
-    const discount = updatedItems.reduce(
-      (acc, item) => acc + (item.price - item.effectivePrice),
+    // Calculate totals from the new `updatedItems` array
+    const calculatedOriginalTotal = updatedItems.reduce(
+      (acc, item) => acc + item.price,
       0
     );
-    setItems(updatedItems); // Update items with effectivePrice
-    setOriginalTotal(sum);
-    setBogoDiscount(discount);
-    setTotalPrice(sum - discount);
-  }, [items.length]); // Trigger on items length change to avoid infinite loops
+    const calculatedTotalPrice = updatedItems.reduce(
+      (acc, item) => acc + item.effectivePrice,
+      0
+    );
+    const calculatedBogoDiscount =
+      calculatedOriginalTotal - calculatedTotalPrice;
+
+    // Check if items have changed to avoid an infinite loop
+    const hasChanged =
+      items.length !== updatedItems.length ||
+      items.some((item) => {
+        const updatedItem = updatedItems.find((ui) => ui.id === item.id);
+        return (
+          updatedItem && updatedItem.effectivePrice !== item.effectivePrice
+        );
+      });
+
+    if (hasChanged) {
+      setItems(updatedItems);
+    }
+
+    setOriginalTotal(calculatedOriginalTotal);
+    setTotalPrice(calculatedTotalPrice);
+    setBogoDiscount(calculatedBogoDiscount);
+  }, [items]); // The dependency remains `items` to react to all cart changes
 
   // 🧠 Load cart items from localStorage on initial render
   useEffect(() => {
