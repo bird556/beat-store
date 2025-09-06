@@ -383,7 +383,9 @@ async function startServer() {
     console.log(`Connected database name: ${mongoose.connection.name.cyan}`);
 
     const beatCount = await Beat.countDocuments();
+    const licenseCount = await License.countDocuments();
     console.log(`Found ${beatCount} beats in collection`.green);
+    console.log(`Found ${licenseCount} licenses in collection`.green);
 
     // Only start listening for requests AFTER successful DB connection
     app.listen(PORT, () =>

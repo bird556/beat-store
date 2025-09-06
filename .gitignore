@@ -117,3 +117,8 @@ backend/.env
 backend/.env
 .env*
 backend/.env*
+
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
