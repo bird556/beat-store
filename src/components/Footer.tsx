@@ -64,14 +64,14 @@ const Footer = () => {
                   Newsletter
                 </NavLink>
               </li>
-              <li>
+              {/* <li>
                 <NavLink
                   to={'/contact'}
                   className="!text-foreground hover:!underline !transition-all !duration-300"
                 >
                   Contact
                 </NavLink>
-              </li>
+              </li> */}
             </ul>
           </div>
           <div className="min-[300px]:flex min-[300px]:justify-center min-[300px]:items-center sm:flex sm:items-center sm:justify-end">
