@@ -22,7 +22,7 @@ import Stripe from 'stripe';
 import crypto from 'crypto';
 import iso3166 from 'iso-3166-1';
 import fetch from 'node-fetch';
-const bcrypt = require('bcrypt');
+import bcrypt from 'bcrypt';
 import multer from 'multer';
 //
 dotenv.config();
