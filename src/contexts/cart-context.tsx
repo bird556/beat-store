@@ -170,6 +170,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (hydrated) {
       localStorage.setItem('cartItems', JSON.stringify(items));
     }
+    console.log('items updated', items);
   }, [items, hydrated]);
 
   return (

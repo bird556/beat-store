@@ -24,6 +24,23 @@ export interface Track {
   s3_mp3_url: string;
   s3_image_url: string;
   tags: string[];
+  available: boolean;
+  type: string;
+}
+
+export interface Pack {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  tags: string[];
+  s3_image_url: string | null;
+  s3_mp3_url: string;
+  s3_file_url: string | null;
+  created_at: string;
+  features: string[];
+  available: boolean;
+  type: string;
 }
 
 export interface CustomerInfo {

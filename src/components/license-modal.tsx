@@ -60,6 +60,8 @@ export default function LicenseModal({
       s3_mp3_url: track.s3_mp3_url,
       s3_image_url: track.s3_image_url,
       tags: track.tags,
+      type: track.type,
+      available: track.available,
     };
 
     addToCart(updatedItem);

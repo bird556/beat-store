@@ -11,15 +11,19 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import colors from 'colors';
 import Beat from './models/Beat.js';
+import Admin from './models/Admin.js';
 import License from './models/License.js';
 import Order from './models/Order.js';
 import Customer from './models/Customer.js';
 import Coupon from './models/Coupon.js';
+import Pack from './models/Pack.js';
 import paypal from '@paypal/checkout-server-sdk';
 import Stripe from 'stripe';
 import crypto from 'crypto';
 import iso3166 from 'iso-3166-1';
 import fetch from 'node-fetch';
+import bcrypt from 'bcrypt';
+import multer from 'multer';
 //
 dotenv.config();
 const allowedOrigins = [
@@ -45,7 +49,7 @@ app.use(
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
@@ -219,6 +223,7 @@ app.post(
               bpm: plainBeat?.bpm ?? null, // ✅ Add bpm
               key: plainBeat?.key ?? null, // ✅ Add key
               effectivePrice: item.effectivePrice,
+              type: item.type,
               s3_file_url: await getPresignedUrl(
                 item.s3_file_url.replace(
                   `s3://${process.env.AWS_S3_BUCKET}/`,
@@ -323,6 +328,93 @@ const s3 = new S3Client({
   region: process.env.AWS_REGION,
 });
 
+// Multer setup for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+const BUCKET_NAME = process.env.AWS_S3_BUCKET;
+
+// Upload file to S3
+const uploadToS3 = async (file, fileType) => {
+  const params = {
+    Bucket: BUCKET_NAME,
+    Key: `${fileType}/${Date.now()}_${file.originalname}`,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+    ACL: 'public-read',
+  };
+
+  try {
+    const command = new PutObjectCommand(params);
+    const data = await s3.send(command);
+    return `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+  } catch (error) {
+    throw new Error(`S3 upload failed: ${error.message}`);
+  }
+};
+
+// Upload endpoint for files
+app.post('/upload', upload.single('file'), async (req, res) => {
+  const { type } = req.body; // 'image', 'audio', or 'zip'
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  try {
+    const url = await uploadToS3(req.file, type);
+    res.status(200).json({ url });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update beat by ID
+app.put('/beat', async (req, res) => {
+  const { beatId } = req.query;
+  let updateData = req.body;
+
+  if (!beatId) {
+    return res.status(400).json({ error: 'Beat ID is required' });
+  }
+
+  // Only update s3_urls if new values are provided (indicating a new upload)
+  const existingBeat = await Beat.findById(beatId);
+  if (!existingBeat) {
+    return res.status(404).json({ error: 'Beat not found' });
+  }
+
+  const finalUpdateData = {
+    title: updateData.title || existingBeat.title,
+    artist: updateData.artist || existingBeat.artist,
+    duration: updateData.duration || existingBeat.duration,
+    bpm: updateData.bpm !== undefined ? updateData.bpm : existingBeat.bpm,
+    key: updateData.key || existingBeat.key,
+    tags: updateData.tags || existingBeat.tags,
+    // s3_mp3_url: updateData.s3_mp3_url || existingBeat.s3_mp3_url,
+    // s3_image_url: updateData.s3_image_url || existingBeat.s3_image_url,
+    available:
+      updateData.available !== undefined
+        ? updateData.available
+        : existingBeat.available,
+  };
+
+  try {
+    const beat = await Beat.findByIdAndUpdate(
+      beatId,
+      { $set: finalUpdateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!beat) {
+      return res.status(404).json({ error: 'Beat not found' });
+    }
+
+    res.status(200).json(beat);
+  } catch (error) {
+    res.status(500).json({ error: `Failed to update beat: ${error.message}` });
+  }
+});
+
 // Stripe setup
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2022-11-15',
@@ -384,8 +476,12 @@ async function startServer() {
 
     const beatCount = await Beat.countDocuments();
     const licenseCount = await License.countDocuments();
+    const ordersCount = await Order.countDocuments();
+    const packCount = await Pack.countDocuments();
     console.log(`Found ${beatCount} beats in collection`.green);
     console.log(`Found ${licenseCount} licenses in collection`.green);
+    console.log(`Found ${ordersCount} orders in collection`.green);
+    console.log(`Found ${packCount} packs in collection`.green);
 
     // Only start listening for requests AFTER successful DB connection
     app.listen(PORT, () =>
@@ -500,7 +596,6 @@ app.get('/api/beats', async (req, res) => {
     // Count beats matching the query
     const totalBeats = await Beat.countDocuments(query);
     const totalPages = Math.ceil(totalBeats / limit);
-
     res.json({ beats: beatsList, page, totalPages, totalBeats });
   } catch (error) {
     console.error('Error fetching beats:'.red, error);
@@ -1490,4 +1585,125 @@ app.get('/related-beats', async (req, res) => {
   }
 });
 
+// create admin with bcrypt
+app.post('/api/create-admin', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const name = 'Birdie Bands';
+    // Check if an admin already exists
+    const existingAdmin = await Admin.findOne({});
+    if (existingAdmin) {
+      return res.status(403).json({ error: 'Admin already exists' });
+    }
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // Create and save the new admin
+    const admin = new Admin({ name, email, passwordHash });
+    await admin.save();
+
+    res.json({ message: 'Admin created successfully' });
+  } catch (err) {
+    console.error('Admin creation error:', err);
+    res.status(500).json({ error: 'Failed to create admin' });
+  }
+});
+
+// log admin in with bcrypt
+app.post('/api/admin-login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Find admin by email
+    const admin = await Admin.findOne({ email });
+    if (!admin) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Compare password with stored hash
+    const isMatch = await bcrypt.compare(password, admin.passwordHash);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    // Successful login - Now also return the user data
+    const user = {
+      name: admin.name, // Assuming your admin model has a 'name' field
+      email: admin.email,
+    };
+
+    // Successful login
+    res.json({ message: 'Admin login successful', user });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Failed to login' });
+  }
+});
+
+// ORDERS FETCH AND CREATE
+app.get('/api/orders', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 1000;
+    const orders = await Order.find().sort({ createdAt: -1 }).limit(limit);
+    res.json({ orders });
+  } catch (err) {
+    console.error('Error fetching orders:', err);
+    res.status(500).json({ error: 'Failed to fetch orders' });
+  }
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`.blue.bold));
+
+// Get Packs
+app.get('/api/packs', async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 6;
+    let search = req.query.search || '';
+    const skip = (page - 1) * limit;
+
+    let query = { available: true };
+    if (search) {
+      query = {
+        available: true,
+        $or: [
+          { title: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } },
+          { tags: { $regex: search, $options: 'i' } },
+        ],
+      };
+    }
+
+    const packsList = await Pack.find(query)
+      .sort({ created_at: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    for (const pack of packsList) {
+      const mp3Key = pack.s3_mp3_url.startsWith('s3://')
+        ? pack.s3_mp3_url.replace(`s3://${process.env.AWS_S3_BUCKET}/`, '')
+        : pack.s3_mp3_url;
+      const imageKey = pack.s3_image_url?.startsWith('s3://')
+        ? pack.s3_image_url.replace(`s3://${process.env.AWS_S3_BUCKET}/`, '')
+        : pack.s3_image_url;
+      const fileKey = pack.s3_file_url?.startsWith('s3://')
+        ? pack.s3_file_url.replace(`s3://${process.env.AWS_S3_BUCKET}/`, '')
+        : pack.s3_file_url;
+
+      pack.s3_mp3_url = await getPresignedUrl(mp3Key, 3600 * 24 * 7); // 7 days
+      pack.s3_image_url = imageKey
+        ? await getPresignedUrl(imageKey, 3600 * 24 * 7)
+        : null;
+      pack.s3_file_url = null; // Hide download URL
+    }
+
+    const totalPacks = await Pack.countDocuments(query);
+    const totalPages = Math.ceil(totalPacks / limit);
+    res.json({ packs: packsList, page, totalPages, totalPacks });
+  } catch (error) {
+    console.error('Error fetching packs:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});

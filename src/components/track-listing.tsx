@@ -178,7 +178,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
   };
 
   const handleBuyClick = (track: Track) => {
-    // console.log(track, 'handle buy click');
+    console.log(track, 'handle buy click');
     setSelectedTrack(track);
     setIsLicenseModalOpen(true);
   };
@@ -499,9 +499,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
     );
   };
 
-  const handleAnimationComplete = () => {
-    console.log('All letters have animated!');
-  };
+  const handleAnimationComplete = () => {};
   return (
     <div className="z-50 flex flex-col justify-between relative">
       {/* SEO Meta Tags */}
@@ -513,7 +511,7 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
           autoPlay
           loop
           muted
-          className="!pointer-events-none absolute h-screen lg:h-auto scale-200 md:scale-140 z-0 opacity-25 dark:opacity-10"
+          className="hidden md:block !pointer-events-none absolute h-screen lg:h-auto scale-200 md:scale-140 z-0 opacity-25 dark:opacity-10"
           src={StudioVideo}
         ></video>
         <motion.div

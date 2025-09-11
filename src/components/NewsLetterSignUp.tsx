@@ -8,6 +8,7 @@ import { Helmet } from 'react-helmet';
 import BirdieLogo from '../Images/birdie2025-logo.png'; // Adjust path as needed
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/contexts/theme-provider';
+import { Button } from '@/components/ui/button';
 
 const NewsLetterSignUp = ({ fullscreen }: { fullscreen?: boolean }) => {
   const [name, setName] = useState('');
@@ -215,18 +216,19 @@ const NewsLetterSignUp = ({ fullscreen }: { fullscreen?: boolean }) => {
             </Label>
           </LabelInputContainer>
 
-          <button
-            className={`group/btn relative block h-10 w-full rounded-md font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] ${
-              theme === 'dark'
-                ? '!bg-white !text-black hover:!bg-transparent hover:!outline-1 hover:!outline-white hover:!text-white'
-                : '!bg-black !text-white hover:!bg-white hover:!text-black'
-            } transition-colors disabled:bg-black disabled:text-white disabled:cursor-not-allowed dark:!bg-zinc-800 dark:!from-zinc-900 dark:!to-zinc-900 dark:!shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset]`}
+          <Button
+            className="w-full"
+            // className={`group/btn relative block h-10 w-full rounded-md font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] ${
+            //   theme === 'dark'
+            //     ? '!bg-white !text-black hover:!bg-transparent hover:!outline-1 hover:!outline-white hover:!text-white'
+            //     : '!bg-black !text-white hover:!bg-white hover:!text-black'
+            // } transition-colors disabled:bg-black disabled:text-white disabled:cursor-not-allowed dark:!bg-zinc-800 dark:!from-zinc-900 dark:!to-zinc-900 dark:!shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset]`}
             type="submit"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Subscribing...' : 'Join Now →'}
             <BottomGradient />
-          </button>
+          </Button>
 
           <div className="mt-8 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
         </form>

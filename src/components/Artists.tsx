@@ -15,7 +15,12 @@ const Artists = ({ size }: { size: string }) => {
         transition={{ duration: 0.3, ease: [0, 0.71, 0.2, 1.01] }}
         className="flex flex-col gap-12"
       >
-        <h2 className={`font-bold ${size}`}>Artist Type Beats</h2>
+        <div>
+          <h2 className={`font-bold ${size}`}>Artist Type Beats</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Tap an image to explore beats inspired by your favorite artists.
+          </p>
+        </div>
         <div className="flex gap-24 flex-wrap justify-center z-10">
           <div onClick={() => handleCardClick('Key Glock')}>
             <TiltedCard

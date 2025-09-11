@@ -10,11 +10,6 @@ const orderSchema = new mongoose.Schema({
   customerInfo: {
     name: { type: String, required: true },
     email: { type: String, required: true },
-    // address: { type: String, required: true },
-    // city: { type: String, required: true },
-    // state: { type: String, required: true },
-    // zip: { type: String, required: true },
-    // country: { type: String, required: true },
   },
   items: [
     {
@@ -27,6 +22,7 @@ const orderSchema = new mongoose.Schema({
       price: { type: Number, required: true },
       title: { type: String, required: true },
       artist: { type: String, required: true },
+      type: { type: String, required: true },
       s3_image_url: { type: String },
       s3_file_url: { type: String, required: true },
     },

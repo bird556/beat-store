@@ -3,21 +3,34 @@
 import { useState } from 'react';
 import { ShoppingCart, Menu, X } from 'lucide-react';
 import Marquee from 'react-fast-marquee';
-import { NavLink } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
+import { useAuth } from '@/contexts/AuthContext';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'; // Shadcn Avatar component
+
 import BirdieLogo from '../../src/Images/logo.png';
-// import BirdieLogo1 from '../../src/Images/birdie2025-logo.png';
 import BirdieLogo1 from '../../src/Images/1LOGO-CROP-NOSTARS.png';
+import BirdieAvatarLogo from '../../src/Images/cropped.png';
 import { ThemeToggle } from './ThemeToggle';
 import CartModal from './cart-modal';
 import { useCart } from '@/contexts/cart-context';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { useTheme } from '@/contexts/theme-provider'; // Adjust the import path to your ThemeProvider
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu'; // Shadcn Dropdown for user menu
 
 const Navbar = () => {
   const { totalItems } = useCart();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { theme } = useTheme();
+  const navigate = useNavigate();
+  // Use the auth context here
+  const { isAuthenticated, user, logout } = useAuth();
+
   return (
     <>
       <nav className="!sticky !top-0 z-[500] border-b border-foreground/30  backdrop-blur-sm bg-background dark:bg-black/70">
@@ -127,6 +140,14 @@ const Navbar = () => {
               </li>
             </NavLink> */}
             <NavLink
+              to="/blogs"
+              className="!bg-transparent hover:!border-transparent"
+            >
+              <li className="text-foreground hover:text-green-400 transition-colors">
+                Blog
+              </li>
+            </NavLink>
+            <NavLink
               to="/contact"
               className="!bg-transparent hover:!border-transparent"
             >
@@ -138,22 +159,38 @@ const Navbar = () => {
 
           {/* Right side - Search, User, Cart, Hamburger */}
           <div className="flex items-center space-x-4">
-            {/* Search - Hidden on mobile */}
-            {/* <div className="relative hidden lg:block">
-              <input
-                type="text"
-                placeholder="Search Beat"
-                className="bg-gray-800 text-foreground px-4 py-2 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 w-48"
-              />
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            </div> */}
-
-            {/* User Icon */}
-            {/* <button className="text-foreground hover:text-green-400 transition-colors cursor-pointer !bg-transparent hover:!border-transparent">
-              <User className="w-6 h-6" />
-            </button> */}
-            {/* Theme Toggle */}
-            <ThemeToggle />
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
+            {isAuthenticated && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Avatar className="h-8 w-8 cursor-pointer">
+                    <AvatarImage
+                      src={BirdieAvatarLogo}
+                      alt={`Birdie Avatar Image`}
+                    />
+                    <AvatarFallback>
+                      {user?.email.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem
+                    onClick={() => navigate('/dashboard')}
+                    className="cursor-pointer hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  >
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    onClick={logout}
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             {/* Cart */}
             <button
               onClick={() => setIsCartOpen(true)}
@@ -167,17 +204,6 @@ const Navbar = () => {
               )}
             </button>
 
-            {/* Hamburger Menu - Visible on mobile */}
-            {/* <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden text-foreground hover:text-green-400 transition-colors !bg-transparent focus:!outline-transparent focus:!border-transparent hover:!border-transparent focus-visible:!outline-transparent focus-visible:!border-transparent"
-            >
-              {isMobileMenuOpen ? (
-                <X className="w-6 h-6 !outline-transparent focus:!outline-transparent" />
-              ) : (
-                <Menu className="w-6 h-6 !outline-transparent" />
-              )}
-            </button> */}
             {/* Hamburger Menu - Visible on mobile */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
@@ -213,6 +239,15 @@ const Navbar = () => {
                     </li>
                   </NavLink>
                   <NavLink
+                    to="/blogs"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="!bg-transparent hover:!border-transparent"
+                  >
+                    <li className="text-foreground hover:text-green-400 transition-colors text-lg">
+                      Blog
+                    </li>
+                  </NavLink>
+                  <NavLink
                     to="/contact"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="!bg-transparent hover:!border-transparent"
@@ -221,6 +256,32 @@ const Navbar = () => {
                       Contact
                     </li>
                   </NavLink>
+                  {isAuthenticated && (
+                    <NavLink
+                      to="/dashboard"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="!bg-transparent hover:!border-transparent"
+                    >
+                      <li className="text-foreground hover:text-green-400 transition-colors text-lg">
+                        Dashboard
+                      </li>
+                    </NavLink>
+                  )}
+                  {isAuthenticated && (
+                    <NavLink
+                      to="/"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        logout();
+                      }}
+                      className="!bg-transparent hover:!border-transparent"
+                    >
+                      <li className="text-foreground hover:text-green-400 transition-colors text-lg">
+                        Logout
+                      </li>
+                    </NavLink>
+                  )}
+                  <ThemeToggle />
                 </div>
               </SheetContent>
             </Sheet>

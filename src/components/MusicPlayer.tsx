@@ -197,7 +197,7 @@ const MusicPlayer = () => {
 
               <div className="min-w-0 flex-1">
                 <div className=" sm:block dark:text-white font-medium truncate md:max-w-64 ">
-                  {currentTrack.title}
+                  {currentTrack.title || 'Loading...'}
                 </div>
                 <div className=" sm:block dark:text-gray-400 text-sm truncate">
                   {currentTrack.artist} Type Beat

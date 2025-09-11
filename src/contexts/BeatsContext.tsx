@@ -7,23 +7,7 @@ import React, {
   useRef,
 } from 'react';
 import axios from 'axios';
-// import { toast } from 'react-hot-toast';
 import type { Track } from '../types';
-// interface Track {
-//   id: string;
-//   title: string;
-//   artist: string;
-//   bpm: number;
-//   key: string;
-//   dateAdded: string;
-//   duration: string;
-//   price: number;
-//   image: string;
-//   audioUrl: string;
-//   licenses: object[];
-//   s3_mp3_url: string;
-//   s3_image_url: string;
-// }
 
 interface BeatsContextType {
   beats: Track[];
@@ -102,13 +86,6 @@ export const BeatsProvider: React.FC<{ children: React.ReactNode }> = ({
       setIsBeatsLoaded(false);
     }
   }, []); // Empty dependency array since fetchBeats doesn't depend on any external variables
-
-  // useEffect(() => {
-  //   // Only fetch if cache is empty for initial homepage load
-  //   if (!cache.current.has('1-6-')) {
-  //     fetchBeats(1, 6);
-  //   }
-  // }, [fetchBeats]);
 
   return (
     <BeatsContext.Provider

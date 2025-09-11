@@ -73,6 +73,7 @@ const beatSchema = new mongoose.Schema({
   },
   licenses: [licenseSchema],
   available: { type: Boolean, required: true, default: true }, // ✅ Add this
+  type: { type: String, required: true, default: 'Beat' },
 });
 
 // Ensure _id is treated as ObjectId
