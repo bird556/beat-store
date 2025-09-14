@@ -1,32 +1,40 @@
 // backend/models/Beat.js
 
 import mongoose from 'mongoose';
+import { features } from 'process';
 
-const licenseSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    required: true,
-    enum: ['Basic', 'Premium', 'Professional', 'Legacy', 'Exclusive'],
+const licenseSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      required: true,
+      enum: ['Basic', 'Premium', 'Professional', 'Legacy', 'Exclusive'],
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    currency: {
+      type: String,
+      required: true,
+      default: 'USD',
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    s3_file_url: {
+      type: String,
+      required: false,
+    },
+    features: {
+      type: [String],
+      required: true,
+    },
   },
-  price: {
-    type: Number,
-    required: true,
-    min: 0,
-  },
-  currency: {
-    type: String,
-    required: true,
-    default: 'USD',
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  s3_file_url: {
-    type: String,
-    required: false,
-  },
-});
+  { _id: false }
+);
 
 const beatSchema = new mongoose.Schema({
   title: {

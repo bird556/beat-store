@@ -102,12 +102,12 @@ const Navbar = () => {
           </NavLink>
 
           {/* Navigation Links - Hidden on mobile */}
-          <div className="hidden md:flex items-center space-x-5 list-none mr-[6.5rem]">
+          <div className="hidden lg:flex items-center space-x-5 list-none mr-[6.5rem]">
             <NavLink
               className={({ isActive }) =>
                 `!bg-transparent hover:!border-transparent ${
                   isActive
-                    ? '!text-green-400 border-b-2 border-white/55 drop-shadow-[0_0_4px_white]'
+                    ? '!text-green-400 border-b-2 border-black dark:border-white/55 drop-shadow-[0_0_4px_white]'
                     : 'text-foreground'
                 }`
               }
@@ -121,7 +121,7 @@ const Navbar = () => {
               className={({ isActive }) =>
                 `!bg-transparent hover:!border-transparent ${
                   isActive
-                    ? '!text-green-400 border-b-2 border-white/55 drop-shadow-[0_0_4px_white]'
+                    ? '!text-green-400 border-b-2 border-black dark:border-white/55 drop-shadow-[0_0_4px_white]'
                     : 'text-foreground'
                 }`
               }
@@ -129,6 +129,20 @@ const Navbar = () => {
             >
               <li className="text-foreground hover:text-green-400 transition-colors">
                 Beats
+              </li>
+            </NavLink>
+            <NavLink
+              className={({ isActive }) =>
+                `!bg-transparent hover:!border-transparent ${
+                  isActive
+                    ? '!text-green-400 border-b-2 border-black dark:border-white/55 drop-shadow-[0_0_4px_white]'
+                    : 'text-foreground'
+                }`
+              }
+              to="/packs"
+            >
+              <li className="text-foreground hover:text-green-400 transition-colors">
+                Sound Kits
               </li>
             </NavLink>
             {/* <NavLink
@@ -141,7 +155,13 @@ const Navbar = () => {
             </NavLink> */}
             <NavLink
               to="/blogs"
-              className="!bg-transparent hover:!border-transparent"
+              className={({ isActive }) =>
+                `!bg-transparent hover:!border-transparent ${
+                  isActive
+                    ? '!text-green-400 border-b-2 border-black dark:border-white/55 drop-shadow-[0_0_4px_white]'
+                    : 'text-foreground'
+                }`
+              }
             >
               <li className="text-foreground hover:text-green-400 transition-colors">
                 Blog
@@ -149,7 +169,13 @@ const Navbar = () => {
             </NavLink>
             <NavLink
               to="/contact"
-              className="!bg-transparent hover:!border-transparent"
+              className={({ isActive }) =>
+                `!bg-transparent hover:!border-transparent ${
+                  isActive
+                    ? '!text-green-400 border-b-2 border-black dark:border-white/55 drop-shadow-[0_0_4px_white]'
+                    : 'text-foreground'
+                }`
+              }
             >
               <li className="text-foreground hover:text-green-400 transition-colors">
                 Contact
@@ -159,7 +185,7 @@ const Navbar = () => {
 
           {/* Right side - Search, User, Cart, Hamburger */}
           <div className="flex items-center space-x-4">
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <ThemeToggle />
             </div>
             {isAuthenticated && (
@@ -209,7 +235,7 @@ const Navbar = () => {
               <SheetTrigger asChild>
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="md:hidden text-foreground hover:text-green-400 transition-colors !bg-transparent focus:!outline-none focus:!border-none hover:!border-none focus-visible:!outline-transparent focus-visible:!border-transparent !outline-none !border-none"
+                  className="lg:hidden text-foreground hover:text-green-400 transition-colors !bg-transparent focus:!outline-none focus:!border-none hover:!border-none focus-visible:!outline-transparent focus-visible:!border-transparent !outline-none !border-none"
                 >
                   {isMobileMenuOpen ? (
                     <X className="hidden w-6 h-6 !outline-transparent focus:!outline-transparent" />

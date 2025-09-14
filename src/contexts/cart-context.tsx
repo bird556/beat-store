@@ -140,6 +140,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setOriginalTotal(calculatedOriginalTotal);
     setTotalPrice(calculatedTotalPrice);
     setBogoDiscount(calculatedBogoDiscount);
+    console.log(items, 'items from useEffect');
   }, [items]); // The dependency remains `items` to react to all cart changes
 
   // 🧠 Load cart items from localStorage on initial render
@@ -170,7 +171,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (hydrated) {
       localStorage.setItem('cartItems', JSON.stringify(items));
     }
-    console.log('items updated', items);
   }, [items, hydrated]);
 
   return (

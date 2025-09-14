@@ -37,11 +37,15 @@ import NewsLetterSignUp from './components/NewsLetterSignUp';
 import BlogPage from '../pages/BlogPage';
 import BlogPostWrapper from '../pages/BlogPost';
 import Login from '../pages/Login';
+import Pack from '../pages/Packs';
 import AdminBeats from '../pages/dashboard/AdminBeats';
+import AdminBeatPacks from '../pages/dashboard/AdminBeatPacks';
 import AdminSingleBeat from '../pages/dashboard/AdminSingleBeat';
+import AdminUploadBeats from '../pages/dashboard/AdminUploadBeat';
 import Dashboard from '../pages/dashboard/Dashboard';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import SinglePack from '../pages/SinglePack';
 // Create a wrapper component that uses useLocation
 function AppContent() {
   const headerText = 'text-2xl';
@@ -73,9 +77,14 @@ function AppContent() {
       {!isDashboard && !isAdminLogin && <Navbar />}
       <div className="overflow-x-hidden">
         <Routes>
+          {/* Home */}
           <Route path="/" element={<Home size={headerText} />} />
+          {/* Not Found */}
           <Route path="*" element={<NotFound />} />
+          {/* Beats */}
           <Route path="/beats" element={<Beats />} />
+          {/* Packs*/}
+          <Route path="/packs" element={<Pack />} />
           <Route path="/licenses" element={<LicensePage />} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/terms-of-service" element={<TermsOfUse />} />
@@ -94,6 +103,7 @@ function AppContent() {
           />
           <Route path="/download" element={<DownloadPage />} />
           <Route path="/beat" element={<SingleBeatPage />} />
+          <Route path="/pack" element={<SinglePack />} />
           <Route path="/newsletter" element={<NewsLetterSignUp />} />
           {/* Login */}
           <Route path="/admin" element={<Login />} />
@@ -101,7 +111,9 @@ function AppContent() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin/beats" element={<AdminBeats />} />
+            <Route path="/admin/packs" element={<AdminBeatPacks />} />
             <Route path="/admin/beat" element={<AdminSingleBeat />} />
+            <Route path="/admin/upload-beat" element={<AdminUploadBeats />} />
           </Route>
         </Routes>
       </div>

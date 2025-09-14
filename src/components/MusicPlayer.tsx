@@ -8,6 +8,11 @@ import { useNavigate } from 'react-router-dom';
 import LicenseModal from './license-modal';
 import { useCart } from '@/contexts/cart-context';
 import type { Track } from '../types';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const MusicPlayer = () => {
   const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack } =
@@ -35,13 +40,19 @@ const MusicPlayer = () => {
 
   // Update the media session
   useEffect(() => {
+    let artistName = currentTrack?.artist;
+    if (artistName === 'BeatPacks') {
+      artistName = 'Birdie Bands Sample Pack';
+    } else {
+      artistName = `${artistName} Type Beat`;
+    }
     if (!('mediaSession' in navigator) || !currentTrack) return;
 
     try {
       // Set media metadata
       navigator.mediaSession.metadata = new MediaMetadata({
         title: currentTrack.title || 'Unknown Track',
-        artist: `${currentTrack.artist || 'Unknown Artist'} Type Beat`,
+        artist: `${artistName || 'Unknown Artist'}`,
         album: 'Birdie Bands',
         artwork: [
           {
@@ -158,8 +169,10 @@ const MusicPlayer = () => {
   }, [currentTrack, isPlaying]); // Add isPlaying to dependencies
 
   const handleCardClick = (beat: Track) => {
+    if (beat.type === 'Beat') navigate(`/beat?beatId=${beat.id}`);
+    else navigate(`/pack?packId=${beat.id}`);
     // Re-fetch the main beat when a related beat is clicked to update the page
-    navigate(`/beat?beatId=${beat.id}`);
+
     // Consider adding a scroll to top here for a better UX
     window.scrollTo(0, 0);
   };
@@ -184,29 +197,44 @@ const MusicPlayer = () => {
       <div className="xl:w-6xl mx-auto z-50">
         <div className="flex items-center justify-between text-start ">
           {/* Current Track Info */}
-          <div className="flex items-center gap-4 min-w-0 relative max-sm:hidden [@media(max-height:460px)]:hidden">
-            <button
-              onClick={() => handleCardClick(currentTrack)}
-              className="!p-0 !m-0 text-start overflow-hidden flex items-center gap-4 !border-none !outline-none hover:!outline-none hover:!border-none !bg-transparent hover:!bg-transparent"
-            >
-              <img
-                src={currentTrack.image || currentTrack.s3_image_url}
-                alt={currentTrack.title}
-                className="rounded h-14 w-14 object-cover hidden sm:block"
-              />
+          <div
+            onClick={() => handleCardClick(currentTrack)}
+            className="flex items-center gap-4 min-w-0 relative max-sm:hidden [@media(max-height:460px)]:hidden"
+          >
+            <Tooltip>
+              <TooltipTrigger>
+                <div
+                  onClick={() => handleCardClick(currentTrack)}
+                  className="!p-0 !m-0 text-start overflow-hidden flex items-center gap-4 !border-none !outline-none hover:!outline-none hover:!border-none !bg-transparent hover:!bg-transparent"
+                >
+                  <img
+                    src={currentTrack.image || currentTrack.s3_image_url}
+                    alt={currentTrack.title}
+                    className="rounded h-14 w-14 object-cover hidden sm:block"
+                  />
 
-              <div className="min-w-0 flex-1">
-                <div className=" sm:block dark:text-white font-medium truncate md:max-w-64 ">
-                  {currentTrack.title || 'Loading...'}
+                  <div className="min-w-0 flex-1">
+                    <div className=" sm:block dark:text-white font-medium truncate md:max-w-64 ">
+                      {currentTrack.title || 'Loading...'}
+                    </div>
+
+                    <div className=" sm:block dark:text-gray-400 text-sm truncate">
+                      {currentTrack.type === 'Beat'
+                        ? `${currentTrack.artist} Type Beat`
+                        : 'Sample Pack'}
+                    </div>
+                    <div className=" sm:block dark:text-gray-500 text-xs">
+                      {currentTrack.type === 'Beat'
+                        ? `Key: ${currentTrack.key} | ${currentTrack.bpm} BPM`
+                        : '100% Royalty-Free'}
+                    </div>
+                  </div>
                 </div>
-                <div className=" sm:block dark:text-gray-400 text-sm truncate">
-                  {currentTrack.artist} Type Beat
-                </div>
-                <div className=" sm:block dark:text-gray-500 text-xs">
-                  Key: {currentTrack.key} | {currentTrack.bpm} BPM
-                </div>
-              </div>
-            </button>
+              </TooltipTrigger>
+              <TooltipContent className="!z-[500000] relative">
+                <p>Go to {currentTrack.type === 'Beat' ? 'Beat' : 'Pack'}</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
 
           {/* Audio Player */}
@@ -287,6 +315,7 @@ const MusicPlayer = () => {
               <ShoppingCart className="max-sm:w-2 max-sm:scale-200 w-4 h-4" />
               <span className="hidden sm:block">
                 ${currentTrack.price || currentTrack.licenses[0].price}
+                {/* {currentTrack.price} */}
               </span>
             </button>
           )}

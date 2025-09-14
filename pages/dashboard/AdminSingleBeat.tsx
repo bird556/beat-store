@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,6 +16,20 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Loader2 } from 'lucide-react'; // Assuming you have lucide icons
+import {
+  Dropzone,
+  DropzoneContent,
+  DropzoneEmptyState,
+} from '@/components/ui/shadcn-io/dropzone';
+
+interface License {
+  type: string;
+  price: number;
+  currency: string;
+  description: string;
+  s3_file_url?: string;
+  features: string[];
+}
 
 interface BeatFormData {
   title: string;
@@ -25,15 +38,16 @@ interface BeatFormData {
   bpm: number;
   key: string;
   tags: string[];
-  s3_mp3_url?: string; // Make optional
-  s3_image_url?: string; // Make optional
+  s3_mp3_url?: string;
+  s3_image_url?: string;
+  licenses: License[];
   available: boolean;
 }
 
 const AdminSingleBeat = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const beatId = new URLSearchParams(location.search).get('beatId'); // Matching navigation param 'id'
+  const beatId = new URLSearchParams(location.search).get('beatId');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<BeatFormData>({
@@ -45,10 +59,16 @@ const AdminSingleBeat = () => {
     tags: [],
     s3_mp3_url: '',
     s3_image_url: '',
+    licenses: [],
     available: true,
   });
-  const [newImageFile, setNewImageFile] = useState<File | null>(null);
-  const [newAudioFile, setNewAudioFile] = useState<File | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [taggedFile, setTaggedFile] = useState<File | null>(null);
+  const [basicFile, setBasicFile] = useState<File | null>(null);
+  const [premiumFile, setPremiumFile] = useState<File | null>(null);
+  const [proFile, setProFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [taggedPreview, setTaggedPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [tagsInput, setTagsInput] = useState('');
 
@@ -81,7 +101,9 @@ const AdminSingleBeat = () => {
       }
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL_BACKEND}/beat?beatId=${beatId}`,
+          `${
+            import.meta.env.VITE_API_BASE_URL_BACKEND
+          }/api/beat?beatId=${beatId}`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
@@ -89,27 +111,29 @@ const AdminSingleBeat = () => {
         );
         if (response.status !== 200) {
           if (response.status === 404) {
-            throw new Error(
-              'Beat not found. It might have been removed or the link is incorrect.'
-            );
+            throw new Error('Beat not found.');
           }
           throw new Error(
             `Failed to fetch beat data: Status ${response.status}`
           );
         }
-        const data = await response.json();
+        // const data = await response.json();
+        const { beat, beatTagged, imagePreview } = await response.json();
         setFormData({
-          title: data.title,
-          artist: data.artist,
-          duration: data.duration,
-          bpm: data.bpm,
-          key: data.key,
-          tags: data.tags || [],
-          s3_mp3_url: data.s3_mp3_url,
-          s3_image_url: data.s3_image_url,
-          available: data.available,
+          title: beat.title,
+          artist: beat.artist,
+          duration: beat.duration,
+          bpm: beat.bpm,
+          key: beat.key,
+          tags: beat.tags || [],
+          s3_mp3_url: beat.s3_mp3_url,
+          s3_image_url: beat.s3_image_url,
+          licenses: beat.licenses || [],
+          available: beat.available,
         });
-        setTagsInput(data.tags.join(', '));
+        setTagsInput(beat.tags.join(', '));
+        setImagePreview(imagePreview); // Use presigned URL if needed
+        setTaggedPreview(beatTagged); // Use presigned URL if needed
         setIsLoading(false);
       } catch (err) {
         setError((err as Error).message);
@@ -146,16 +170,16 @@ const AdminSingleBeat = () => {
     setFormData((prev) => ({ ...prev, available: checked }));
   };
 
-  const uploadFile = async (file: File, type: 'image' | 'audio') => {
-    setUploading(true);
+  const uploadFile = async (file: File, type: string, title: string) => {
+    console.log('Uploading file:', { name: file.name, type, title });
     try {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', type);
+      formData.append('title', title);
 
-      // Assuming a backend endpoint /upload that handles S3 upload and returns { url: string }
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL_BACKEND}/upload`,
+        `${import.meta.env.VITE_API_BASE_URL_BACKEND}/api/upload`,
         {
           method: 'POST',
           body: formData,
@@ -163,38 +187,92 @@ const AdminSingleBeat = () => {
       );
 
       if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `Upload failed for ${type}: ${errorData.error || response.statusText}`
+        );
       }
 
       const data = await response.json();
-      setUploading(false);
+      console.log('Upload successful:', { type, url: data.url });
       return data.url;
     } catch (err) {
-      setError((err as Error).message);
-      setUploading(false);
+      console.error('Upload error:', { type, error: err });
+      toast.error(`Failed to upload ${type}: ${(err as Error).message}`);
       return null;
     }
   };
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setNewImageFile(file);
-      const url = await uploadFile(file, 'image');
-      if (url) {
-        setFormData((prev) => ({ ...prev, s3_image_url: url }));
+  const handleImageDrop = (files: File[]) => {
+    if (files.length > 0) {
+      const file = files[0];
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        toast.error('Please select a valid image file (JPEG, PNG, WEBP).');
+        return;
       }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (typeof e.target?.result === 'string') {
+          setImagePreview(e.target.result);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleAudioChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setNewAudioFile(file);
-      const url = await uploadFile(file, 'audio');
-      if (url) {
-        setFormData((prev) => ({ ...prev, s3_mp3_url: url }));
+  const handleTaggedDrop = (files: File[]) => {
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type !== 'audio/mpeg') {
+        toast.error('Please select a valid MP3 file.');
+        return;
       }
+      setTaggedFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (typeof e.target?.result === 'string') {
+          setTaggedPreview(e.target.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBasicDrop = (files: File[]) => {
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type !== 'audio/mpeg') {
+        toast.error('Please select a valid MP3 file.');
+        return;
+      }
+      setBasicFile(file);
+    }
+  };
+
+  const handlePremiumDrop = (files: File[]) => {
+    if (files.length > 0) {
+      const file = files[0];
+      if (
+        !['application/zip', 'application/x-zip-compressed'].includes(file.type)
+      ) {
+        toast.error('Please select a valid ZIP file.');
+        return;
+      }
+      setPremiumFile(file);
+    }
+  };
+
+  const handleProDrop = (files: File[]) => {
+    if (files.length > 0) {
+      const file = files[0];
+      if (
+        !['application/zip', 'application/x-zip-compressed'].includes(file.type)
+      ) {
+        toast.error('Please select a valid ZIP file.');
+        return;
+      }
+      setProFile(file);
     }
   };
 
@@ -202,44 +280,122 @@ const AdminSingleBeat = () => {
     e.preventDefault();
     setUploading(true);
 
-    const submitData = {
-      ...formData,
-      ...(newImageFile && { s3_image_url: formData.s3_image_url }), // Only include if updated
-      ...(newAudioFile && { s3_mp3_url: formData.s3_mp3_url }), // Only include if updated
-    };
-
     toast
       .promise(
         (async () => {
+          if (!formData.title.trim()) {
+            throw new Error('Title is required and cannot be empty.');
+          }
+
+          const submitData: BeatFormData = {
+            ...formData,
+            licenses: formData.licenses,
+          };
+
+          // Upload new files if provided
+          if (imageFile) {
+            console.log('Uploading image...');
+            const imageUrl = await uploadFile(
+              imageFile,
+              'image',
+              formData.title
+            );
+            if (!imageUrl) throw new Error('Image upload failed');
+            submitData.s3_image_url = imageUrl;
+          }
+
+          if (taggedFile) {
+            console.log('Uploading tagged MP3...');
+            const taggedUrl = await uploadFile(
+              taggedFile,
+              'tagged_mp3',
+              formData.title
+            );
+            if (!taggedUrl) throw new Error('Tagged MP3 upload failed');
+            submitData.s3_mp3_url = taggedUrl;
+          }
+
+          if (basicFile) {
+            console.log('Uploading basic MP3...');
+            const basicUrl = await uploadFile(
+              basicFile,
+              'basic_mp3',
+              formData.title
+            );
+            if (!basicUrl) throw new Error('Basic MP3 upload failed');
+            submitData.licenses = submitData.licenses.map((license) =>
+              license.type === 'Basic'
+                ? { ...license, s3_file_url: basicUrl }
+                : license
+            );
+          }
+
+          if (premiumFile) {
+            console.log('Uploading premium ZIP...');
+            const premiumUrl = await uploadFile(
+              premiumFile,
+              'premium_zip',
+              formData.title
+            );
+            if (!premiumUrl) throw new Error('Premium ZIP upload failed');
+            submitData.licenses = submitData.licenses.map((license) =>
+              license.type === 'Premium'
+                ? { ...license, s3_file_url: premiumUrl }
+                : license
+            );
+          }
+
+          if (proFile) {
+            console.log('Uploading pro ZIP...');
+            const proUrl = await uploadFile(proFile, 'pro_zip', formData.title);
+            if (!proUrl) throw new Error('Professional ZIP upload failed');
+            submitData.licenses = submitData.licenses.map((license) =>
+              ['Professional', 'Legacy', 'Exclusive'].includes(license.type)
+                ? { ...license, s3_file_url: proUrl }
+                : license
+            );
+          }
+
+          console.log(
+            'Submitting beat data:',
+            JSON.stringify(submitData, null, 2)
+          );
           const response = await fetch(
             `${
               import.meta.env.VITE_API_BASE_URL_BACKEND
-            }/beat?beatId=${beatId}`,
+            }/api/beat?beatId=${beatId}`,
             {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(submitData),
             }
           );
+
           if (!response.ok) {
-            throw new Error(`Update failed: ${response.statusText}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(
+              `Update failed: ${errorData.error || response.statusText}`
+            );
           }
-          return response.json(); // Return the response to resolve the promise
+
+          return response.json();
         })(),
         {
           loading: 'Updating beat...',
           success: 'Beat updated successfully!',
-          error: 'Failed to update beat.',
+          error: (err) => err.message,
         }
       )
       .then(() => {
         setUploading(false);
-        setNewImageFile(null);
-        setNewAudioFile(null);
+        setImageFile(null);
+        setTaggedFile(null);
+        setBasicFile(null);
+        setPremiumFile(null);
+        setProFile(null);
         navigate('/admin/beats');
       })
-      .catch((err) => {
-        setError(err.message);
+      .catch(() => {
         setUploading(false);
       });
   };
@@ -298,47 +454,38 @@ const AdminSingleBeat = () => {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader title="Edit Beat" />
-
         <div className="container mx-auto p-4">
           <h1 className="text-2xl font-bold mb-4">Edit Beat</h1>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Artwork Image */}
-
-            {/* Audio File */}
-            <div>
-              <Label htmlFor="audio">Audio File (MP3)</Label>
-              <audio controls src={formData.s3_mp3_url} className="mb-2" />
-              <Input
-                id="audio"
-                type="file"
-                accept="audio/mp3"
-                onChange={handleAudioChange}
-              />
-            </div>
-
-            <div className="flex items-center justify-center space-x-16">
-              <div className="max-w-1/4">
-                <div className="space-y-4">
-                  <Label className="text-lg" htmlFor="image">
-                    Artwork Image
-                  </Label>
-                  <img
-                    src={formData.s3_image_url}
-                    alt="Artwork"
-                    className="aspect-square w-64 object-cover rounded-md overflow-hidden mb-2"
-                  />
-                </div>
-
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
+            <div className="flex items-center justify-center space-x-16 flex-col md:flex-row">
+              <div className="md:max-w-1/4 space-y-4">
+                <Label className="text-lg" htmlFor="image">
+                  Artwork Image
+                </Label>
+                <Dropzone
+                  accept={{ 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] }}
+                  maxFiles={1}
+                  maxSize={10 * 1024 * 1024} // 10MB
+                  onDrop={handleImageDrop}
+                  onError={(err) => toast.error(`Image error: ${err.message}`)}
+                  // @ts-ignore
+                  src={imageFile ? [imageFile] : [formData.s3_image_url]}
+                  className="!p-0"
+                >
+                  <DropzoneEmptyState />
+                  <DropzoneContent className="flex justify-center items-center">
+                    {imagePreview && (
+                      <img
+                        alt="Preview"
+                        className="w-full h-full object-cover aspect-square"
+                        src={imagePreview}
+                      />
+                    )}
+                  </DropzoneContent>
+                </Dropzone>
               </div>
-              <div className="grow space-y-8">
-                {/* Title */}
-                <div className="space-y-2">
+              <div className="grow space-y-8 w-full">
+                <div className="space-y-2 !w-full">
                   <Label className="text-lg" htmlFor="title">
                     Title
                   </Label>
@@ -349,8 +496,6 @@ const AdminSingleBeat = () => {
                     onChange={handleInputChange}
                   />
                 </div>
-
-                {/* Artist */}
                 <div className="space-y-2">
                   <Label className="text-lg" htmlFor="artist">
                     Artist
@@ -365,7 +510,91 @@ const AdminSingleBeat = () => {
               </div>
             </div>
 
-            {/* BPM */}
+            <div className="space-y-2">
+              <Label className="text-lg" htmlFor="tagged">
+                Tagged MP3
+              </Label>
+              {taggedPreview && (
+                <audio controls src={taggedPreview} className="mb-2 w-full" />
+              )}
+              <Dropzone
+                accept={{ 'audio/mpeg': ['.mp3'] }}
+                maxFiles={1}
+                maxSize={500 * 1024 * 1024} // 500MB
+                onDrop={handleTaggedDrop}
+                onError={(err) =>
+                  toast.error(`Tagged MP3 error: ${err.message}`)
+                }
+                src={taggedFile ? [taggedFile] : undefined}
+                className="!p-0"
+              >
+                <DropzoneEmptyState />
+              </Dropzone>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-lg" htmlFor="basic">
+                Basic MP3
+              </Label>
+              <Dropzone
+                accept={{ 'audio/mpeg': ['.mp3'] }}
+                maxFiles={1}
+                maxSize={500 * 1024 * 1024} // 500MB
+                onDrop={handleBasicDrop}
+                onError={(err) =>
+                  toast.error(`Basic MP3 error: ${err.message}`)
+                }
+                src={basicFile ? [basicFile] : undefined}
+                className="!p-0"
+              >
+                <DropzoneEmptyState />
+              </Dropzone>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-lg" htmlFor="premium">
+                Premium ZIP
+              </Label>
+              <Dropzone
+                accept={{
+                  'application/zip': ['.zip'],
+                  'application/x-zip-compressed': ['.zip'],
+                }}
+                maxFiles={1}
+                maxSize={500 * 1024 * 1024} // 500MB
+                onDrop={handlePremiumDrop}
+                onError={(err) =>
+                  toast.error(`Premium ZIP error: ${err.message}`)
+                }
+                src={premiumFile ? [premiumFile] : undefined}
+                className="!p-0"
+              >
+                <DropzoneEmptyState />
+              </Dropzone>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-lg" htmlFor="pro">
+                Professional ZIP
+              </Label>
+              <Dropzone
+                accept={{
+                  'application/zip': ['.zip'],
+                  'application/x-zip-compressed': ['.zip'],
+                }}
+                maxFiles={1}
+                maxSize={500 * 1024 * 1024} // 500MB
+                onDrop={handleProDrop}
+                onError={(err) =>
+                  toast.error(`Professional ZIP error: ${err.message}`)
+                }
+                src={proFile ? [proFile] : undefined}
+                className="!p-0"
+              >
+                <DropzoneEmptyState />
+              </Dropzone>
+            </div>
+
             <div className="space-y-2">
               <Label className="text-base" htmlFor="bpm">
                 BPM
@@ -379,7 +608,6 @@ const AdminSingleBeat = () => {
               />
             </div>
 
-            {/* Duration */}
             <div className="space-y-2">
               <Label className="text-base" htmlFor="duration">
                 Duration (e.g., 3:45)
@@ -392,7 +620,6 @@ const AdminSingleBeat = () => {
               />
             </div>
 
-            {/* Key */}
             <div className="space-y-2">
               <Label className="text-base" htmlFor="key">
                 Key
@@ -414,7 +641,6 @@ const AdminSingleBeat = () => {
               </Select>
             </div>
 
-            {/* Tags */}
             <div className="space-y-2">
               <Label className="text-base" htmlFor="tags">
                 Tags (comma-separated)
@@ -422,7 +648,6 @@ const AdminSingleBeat = () => {
               <Input id="tags" value={tagsInput} onChange={handleTagsChange} />
             </div>
 
-            {/* Available */}
             <div className="flex items-center space-x-2">
               <Switch
                 id="available"

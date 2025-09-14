@@ -23,7 +23,7 @@ import crypto from 'crypto';
 import iso3166 from 'iso-3166-1';
 import fetch from 'node-fetch';
 import bcrypt from 'bcrypt';
-import multer from 'multer';
+import beatRoutes from './routes/beat.js';
 //
 dotenv.config();
 const allowedOrigins = [
@@ -95,6 +95,7 @@ app.post(
   async (req, res) => {
     const sig = req.headers['stripe-signature'];
     let event;
+    console.log('debug testing');
 
     try {
       // Modified: Verify raw body is a Buffer and signature is present
@@ -118,7 +119,7 @@ app.post(
       const session = event.data.object;
       // const { orderId, cartItems, customerInfo } = session.metadata;
       const { orderId, cartItems, customerInfo, couponCode } = session.metadata;
-
+      console.log(session.metadata, 'session.metadata');
       try {
         const parsedCartItems = JSON.parse(cartItems);
         const parsedCustomerInfo = JSON.parse(customerInfo);
@@ -126,6 +127,7 @@ app.post(
         const { validatedItems, subtotal } = await validateCartItems(
           parsedCartItems
         );
+        console.log(validatedItems, 'validatedItems');
 
         const groups = {};
         validatedItems.forEach((item) => {
@@ -189,41 +191,80 @@ app.post(
           finalItems = validatedItems;
         }
 
+        // const orderItems = await Promise.all(
+        //   // validatedItems.map(async (item, index) => {
+        //   //   // const beat = await Beat.findById(item.beatId).lean(); // ✅ Fetch beat data
+        //   //   const beat = await Beat.findById(item.beatId); // ✅ Fetch beat data
+        //   //   if (item.licenseType === 'Exclusive') {
+        //   //     beat.available = false;
+        //   //     await beat.save();
+        //   //     console.log(
+        //   //       `Beat with ID ${item.beatId} has been set to available: ${beat.available}`
+        //   //     );
+        //   //   }
+        //   finalItems.map(async (item, index) => {
+        //     const beat = await Beat.findById(item.beatId);
+        //     if (item.licenseType === 'Exclusive') {
+        //       beat.available = false;
+        //       await beat.save();
+        //       console.log(
+        //         `Beat with ID ${item.beatId} has been set to available: ${beat.available}`
+        //       );
+        //     }
+
+        //     const plainBeat = beat.toObject(); // ✅ Converts to a clean object
+
+        //     return {
+        //       // ...item,
+        //       beatId: item.beatId,
+        //       licenseType: item.licenseType,
+
+        //       // price: item.displayPrice.toFixed(2),
+        //       price: item.effectivePrice.toFixed(2), // Use effectivePrice for the order item
+        //       title: item.title,
+        //       artist: item.artist,
+        //       bpm: plainBeat?.bpm ?? null, // ✅ Add bpm
+        //       key: plainBeat?.key ?? null, // ✅ Add key
+        //       effectivePrice: item.effectivePrice,
+        //       type: item.licenseType, // ⭐ ADD THIS LINE
+        //       s3_file_url: await getPresignedUrl(
+        //         item.s3_file_url.replace(
+        //           `s3://${process.env.AWS_S3_BUCKET}/`,
+        //           ''
+        //         ),
+        //         3600 * 24 * 7,
+        //         `attachment; filename="${
+        //           item.title
+        //         } (Prod Birdie Bands).${item.s3_file_url.split('.').pop()}"`
+        //       ),
+        //       // s3_image_url: parsedImageUrls[index], // temporary not needed
+        //     };
+        //   })
+        // );
+
         const orderItems = await Promise.all(
-          // validatedItems.map(async (item, index) => {
-          //   // const beat = await Beat.findById(item.beatId).lean(); // ✅ Fetch beat data
-          //   const beat = await Beat.findById(item.beatId); // ✅ Fetch beat data
-          //   if (item.licenseType === 'Exclusive') {
-          //     beat.available = false;
-          //     await beat.save();
-          //     console.log(
-          //       `Beat with ID ${item.beatId} has been set to available: ${beat.available}`
-          //     );
-          //   }
-          finalItems.map(async (item, index) => {
-            const beat = await Beat.findById(item.beatId);
+          validatedItems.map(async (item) => {
+            // You don't need to re-fetch the beat here because validateCartItems already did.
+            // However, you do need to update availability for 'Exclusive' licenses.
             if (item.licenseType === 'Exclusive') {
-              beat.available = false;
-              await beat.save();
-              console.log(
-                `Beat with ID ${item.beatId} has been set to available: ${beat.available}`
-              );
+              const beat = await Beat.findById(item.beatId);
+              if (beat) {
+                beat.available = false;
+                await beat.save();
+              }
             }
 
-            const plainBeat = beat.toObject(); // ✅ Converts to a clean object
-
+            // Return the complete item object, including all the necessary fields
             return {
-              // ...item,
               beatId: item.beatId,
-              licenseType: item.licenseType,
-              // price: item.displayPrice.toFixed(2),
-              price: item.effectivePrice.toFixed(2), // Use effectivePrice for the order item
               title: item.title,
               artist: item.artist,
-              bpm: plainBeat?.bpm ?? null, // ✅ Add bpm
-              key: plainBeat?.key ?? null, // ✅ Add key
+              licenseType: item.licenseType,
+              price: item.price, // Or item.effectivePrice, depending on your schema
               effectivePrice: item.effectivePrice,
-              type: item.type,
+              type: item.licenseType, // ⭐ This is still needed for your schema
+              bpm: item.bpm,
+              key: item.key,
               s3_file_url: await getPresignedUrl(
                 item.s3_file_url.replace(
                   `s3://${process.env.AWS_S3_BUCKET}/`,
@@ -234,7 +275,6 @@ app.post(
                   item.title
                 } (Prod Birdie Bands).${item.s3_file_url.split('.').pop()}"`
               ),
-              // s3_image_url: parsedImageUrls[index], // temporary not needed
             };
           })
         );
@@ -317,7 +357,7 @@ app.post(
 );
 // General JSON body parser - apply AFTER the specific raw body webhook handler
 app.use(express.json());
-
+app.use('/api', beatRoutes);
 const uri = process.env.MONGODB_URI;
 
 const s3 = new S3Client({
@@ -326,46 +366,6 @@ const s3 = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
   region: process.env.AWS_REGION,
-});
-
-// Multer setup for file uploads
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
-const BUCKET_NAME = process.env.AWS_S3_BUCKET;
-
-// Upload file to S3
-const uploadToS3 = async (file, fileType) => {
-  const params = {
-    Bucket: BUCKET_NAME,
-    Key: `${fileType}/${Date.now()}_${file.originalname}`,
-    Body: file.buffer,
-    ContentType: file.mimetype,
-    ACL: 'public-read',
-  };
-
-  try {
-    const command = new PutObjectCommand(params);
-    const data = await s3.send(command);
-    return `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
-  } catch (error) {
-    throw new Error(`S3 upload failed: ${error.message}`);
-  }
-};
-
-// Upload endpoint for files
-app.post('/upload', upload.single('file'), async (req, res) => {
-  const { type } = req.body; // 'image', 'audio', or 'zip'
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
-  try {
-    const url = await uploadToS3(req.file, type);
-    res.status(200).json({ url });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
 // Update beat by ID
@@ -451,6 +451,7 @@ const validateCartItems = async (cartItems) => {
       effectivePrice: price, // Initialize effectivePrice
       title: beat.title,
       artist: beat.artist,
+      // s3_image_url: item.s3_image_url,
       s3_image_url: item.s3_image_url,
       s3_file_url: license.s3_file_url,
     });
@@ -1127,6 +1128,7 @@ app.post('/api/paypal/capture-order', async (req, res) => {
 
           return {
             ...item,
+            type: item.licenseType, // ⭐ ADD THIS LINE
             bpm: plainBeat?.bpm ?? null,
             key: plainBeat?.key ?? null,
             price: item.effectivePrice.toFixed(2), // Use the new effectivePrice
@@ -1653,8 +1655,6 @@ app.get('/api/orders', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`.blue.bold));
-
 // Get Packs
 app.get('/api/packs', async (req, res) => {
   try {
@@ -1705,5 +1705,61 @@ app.get('/api/packs', async (req, res) => {
   } catch (error) {
     console.error('Error fetching packs:', error);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// get single beat
+// curl localhost:3001/pack?packId=:id
+app.get('/pack', async (req, res) => {
+  const { packId } = req.query;
+  // console.log(packId, 'packId');
+  try {
+    // The issue was here: 'pack' was being used for both the model and the retrieved document.
+    // We've renamed the retrieved document to 'retrievedPack' to avoid the naming conflict.
+    // The model 'pack' (which we assume is defined elsewhere) is now correctly accessed.
+    const retrievedPack = await Pack.findById(packId).lean();
+    const allPackCount = await Pack.countDocuments();
+    if (!retrievedPack) {
+      return res.status(404).json({ error: 'pack not found' });
+    }
+
+    // Add presigned URLs for previews and images and put license.s3_file_ur null
+    const mp3Key = retrievedPack.s3_mp3_url.startsWith('s3://')
+      ? retrievedPack.s3_mp3_url.replace(
+          `s3://${process.env.AWS_S3_BUCKET}/`,
+          ''
+        )
+      : retrievedPack.s3_mp3_url;
+    const imageKey = retrievedPack.s3_image_url?.startsWith('s3://')
+      ? retrievedPack.s3_image_url.replace(
+          `s3://${process.env.AWS_S3_BUCKET}/`,
+          ''
+        )
+      : retrievedPack.s3_image_url;
+
+    // Update the properties of the retrieved document with the new URLs
+    retrievedPack.s3_mp3_url = await getPresignedUrl(mp3Key, 3600 * 24 * 7); // 7 days
+    retrievedPack.s3_image_url = imageKey
+      ? await getPresignedUrl(imageKey, 3600 * 24 * 7) // 7 days
+      : null;
+
+    // Send the updated document back in the response
+    res.json(retrievedPack);
+  } catch (err) {
+    console.error('Get pack error:'.red, err);
+    res.status(500).json({ error: 'Failed to retrieve pack' });
+  }
+});
+
+// CREATE
+// Create Beat
+app.post('/api/create-beat', async (req, res) => {
+  try {
+    const newBeat = new Beat(req.body);
+    const savedBeat = await newBeat.save();
+    res.json(savedBeat);
+  } catch (err) {
+    console.error('Create beat error:'.red, err);
+    res.status(500).json({ error: 'Failed to create beat' });
   }
 });

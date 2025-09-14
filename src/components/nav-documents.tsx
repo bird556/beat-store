@@ -24,6 +24,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { useNavigate } from 'react-router-dom';
 
 export function NavDocuments({
   items,
@@ -35,6 +36,7 @@ export function NavDocuments({
   }[];
 }) {
   const { isMobile } = useSidebar();
+  const navigate = useNavigate();
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden ">
@@ -42,16 +44,12 @@ export function NavDocuments({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <a
-                href={item.url}
-                className="!text-blue-800 dark:!text-foreground"
-              >
-                <item.icon />
-                <span className="!text-blue-800 dark:!text-foreground">
-                  {item.name}
-                </span>
-              </a>
+            <SidebarMenuButton
+              onClick={() => navigate(item.url)}
+              tooltip={item.name}
+            >
+              {item.icon && <item.icon />}
+              <span>{item.name}</span>
             </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

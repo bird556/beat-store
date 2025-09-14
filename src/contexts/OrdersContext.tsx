@@ -69,7 +69,6 @@ export const OrdersProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     fetchOrders();
-    console.log('Orders:', orders);
   }, [fetchOrders]);
 
   return (

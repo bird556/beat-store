@@ -8,7 +8,6 @@ import {
   IconChevronsRight,
 } from '@tabler/icons-react';
 
-
 import {
   flexRender,
   getCoreRowModel,
@@ -121,15 +120,11 @@ export function DataTable() {
       cell: ({ row }: { row: any }) => `$${row.original.totalPrice.toFixed(2)}`,
     },
     {
-      accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }: { row: any }) => {
-        let variant: 'default' | 'secondary' | 'destructive' | 'outline' =
-          'default';
-        if (row.original.paymentType === 'PayPal') variant = 'secondary';
-        if (row.original.paymentType === 'Stripe') variant = 'outline';
-        return <Badge variant={variant}>{row.original.paymentType}</Badge>;
-      },
+      accessorKey: 'date',
+      header: 'Date',
+      cell: ({ row }: { row: any }) => (
+        <div>{new Date(row.original.createdAt).toLocaleDateString()}</div>
+      ),
     },
     {
       accessorKey: 'paymentType',

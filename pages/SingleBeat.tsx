@@ -356,7 +356,7 @@ export default function SingleBeatPage() {
       <div className="max-md:border-b-[1px] max-md:py-16 max-md:!flex max-md:!flex-col z-50 grid grid-cols-10 gap-4 items-center py-3 px-2 min-md:rounded-lg min-md:hover:bg-foreground/15 transition-colors group">
         {/* Title with Image */}
         <div className="max-md:!flex max-md:!flex-col max-md:w-96 gap-3 !bg-transparent !p-0 hover:!border-transparent z-50 !text-start col-span-5 md:col-span-4 flex items-center space-x-3">
-          <button
+          <div
             onClick={(e) => handleTrackPlay(beat, e)}
             className="!relative !aspect-square !overflow-hidden !rounded-lg !cursor-pointer min-md:!w-20 min-md:!min-w-20 !p-0 !m-0 min-md:!max-w-20 !bg-transparent"
           >
@@ -383,7 +383,7 @@ export default function SingleBeatPage() {
                 <Play className="w-4 h-4 text-foreground fill-white !outline-transparent !border-transparent !stroke-transparent" />
               )}
             </div>
-          </button>
+          </div>
           <button
             onClick={() => handleCardClick()}
             className="max-md:text-center min-w-0 !p-0 !m-0 text-start text-foreground hover:!text-green-400 !duration-200 !transition-colors"
@@ -590,7 +590,7 @@ export default function SingleBeatPage() {
           {/* Loaded Main Beat Content - Refactored to match the image, NOT using Card */}
           <div className="dark:bg-zinc-900/0 dark:text-white  rounded-lg overflow-hidden flex flex-col md:flex-row p-6 md:p-0">
             {/* Image Section */}
-            <div className="w-full md:w-1/3 flex-shrink-0 relative  aspect-square">
+            <div className="!p-0 w-full md:w-1/3 flex-shrink-0 relative  aspect-square">
               <img
                 src={beat.s3_image_url ? beat.s3_image_url : BirdieLogo}
                 alt={beat.title}

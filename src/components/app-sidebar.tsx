@@ -148,7 +148,7 @@ const data = {
   uploads: [
     {
       name: 'Upload Beat',
-      url: '#',
+      url: '/admin/upload-beat',
       icon: IconUpload,
     },
     {
