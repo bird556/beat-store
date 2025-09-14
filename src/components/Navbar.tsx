@@ -131,7 +131,7 @@ const Navbar = () => {
                 Beats
               </li>
             </NavLink>
-            <NavLink
+            {/* <NavLink
               className={({ isActive }) =>
                 `!bg-transparent hover:!border-transparent ${
                   isActive
@@ -144,7 +144,7 @@ const Navbar = () => {
               <li className="text-foreground hover:text-green-400 transition-colors">
                 Sound Kits
               </li>
-            </NavLink>
+            </NavLink> */}
             {/* <NavLink
               to="/about"
               className="!bg-transparent hover:!border-transparent"
