@@ -75,14 +75,14 @@ const getPresignedUrl = async (key, expires = 3600, disposition = null) => {
 
 // PayPal setup
 const paypalClient = new paypal.core.PayPalHttpClient(
-  // new paypal.core.SandboxEnvironment(
-  //   process.env.PAYPAL_CLIENT_ID,
-  //   process.env.PAYPAL_CLIENT_SECRET
-  // )
-  new paypal.core.LiveEnvironment(
+  new paypal.core.SandboxEnvironment(
     process.env.PAYPAL_CLIENT_ID,
     process.env.PAYPAL_CLIENT_SECRET
   )
+  // new paypal.core.LiveEnvironment(
+  //   process.env.PAYPAL_CLIENT_ID,
+  //   process.env.PAYPAL_CLIENT_SECRET
+  // )
 );
 
 // Stripe: Webhook for Payment Confirmation
@@ -96,7 +96,7 @@ app.post(
     const sig = req.headers['stripe-signature'];
     let event;
     console.log('debug testing');
-
+    // debugger;
     try {
       // Modified: Verify raw body is a Buffer and signature is present
       if (!Buffer.isBuffer(req.body)) {
@@ -427,34 +427,60 @@ const generateOrderId = () => crypto.randomUUID();
 const validateCartItems = async (cartItems) => {
   // let totalPrice = 0;
   // let totalPrice = 0;
+  // debugger;
   let subtotal = 0;
   const validatedItems = [];
 
   for (const item of cartItems) {
-    const beat = await Beat.findById(item.beatId).lean();
-    if (!beat) {
-      throw new Error(`Beat with ID ${item.beatId} not found`);
-    }
-    const license = beat.licenses.find((lic) => lic.type === item.licenseType);
-    if (!license) {
-      throw new Error(
-        `License ${item.licenseType} not found for beat ${item.beatId}`
+    if (item.type === 'Beat') {
+      const beat = await Beat.findById(item.beatId).lean();
+      if (!beat) {
+        throw new Error(`Beat with ID ${item.beatId} not found`);
+      }
+      const license = beat.licenses.find(
+        (lic) => lic.type === item.licenseType
       );
+      if (!license) {
+        throw new Error(
+          `License ${item.licenseType} not found for beat ${item.beatId}`
+        );
+      }
+      // totalPrice += parseFloat(license.price);
+      const price = parseFloat(license.price);
+      subtotal += price;
+      validatedItems.push({
+        beatId: item.beatId,
+        licenseType: item.licenseType,
+        price,
+        effectivePrice: price, // Initialize effectivePrice
+        title: beat.title,
+        artist: beat.artist,
+        // s3_image_url: item.s3_image_url,
+        s3_image_url: item.s3_image_url,
+        s3_file_url: license.s3_file_url,
+        type: 'Beat',
+      });
+    } else if (item.type === 'Pack') {
+      const pack = await Pack.findById(item.beatId).lean();
+      if (!pack) {
+        throw new Error(`Pack with ID ${item.beatId} not found`);
+      }
+      // totalPrice += parseFloat(pack.price);
+      const price = parseFloat(pack.price);
+      subtotal += price;
+      validatedItems.push({
+        beatId: item.beatId,
+        licenseType: 'Pack',
+        price,
+        effectivePrice: price, // Initialize effectivePrice
+        title: pack.title,
+        artist: 'Birdie Bands',
+        // s3_image_url: item.s3_image_url,
+        s3_image_url: item.s3_image_url,
+        s3_file_url: pack.s3_file_url,
+        type: 'Pack',
+      });
     }
-    // totalPrice += parseFloat(license.price);
-    const price = parseFloat(license.price);
-    subtotal += price;
-    validatedItems.push({
-      beatId: item.beatId,
-      licenseType: item.licenseType,
-      price,
-      effectivePrice: price, // Initialize effectivePrice
-      title: beat.title,
-      artist: beat.artist,
-      // s3_image_url: item.s3_image_url,
-      s3_image_url: item.s3_image_url,
-      s3_file_url: license.s3_file_url,
-    });
   }
 
   // return { validatedItems, totalPrice: totalPrice.toFixed(2) };
@@ -462,6 +488,7 @@ const validateCartItems = async (cartItems) => {
 };
 
 async function startServer() {
+  // debugger;
   try {
     // console.log(`Attempting to connect to MongoDB URI: ${uri.blue}`); // Log the URI
     console.log(`Attempting to connect to MongoDB URI`.blue); // Log the URI
@@ -721,7 +748,7 @@ app.post('/api/coupons/validate', async (req, res) => {
 // PayPal: Create Order
 app.post('/api/paypal/create-order', async (req, res) => {
   // const { cartItems, customerInfo } = req.body;
-
+  // debugger;
   const { cartItems, customerInfo, couponCode } = req.body;
 
   const newOrderId = generateOrderId();
@@ -793,12 +820,13 @@ app.post('/api/paypal/create-order', async (req, res) => {
 
     validatedItems.forEach((item) => {
       if (item.licenseType === 'Exclusive') return;
-      if (!groups[item.licenseType]) groups[item.licenseType] = [];
+      if (!groups[item.licenseType]) groups[item.licenseType] = []; // Create an array for each license type
       groups[item.licenseType].push(item);
     });
 
     for (const lic in groups) {
-      const groupItems = groups[lic];
+      // For each license type
+      const groupItems = groups[lic]; // Get the items for this license type
       if (groupItems.length < 2) continue;
 
       groupItems.sort((a, b) => a.price - b.price);
@@ -885,15 +913,15 @@ app.post('/api/paypal/create-order', async (req, res) => {
     // console.log('Validated Items:', validatedItems, 'Total Price:', totalPrice);
 
     const paypalClient = new paypal.core.PayPalHttpClient(
-      // new paypal.core.SandboxEnvironment(
-      //   process.env.PAYPAL_CLIENT_ID,
-      //   process.env.PAYPAL_CLIENT_SECRET
-      // )
-
-      new paypal.core.LiveEnvironment(
+      new paypal.core.SandboxEnvironment(
         process.env.PAYPAL_CLIENT_ID,
         process.env.PAYPAL_CLIENT_SECRET
       )
+
+      // new paypal.core.LiveEnvironment(
+      //   process.env.PAYPAL_CLIENT_ID,
+      //   process.env.PAYPAL_CLIENT_SECRET
+      // )
     );
 
     const request = new paypal.orders.OrdersCreateRequest();
@@ -998,6 +1026,7 @@ app.post('/api/paypal/capture-order', async (req, res) => {
   // console.log(orderId, 'orderId from paypal capture endpoint');
   // console.log(cartItems, 'cartItems from paypal capture endpoint');
   // console.log(customerInfo, 'customerInfo from paypal capture endpoint');
+  // debugger;
   try {
     // const { validatedItems, totalPrice } = await validateCartItems(cartItems);
     const { validatedItems, subtotal } = await validateCartItems(cartItems);
@@ -1239,7 +1268,7 @@ app.post('/api/paypal/capture-order', async (req, res) => {
 app.post('/api/stripe/create-checkout-session', async (req, res) => {
   // const { cartItems, customerInfo } = req.body;
   const { cartItems, customerInfo, couponCode } = req.body;
-
+  // debugger;
   // Check if country is an ISO code or name
   let countryCode = customerInfo.country;
   if (!/^[A-Z]{2}$/.test(customerInfo.country)) {
@@ -1387,6 +1416,7 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
         cartItems: JSON.stringify(
           validatedItems.map((item) => ({
             beatId: item.beatId,
+            type: item.type,
             licenseType: item.licenseType,
           }))
         ),

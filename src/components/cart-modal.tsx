@@ -111,7 +111,9 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                                 {item.title}
                               </h3>
                               <p className="text-gray-400 text-sm truncate max-sm:text-start">
-                                {item.artist} Type Beat
+                                {item.type === 'Beat'
+                                  ? `${item.artist} Type Beat`
+                                  : item.artist}
                               </p>
                               <p className="text-green-400 text-sm max-sm:text-start">
                                 {item.license} License

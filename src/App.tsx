@@ -18,7 +18,7 @@ import {
 } from 'react-router-dom';
 import ScrollToTop from './components/helper/ScrollToTop';
 import { PlayerProvider } from './contexts/PlayerContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { CartProvider } from './contexts/cart-context';
 import { Toaster } from 'react-hot-toast';
 import { LicenseProvider } from './contexts/LicenseContext';
@@ -46,13 +46,14 @@ import Dashboard from '../pages/dashboard/Dashboard';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import SinglePack from '../pages/SinglePack';
+import Maintenance from '../pages/Maintenance';
 // Create a wrapper component that uses useLocation
 function AppContent() {
   const headerText = 'text-2xl';
 
   // Use the useLocation hook to get the current URL path
   const location = useLocation();
-
+  const [isUnderMaintenance] = useState(true);
   // Check if the current path is the dashboard
   const isDashboard = location.pathname.startsWith('/dashboard');
   const isAdminLogin = location.pathname.startsWith('/admin');
@@ -74,52 +75,64 @@ function AppContent() {
         />
       </div>
       <ScrollToTop />
-      {!isDashboard && !isAdminLogin && <Navbar />}
+      {!isDashboard && !isAdminLogin && !isUnderMaintenance && <Navbar />}
       <div className="overflow-x-hidden">
         <Routes>
-          {/* Home */}
-          <Route path="/" element={<Home size={headerText} />} />
-          {/* Not Found */}
-          <Route path="*" element={<NotFound />} />
-          {/* Beats */}
-          <Route path="/beats" element={<Beats />} />
-          {/* Packs*/}
-          <Route path="/packs" element={<Pack />} />
-          <Route path="/licenses" element={<LicensePage />} />
-          <Route path="/billing" element={<Billing />} />
-          <Route path="/terms-of-service" element={<TermsOfUse />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/refund-policy" element={<RefundPolicy />} />
-          <Route path="/contact" element={<Contact fullscreen={true} />} />
-          {/* BLOG */}
-          <Route
-            path="/blogs"
-            element={<BlogPage tagline="Latest Updates" heading="Blog Posts" />}
-          />
-          <Route path="/blog/:id" element={<BlogPostWrapper />} />
-          <Route
-            path="/checkout"
-            element={<CartCheckOut size={headerText} />}
-          />
-          <Route path="/download" element={<DownloadPage />} />
-          <Route path="/beat" element={<SingleBeatPage />} />
-          <Route path="/pack" element={<SinglePack />} />
-          <Route path="/newsletter" element={<NewsLetterSignUp />} />
-          {/* Login */}
-          <Route path="/admin" element={<Login />} />
-          {/* ADMIN DASHBOARD */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin/beats" element={<AdminBeats />} />
-            <Route path="/admin/packs" element={<AdminBeatPacks />} />
-            <Route path="/admin/beat" element={<AdminSingleBeat />} />
-            <Route path="/admin/upload-beat" element={<AdminUploadBeats />} />
-          </Route>
+          <>
+            {!isUnderMaintenance ? (
+              <>
+                {/* Home */}
+                <Route path="/" element={<Home size={headerText} />} />
+                {/* Not Found */}
+                <Route path="*" element={<NotFound />} />
+                {/* Beats */}
+                <Route path="/beats" element={<Beats />} />
+                {/* Packs*/}
+                <Route path="/packs" element={<Pack />} />
+                <Route path="/licenses" element={<LicensePage />} />
+                <Route path="/billing" element={<Billing />} />
+                <Route path="/terms-of-service" element={<TermsOfUse />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route
+                  path="/contact"
+                  element={<Contact fullscreen={true} />}
+                />
+                {/* BLOG */}
+                <Route
+                  path="/blogs"
+                  element={
+                    <BlogPage tagline="Latest Updates" heading="Blog Posts" />
+                  }
+                />
+                <Route path="/blog/:id" element={<BlogPostWrapper />} />
+                <Route
+                  path="/checkout"
+                  element={<CartCheckOut size={headerText} />}
+                />
+                <Route path="/download" element={<DownloadPage />} />
+                <Route path="/beat" element={<SingleBeatPage />} />
+                <Route path="/pack" element={<SinglePack />} />
+                <Route path="/newsletter" element={<NewsLetterSignUp />} />
+                {/* Login */}
+                <Route path="/admin" element={<Login />} />
+              </>
+            ) : (
+              <Route path="*" element={<Maintenance />} />
+            )}
+            {/* ADMIN DASHBOARD */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/admin/beats" element={<AdminBeats />} />
+              <Route path="/admin/packs" element={<AdminBeatPacks />} />
+              <Route path="/admin/beat" element={<AdminSingleBeat />} />
+              <Route path="/admin/upload-beat" element={<AdminUploadBeats />} />
+            </Route>
+          </>
         </Routes>
       </div>
-      {!isDashboard && !isAdminLogin && <Footer />}
-      {!isDashboard && !isAdminLogin && <MusicPlayer />}
-
+      {!isDashboard && !isAdminLogin && !isUnderMaintenance && <Footer />}
+      {!isDashboard && !isAdminLogin && !isUnderMaintenance && <MusicPlayer />}
       <Toaster position="top-center" reverseOrder={false} />
     </div>
   );

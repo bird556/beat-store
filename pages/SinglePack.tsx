@@ -8,8 +8,10 @@ import type { Pack } from '../src/types';
 import FadeContent from '@/components/ui/ReactBits/FadeContent';
 import type { Track } from '../src/types';
 import BirdieLogo from '../src/Images/birdie2025-logo.png';
-// import { useCart } from '@/contexts/cart-context';
+import { useCart } from '@/contexts/cart-context';
 import { Badge } from '@/components/ui/badge';
+import { useTheme } from '@/contexts/theme-provider';
+import toast from 'react-hot-toast';
 
 import { usePlayer } from '@/contexts/PlayerContext';
 import {
@@ -28,7 +30,8 @@ export default function SinglePack() {
 
   const [pack, setPack] = useState<Pack | null>(null); // Use Pack interface
   const { currentTrack, playTrack, isPlaying, pauseTrack } = usePlayer(); // Corrected context name
-
+  const { theme } = useTheme();
+  const { items: cartItems, addToCart, removeFromCart } = useCart();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // const [showDownloadPopup, setShowDownloadPopup] = useState(false);
@@ -92,15 +95,15 @@ export default function SinglePack() {
     const track: Track = {
       id: pack.id,
       title: pack.title,
-      artist: 'BeatPacks',
+      artist: pack.features[0],
       bpm: 0,
       key: '',
       dateAdded: '',
-      licenses: [],
       duration: '',
       price: pack.price,
       image: pack.s3_image_url || '',
       audioUrl: pack.s3_mp3_url,
+      licenses: [],
       s3_mp3_url: pack.s3_mp3_url,
       s3_image_url: pack.s3_image_url || '',
       tags: pack.tags,
@@ -126,6 +129,40 @@ export default function SinglePack() {
     else {
       playTrack(packToTrack(pack));
     }
+  };
+
+  const handleBuyClick = (track: Track) => {
+    const updatedItem = {
+      id: track.id,
+      title: track.title,
+      artist: track.artist,
+      price: track.price,
+      license: 'Pack',
+      image: track.image || track.s3_image_url,
+      key: track.key,
+      bpm: track.bpm,
+      duration: track.duration,
+      audioUrl: track.audioUrl,
+      dateAdded: track.dateAdded,
+      licenses: track.licenses,
+      effectivePrice: track.price,
+      s3_mp3_url: track.s3_mp3_url,
+      s3_image_url: track.s3_image_url,
+      tags: track.tags,
+      type: track.type,
+      available: track.available,
+    };
+    addToCart(updatedItem);
+    toast.success('Pack added to cart.', {
+      style: {
+        background: theme === 'dark' ? '#333' : '#fff',
+        color: theme === 'dark' ? '#fff' : '#333',
+      },
+    });
+  };
+
+  const isTrackInCart = (trackId: string) => {
+    return cartItems.some((item) => item.id === trackId);
   };
 
   if (error) {
@@ -313,14 +350,24 @@ export default function SinglePack() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                  <button
-                    disabled={true}
-                    // onClick={() => handleBuyClick(beat)}
-                    className="flex-1 px-8 py-3 !bg-foreground text-background rounded-md text-lg font-bold flex items-center justify-center space-x-2 hover:!bg-white hover:!text-black dark:hover:!bg-gray-300 !transition-colors duration-300 transition-colors"
-                  >
-                    <ShoppingCart className="w-6 h-6" />
-                    <span>${pack.price}</span>
-                  </button>
+                  {/* Price/Cart Button */}
+                  {isTrackInCart(pack.id) ? (
+                    <button
+                      onClick={() => removeFromCart(pack.id)}
+                      className="flex-1 !bg-green-600  text-foreground px-4 py-2 rounded font-medium text-sm lg:min-w-28 flex items-center justify-center space-x-2"
+                    >
+                      <ShoppingCart className="w-4 h-4 min-sm:hidden" />
+                      <span className="hidden sm:block">IN CART</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleBuyClick(packToTrack(pack))}
+                      className="flex-1 lg:min-w-28 cursor-pointer !bg-foreground text-background px-4 py-2 rounded font-medium text-sm hover:!bg-white hover:!text-black dark:hover:!bg-gray-300 !transition-colors duration-300 flex items-center justify-center space-x-2"
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                      <span className="hidden sm:block">${pack.price}</span>
+                    </button>
+                  )}
 
                   <button
                     // onClick={() => handleDownloadClick(beat)}

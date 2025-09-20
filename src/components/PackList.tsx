@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Pack, Track } from '../types';
 import { usePlayer } from '@/contexts/PlayerContext';
-// import { useCart } from '@/contexts/cart-context';
+import { useCart } from '@/contexts/cart-context';
 import { useBeatPacks } from '@/contexts/BeatPackContext';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useTheme } from '@/contexts/theme-provider';
+import toast from 'react-hot-toast';
+
 // framer motion
 const containerVariants = {
   hidden: {
@@ -46,7 +49,9 @@ const PackList = () => {
   const [isFetching, setIsFetching] = useState(false);
 
   const navigate = useNavigate();
-  // const { items: cartItems } = useCart();
+  const { items: cartItems, addToCart, removeFromCart } = useCart();
+  const { theme } = useTheme();
+
   const {
     playTrack,
     currentTrack,
@@ -84,7 +89,7 @@ const PackList = () => {
     const track: Track = {
       id: pack.id,
       title: pack.title,
-      artist: 'BeatPacks',
+      artist: pack.features[0],
       bpm: 0,
       key: '',
       dateAdded: '',
@@ -118,6 +123,40 @@ const PackList = () => {
     else {
       playTrack(packToTrack(pack));
     }
+  };
+
+  const handleBuyClick = (track: Track) => {
+    const updatedItem = {
+      id: track.id,
+      title: track.title,
+      artist: track.artist,
+      price: track.price,
+      license: 'Pack',
+      image: track.image || track.s3_image_url,
+      key: track.key,
+      bpm: track.bpm,
+      duration: track.duration,
+      audioUrl: track.audioUrl,
+      dateAdded: track.dateAdded,
+      licenses: track.licenses,
+      effectivePrice: track.price,
+      s3_mp3_url: track.s3_mp3_url,
+      s3_image_url: track.s3_image_url,
+      tags: track.tags,
+      type: track.type,
+      available: track.available,
+    };
+    addToCart(updatedItem);
+    toast.success('Pack added to cart.', {
+      style: {
+        background: theme === 'dark' ? '#333' : '#fff',
+        color: theme === 'dark' ? '#fff' : '#333',
+      },
+    });
+  };
+
+  const isTrackInCart = (trackId: string) => {
+    return cartItems.some((item) => item.id === trackId);
   };
   return (
     <section className="py-16 z-50 relative">
@@ -216,13 +255,25 @@ const PackList = () => {
                         </div>
                       </CardContent>
                       <CardFooter>
-                        <button
-                          disabled={true}
-                          className="w-full  lg:min-w-28 cursor-pointer !bg-foreground text-background px-4 py-2 rounded font-medium text-sm hover:!bg-white hover:!text-black dark:hover:!bg-gray-300 !transition-colors duration-300 flex items-center justify-center space-x-1"
-                        >
-                          <ShoppingCart className="w-4 h-4" />
-                          <span className="hidden sm:block">${pack.price}</span>
-                        </button>
+                        {isTrackInCart(pack.id) ? (
+                          <button
+                            onClick={() => removeFromCart(pack.id)}
+                            className="w-full !bg-green-600 hover:!bg-green-800  lg:min-w-28 cursor-pointer text-background px-4 py-2 rounded font-medium text-sm  hover:!text-black dark:hover:!bg-gray-300 !transition-colors duration-300 flex items-center justify-center space-x-1"
+                          >
+                            <ShoppingCart className="w-4 h-4 min-md:hidden max-md:mx-auto" />
+                            <span className="hidden md:block">IN CART</span>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleBuyClick(packToTrack(pack))}
+                            className="w-full  lg:min-w-28 cursor-pointer !bg-foreground text-background px-4 py-2 rounded font-medium text-sm  hover:!text-black  !transition-colors duration-300 flex items-center justify-center space-x-1"
+                          >
+                            <ShoppingCart className="w-4 h-4" />
+                            <span className="hidden sm:block">
+                              ${pack.price}
+                            </span>
+                          </button>
+                        )}
                       </CardFooter>
                     </Card>
                   </motion.div>

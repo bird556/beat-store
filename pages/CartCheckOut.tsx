@@ -144,6 +144,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
       const cartItems = items.map((item) => ({
         beatId: item.id,
         licenseType: item.license,
+        type: item.type,
         s3_image_url: item.s3_image_url,
       }));
       const response = await fetch(
@@ -304,7 +305,8 @@ const CartCheckOut = ({ size }: { size: string }) => {
                           {track.artist} Type Beat
                         </div>
                         <div className=" sm:block text-gray-700 dark:text-gray-400 text-xs max-sm:hidden">
-                          Key: {track.key} | {track.bpm} BPM
+                          {track.type === 'Beat' &&
+                            `Key: ${track.key} | ${track.bpm} BPM`}
                         </div>
                         <button className="!bg-transparent !border-none !outline-none hover:!outline-none hover:!border-none hover:!bg-transparent !m-0 !p-0 !font-normal dark:!text-green-400 hover:!text-gray-200 !text-sm !truncate hover:underline !transition-colors !duration-300">
                           {`${
@@ -470,6 +472,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
                               try {
                                 const cartItems = items.map((item) => ({
                                   beatId: item.id,
+                                  type: item.type,
                                   licenseType: item.license,
                                 }));
                                 const response = await fetch(
@@ -520,6 +523,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
                               try {
                                 const cartItems = items.map((item) => ({
                                   beatId: item.id,
+                                  type: item.type,
                                   licenseType: item.license,
                                 }));
                                 const response = await fetch(

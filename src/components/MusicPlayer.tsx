@@ -7,17 +7,20 @@ import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LicenseModal from './license-modal';
 import { useCart } from '@/contexts/cart-context';
+import toast from 'react-hot-toast';
 import type { Track } from '../types';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useTheme } from '@/contexts/theme-provider';
 
 const MusicPlayer = () => {
   const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack } =
     usePlayer();
-  const { items: cartItems } = useCart();
+  const { theme } = useTheme();
+  const { items: cartItems, addToCart } = useCart();
   const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
 
@@ -41,7 +44,7 @@ const MusicPlayer = () => {
   // Update the media session
   useEffect(() => {
     let artistName = currentTrack?.artist;
-    if (artistName === 'BeatPacks') {
+    if (artistName === 'Birdie Bands') {
       artistName = 'Birdie Bands Sample Pack';
     } else {
       artistName = `${artistName} Type Beat`;
@@ -178,17 +181,52 @@ const MusicPlayer = () => {
   };
 
   const handleBuyClick = (track: Track) => {
-    // console.log(track, 'handle buy click');
-    setSelectedTrack(track);
-    setIsLicenseModalOpen(true);
+    console.log(track, 'handle buy click');
+    if (track.type === 'Pack') {
+      const updatedItem = {
+        id: track.id,
+        title: track.title,
+        artist: track.artist,
+        price: track.price,
+        license: 'Pack',
+        image: track.image || track.s3_image_url,
+        key: track.key,
+        bpm: track.bpm,
+        duration: track.duration,
+        audioUrl: track.audioUrl,
+        dateAdded: track.dateAdded,
+        licenses: track.licenses,
+        effectivePrice: track.price,
+        s3_mp3_url: track.s3_mp3_url,
+        s3_image_url: track.s3_image_url,
+        tags: track.tags,
+        type: track.type,
+        available: track.available,
+      };
+      addToCart(updatedItem);
+      toast.success('Pack added to cart.', {
+        style: {
+          background: theme === 'dark' ? '#333' : '#fff',
+          color: theme === 'dark' ? '#fff' : '#333',
+        },
+      });
+      return;
+    } else {
+      setSelectedTrack(track);
+      setIsLicenseModalOpen(true);
+    }
   };
 
   const isTrackInCart = (trackId: string) => {
     return cartItems.some((item) => item.id === trackId);
   };
   const handleEditLicenseClick = (track: Track) => {
-    setSelectedTrack(track);
-    setIsLicenseModalOpen(true);
+    if (track.type === 'Pack') {
+      return;
+    } else {
+      setSelectedTrack(track);
+      setIsLicenseModalOpen(true);
+    }
   };
 
   if (!currentTrack) return null;

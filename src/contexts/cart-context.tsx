@@ -59,8 +59,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const removeFromCart = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-    toast.error('Beat removed from cart.', {
+    let typeName = '';
+
+    setItems((prev) =>
+      prev.filter((item) => {
+        if (item.id === id) {
+          if (item.type === 'Beat') {
+            typeName = 'Beat';
+          } else {
+            typeName = 'Pack';
+          }
+        }
+        return item.id !== id;
+      })
+    );
+    toast.error(`${typeName} removed from cart.`, {
       style: {
         background: theme === 'dark' ? '#333' : '#fff',
         color: theme === 'dark' ? '#fff' : '#333',
@@ -140,7 +153,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setOriginalTotal(calculatedOriginalTotal);
     setTotalPrice(calculatedTotalPrice);
     setBogoDiscount(calculatedBogoDiscount);
-    console.log(items, 'items from useEffect');
   }, [items]); // The dependency remains `items` to react to all cart changes
 
   // 🧠 Load cart items from localStorage on initial render
