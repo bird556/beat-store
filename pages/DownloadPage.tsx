@@ -21,6 +21,7 @@ interface PurchasedItem {
   licenseType: string;
   bpm: number | null; // Added bpm
   key: string | null; // Added key
+  type: string;
 }
 
 interface OrderData {
@@ -60,6 +61,7 @@ export default function DownloadPage() {
           }
         );
         const data = await response.json();
+        console.log('Order data:', data);
         if (data.error) {
           setError(data.error);
         } else {
@@ -217,7 +219,9 @@ export default function DownloadPage() {
                         {item.title}
                       </p>
                       <p className="text-gray-400 text-sm">
-                        {item.artist} Type Beat
+                        {item.type === 'Beat'
+                          ? `${item.artist} Type Beat`
+                          : `${item.artist}`}
                       </p>
                       <div className="flex flex-wrap max-sm:!flex-col items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1">
                         <span className="flex items-center gap-1">

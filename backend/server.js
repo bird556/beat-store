@@ -93,10 +93,9 @@ app.post(
   '/api/stripe/webhook',
   express.raw({ type: 'application/json' }),
   async (req, res) => {
+    // debugger;
     const sig = req.headers['stripe-signature'];
     let event;
-    console.log('debug testing');
-    // debugger;
     try {
       // Modified: Verify raw body is a Buffer and signature is present
       if (!Buffer.isBuffer(req.body)) {
@@ -127,11 +126,12 @@ app.post(
         const { validatedItems, subtotal } = await validateCartItems(
           parsedCartItems
         );
-        console.log(validatedItems, 'validatedItems');
 
         const groups = {};
         validatedItems.forEach((item) => {
           if (item.licenseType === 'Exclusive') return;
+          if (item.type === 'Pack') return;
+
           if (!groups[item.licenseType]) groups[item.licenseType] = [];
           groups[item.licenseType].push(item);
         });
@@ -173,7 +173,7 @@ app.post(
         }
         const finalTotal = afterBogo - couponDisc;
 
-        if (session.amount_total !== Math.round(finalTotal * 100)) {
+        if (session.amount_total !== Math.trunc(finalTotal * 100)) {
           throw new Error('Amount mismatch');
         }
 
@@ -191,91 +191,64 @@ app.post(
           finalItems = validatedItems;
         }
 
-        // const orderItems = await Promise.all(
-        //   // validatedItems.map(async (item, index) => {
-        //   //   // const beat = await Beat.findById(item.beatId).lean(); // ✅ Fetch beat data
-        //   //   const beat = await Beat.findById(item.beatId); // ✅ Fetch beat data
-        //   //   if (item.licenseType === 'Exclusive') {
-        //   //     beat.available = false;
-        //   //     await beat.save();
-        //   //     console.log(
-        //   //       `Beat with ID ${item.beatId} has been set to available: ${beat.available}`
-        //   //     );
-        //   //   }
-        //   finalItems.map(async (item, index) => {
-        //     const beat = await Beat.findById(item.beatId);
-        //     if (item.licenseType === 'Exclusive') {
-        //       beat.available = false;
-        //       await beat.save();
-        //       console.log(
-        //         `Beat with ID ${item.beatId} has been set to available: ${beat.available}`
-        //       );
-        //     }
-
-        //     const plainBeat = beat.toObject(); // ✅ Converts to a clean object
-
-        //     return {
-        //       // ...item,
-        //       beatId: item.beatId,
-        //       licenseType: item.licenseType,
-
-        //       // price: item.displayPrice.toFixed(2),
-        //       price: item.effectivePrice.toFixed(2), // Use effectivePrice for the order item
-        //       title: item.title,
-        //       artist: item.artist,
-        //       bpm: plainBeat?.bpm ?? null, // ✅ Add bpm
-        //       key: plainBeat?.key ?? null, // ✅ Add key
-        //       effectivePrice: item.effectivePrice,
-        //       type: item.licenseType, // ⭐ ADD THIS LINE
-        //       s3_file_url: await getPresignedUrl(
-        //         item.s3_file_url.replace(
-        //           `s3://${process.env.AWS_S3_BUCKET}/`,
-        //           ''
-        //         ),
-        //         3600 * 24 * 7,
-        //         `attachment; filename="${
-        //           item.title
-        //         } (Prod Birdie Bands).${item.s3_file_url.split('.').pop()}"`
-        //       ),
-        //       // s3_image_url: parsedImageUrls[index], // temporary not needed
-        //     };
-        //   })
-        // );
-
         const orderItems = await Promise.all(
           validatedItems.map(async (item) => {
-            // You don't need to re-fetch the beat here because validateCartItems already did.
-            // However, you do need to update availability for 'Exclusive' licenses.
-            if (item.licenseType === 'Exclusive') {
-              const beat = await Beat.findById(item.beatId);
-              if (beat) {
-                beat.available = false;
-                await beat.save();
+            if (item.type === 'Beat') {
+              // You don't need to re-fetch the beat here because validateCartItems already did.
+              // However, you do need to update availability for 'Exclusive' licenses.
+              if (item.licenseType === 'Exclusive') {
+                const beat = await Beat.findById(item.beatId);
+                if (beat) {
+                  beat.available = false;
+                  await beat.save();
+                }
               }
-            }
 
-            // Return the complete item object, including all the necessary fields
-            return {
-              beatId: item.beatId,
-              title: item.title,
-              artist: item.artist,
-              licenseType: item.licenseType,
-              price: item.price, // Or item.effectivePrice, depending on your schema
-              effectivePrice: item.effectivePrice,
-              type: item.licenseType, // ⭐ This is still needed for your schema
-              bpm: item.bpm,
-              key: item.key,
-              s3_file_url: await getPresignedUrl(
-                item.s3_file_url.replace(
-                  `s3://${process.env.AWS_S3_BUCKET}/`,
-                  ''
+              // Return the complete item object, including all the necessary fields
+              return {
+                beatId: item.beatId,
+                title: item.title,
+                artist: item.artist,
+                licenseType: item.licenseType,
+                price: item.price, // Or item.effectivePrice, depending on your schema
+                effectivePrice: item.effectivePrice,
+                type: item.type, // ⭐ This is still needed for your schema
+                bpm: item.bpm,
+                key: item.key,
+                s3_file_url: await getPresignedUrl(
+                  item.s3_file_url.replace(
+                    `s3://${process.env.AWS_S3_BUCKET}/`,
+                    ''
+                  ),
+                  3600 * 24 * 7,
+                  `attachment; filename="${
+                    item.title
+                  } (Prod Birdie Bands).${item.s3_file_url.split('.').pop()}"`
                 ),
-                3600 * 24 * 7,
-                `attachment; filename="${
-                  item.title
-                } (Prod Birdie Bands).${item.s3_file_url.split('.').pop()}"`
-              ),
-            };
+              };
+            } else if (item.type === 'Pack') {
+              return {
+                beatId: item.beatId,
+                title: item.title,
+                artist: item.artist,
+                licenseType: item.licenseType,
+                price: item.price, // Or item.effectivePrice, depending on your schema
+                effectivePrice: item.effectivePrice,
+                type: item.type, // ⭐ This is still needed for your schema
+                bpm: null,
+                key: null,
+                s3_file_url: await getPresignedUrl(
+                  item.s3_file_url.replace(
+                    `s3://${process.env.AWS_S3_BUCKET}/`,
+                    ''
+                  ),
+                  3600 * 24 * 7,
+                  `attachment; filename="${item.title} ${item.s3_file_url
+                    .split('.')
+                    .pop()}"`
+                ),
+              };
+            }
           })
         );
 
@@ -465,19 +438,27 @@ const validateCartItems = async (cartItems) => {
       if (!pack) {
         throw new Error(`Pack with ID ${item.beatId} not found`);
       }
+      const license = pack.licenses.find(
+        (lic) => lic.type === item.licenseType
+      );
+      if (!license) {
+        throw new Error(
+          `License ${item.licenseType} not found for beat ${item.beatId}`
+        );
+      }
       // totalPrice += parseFloat(pack.price);
       const price = parseFloat(pack.price);
       subtotal += price;
       validatedItems.push({
         beatId: item.beatId,
-        licenseType: 'Pack',
+        licenseType: item.licenseType,
         price,
         effectivePrice: price, // Initialize effectivePrice
         title: pack.title,
-        artist: 'Birdie Bands',
+        artist: item.licenseType,
         // s3_image_url: item.s3_image_url,
         s3_image_url: item.s3_image_url,
-        s3_file_url: pack.s3_file_url,
+        s3_file_url: license.s3_file_url,
         type: 'Pack',
       });
     }
@@ -820,6 +801,7 @@ app.post('/api/paypal/create-order', async (req, res) => {
 
     validatedItems.forEach((item) => {
       if (item.licenseType === 'Exclusive') return;
+      if (item.type === 'Pack') return;
       if (!groups[item.licenseType]) groups[item.licenseType] = []; // Create an array for each license type
       groups[item.licenseType].push(item);
     });
@@ -1023,9 +1005,7 @@ app.post('/api/paypal/create-order', async (req, res) => {
 // PayPal: Capture Order
 app.post('/api/paypal/capture-order', async (req, res) => {
   const { orderId, cartItems, customerInfo } = req.body;
-  // console.log(orderId, 'orderId from paypal capture endpoint');
-  // console.log(cartItems, 'cartItems from paypal capture endpoint');
-  // console.log(customerInfo, 'customerInfo from paypal capture endpoint');
+
   // debugger;
   try {
     // const { validatedItems, totalPrice } = await validateCartItems(cartItems);
@@ -1043,6 +1023,7 @@ app.post('/api/paypal/capture-order', async (req, res) => {
     const groups = {};
     validatedItems.forEach((item) => {
       if (item.licenseType === 'Exclusive') return;
+      if (item.type === 'Pack') return;
       if (!groups[item.licenseType]) groups[item.licenseType] = [];
       groups[item.licenseType].push(item);
     });
@@ -1109,69 +1090,59 @@ app.post('/api/paypal/capture-order', async (req, res) => {
         finalItems = validatedItems;
       }
 
-      // const orderItems = await Promise.all(
-      //   validatedItems.map(async (item, index) => {
-      //     // const beat = await Beat.findById(item.beatId).lean(); // ✅ Fetch beat data
-      //     const beat = await Beat.findById(item.beatId); // ✅ Fetch beat data
-      //     // ✅ Update availability if license is "Exclusive"
-      //     if (item.licenseType === 'Exclusive') {
-      //       beat.available = false;
-      //       await beat.save();
-      //       console.log(
-      //         `Beat with ID ${item.beatId} has been set to available: ${beat.available}`
-      //       );
-      //     }
-      //     const plainBeat = beat.toObject(); // ✅ Converts to a clean object
-
-      //     return {
-      //       ...item,
-      //       bpm: plainBeat?.bpm ?? null, // ✅ Add bpm
-      //       key: plainBeat?.key ?? null, // ✅ Add key
-      //       price: item.displayPrice.toFixed(2),
-      //       s3_file_url: await getPresignedUrl(
-      //         item.s3_file_url.replace(
-      //           `s3://${process.env.AWS_S3_BUCKET}/`,
-      //           ''
-      //         ),
-      //         3600 * 24 * 7,
-      //         `attachment; filename="${
-      //           item.title
-      //         } (Prod Birdie Bands).${item.s3_file_url.split('.').pop()}"`
-      //       ),
-      //       // s3_image_url: parsedImageUrls[index], // temporary not needed
-      //     };
-      //   })
-      // );
-
       const orderItems = await Promise.all(
         finalItems.map(async (item, index) => {
-          const beat = await Beat.findById(item.beatId);
-          if (item.licenseType === 'Exclusive') {
-            beat.available = false;
-            await beat.save();
-            console.log(
-              `Beat with ID ${item.beatId} has been set to available: ${beat.available}`
-            );
-          }
-          const plainBeat = beat.toObject();
+          if (item.type === 'Beat') {
+            const beat = await Beat.findById(item.beatId);
+            if (item.licenseType === 'Exclusive') {
+              beat.available = false;
+              await beat.save();
+              console.log(
+                `Beat with ID ${item.beatId} has been set to available: ${beat.available}`
+              );
+            }
+            const plainBeat = beat.toObject();
 
-          return {
-            ...item,
-            type: item.licenseType, // ⭐ ADD THIS LINE
-            bpm: plainBeat?.bpm ?? null,
-            key: plainBeat?.key ?? null,
-            price: item.effectivePrice.toFixed(2), // Use the new effectivePrice
-            s3_file_url: await getPresignedUrl(
-              item.s3_file_url.replace(
-                `s3://${process.env.AWS_S3_BUCKET}/`,
-                ''
+            return {
+              ...item,
+              type: item.type, // ⭐ ADD THIS LINE
+              licenseType: item.licenseType,
+              bpm: plainBeat?.bpm ?? null,
+              key: plainBeat?.key ?? null,
+              price: item.effectivePrice.toFixed(2), // Use the new effectivePrice
+              s3_file_url: await getPresignedUrl(
+                item.s3_file_url.replace(
+                  `s3://${process.env.AWS_S3_BUCKET}/`,
+                  ''
+                ),
+                3600 * 24 * 7,
+                `attachment; filename="${
+                  item.title
+                } (Prod Birdie Bands).${item.s3_file_url.split('.').pop()}"`
               ),
-              3600 * 24 * 7,
-              `attachment; filename="${
-                item.title
-              } (Prod Birdie Bands).${item.s3_file_url.split('.').pop()}"`
-            ),
-          };
+            };
+          } else if (item.type === 'Pack') {
+            const pack = await Pack.findById(item.beatId);
+
+            return {
+              ...item,
+              type: item.type, // ⭐ ADD THIS LINE
+              licenseType: item.licenseType,
+              bpm: null,
+              key: null,
+              price: item.effectivePrice.toFixed(2), // Use the new effectivePrice
+              s3_file_url: await getPresignedUrl(
+                item.s3_file_url.replace(
+                  `s3://${process.env.AWS_S3_BUCKET}/`,
+                  ''
+                ),
+                3600 * 24 * 7,
+                `attachment; filename="${item.title} ${item.s3_file_url
+                  .split('.')
+                  .pop()}"`
+              ),
+            };
+          }
         })
       );
 
@@ -1268,7 +1239,6 @@ app.post('/api/paypal/capture-order', async (req, res) => {
 app.post('/api/stripe/create-checkout-session', async (req, res) => {
   // const { cartItems, customerInfo } = req.body;
   const { cartItems, customerInfo, couponCode } = req.body;
-  // debugger;
   // Check if country is an ISO code or name
   let countryCode = customerInfo.country;
   if (!/^[A-Z]{2}$/.test(customerInfo.country)) {
@@ -1314,6 +1284,8 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
     const groups = {};
     validatedItems.forEach((item) => {
       if (item.licenseType === 'Exclusive') return;
+      if (item.type === 'Pack') return;
+
       if (!groups[item.licenseType]) groups[item.licenseType] = [];
       groups[item.licenseType].push(item);
     });
@@ -1393,7 +1365,11 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
                   : `${item.licenseType} Lease`
               })`,
               images: [item.s3_image_url],
-              description: `${item.artist} Type Beat`,
+              description: `${
+                item.type === 'Beat'
+                  ? `${item.artist} Type Beat `
+                  : `${item.licenseType}`
+              }`,
             },
             // unit_amount: Math.round(item.displayPrice * 100),
             unit_amount: Math.round(item.effectivePrice * 100),
@@ -1456,36 +1432,95 @@ app.get('/download', async (req, res) => {
 
     const orderItemsWithBeatDetails = await Promise.all(
       order.items.map(async (item) => {
-        const beat = await Beat.findById(item.beatId).lean();
-        // Ensure beat exists before trying to access its properties
-        if (!beat) {
-          console.warn(
-            `Beat with ID ${item.beatId} not found for order ${orderId}`
-          );
+        if (item.type === 'Beat') {
+          const beat = await Beat.findById(item.beatId).lean();
+          // Ensure beat exists before trying to access its properties
+          if (!beat) {
+            console.warn(
+              `Beat with ID ${item.beatId} not found for order ${orderId}`
+            );
+            return {
+              title: item.title,
+              artist: item.artist,
+              downloadUrl: item.s3_file_url,
+              s3_image_url: null, // Or a default image URL
+              bpm: null,
+              key: null,
+              licenseType: item.licenseType, // Get item's license type
+              type: 'Beat',
+            };
+          }
+
+          const s3_image_url_cleaned = beat.s3_image_url?.startsWith('s3://')
+            ? beat.s3_image_url.replace(
+                `s3://${process.env.AWS_S3_BUCKET}/`,
+                ''
+              )
+            : beat.s3_image_url;
+
           return {
             title: item.title,
             artist: item.artist,
-            downloadUrl: item.s3_file_url,
-            s3_image_url: null, // Or a default image URL
+            downloadUrl: item.s3_file_url, // Assuming this is already a direct URL or handled elsewhere
+            s3_image_url: s3_image_url_cleaned,
+            bpm: beat.bpm,
+            key: beat.key,
+            licenseType: item.licenseType, // Get item's license type
+            type: 'Beat',
+          };
+        } else if (item.type === 'Pack') {
+          const pack = await Pack.findById(item.beatId).lean();
+          // Ensure beat exists before trying to access its properties
+          if (!pack) {
+            console.warn(
+              `Pack with ID ${item.beatId} not found for order ${orderId}`
+            );
+            return {
+              title: item.title,
+              artist: item.artist,
+              downloadUrl: item.s3_file_url,
+              s3_image_url: null, // Or a default image URL
+              bpm: null,
+              key: null,
+              licenseType: item.licenseType, // Get item's license type
+              type: 'Pack',
+            };
+          }
+
+          const s3_image_url_cleaned = pack.s3_image_url?.startsWith('s3://')
+            ? pack.s3_image_url.replace(
+                `s3://${process.env.AWS_S3_BUCKET}/`,
+                ''
+              )
+            : pack.s3_image_url;
+
+          const license = pack.licenses.find(
+            (lic) => lic.type === item.licenseType
+          );
+          if (!license) {
+            throw new Error(
+              `License ${item.licenseType} not found for beat ${item.beatId}`
+            );
+          }
+
+          const file_key = license.s3_file_url?.startsWith('s3://')
+            ? license.s3_file_url.replace(
+                `s3://${process.env.AWS_S3_BUCKET}/`,
+                ''
+              )
+            : license.s3_file_url;
+
+          return {
+            title: item.title,
+            artist: item.artist,
+            downloadUrl: await getPresignedUrl(file_key, 3600 * 24 * 7),
+            s3_image_url: s3_image_url_cleaned,
             bpm: null,
             key: null,
             licenseType: item.licenseType, // Get item's license type
+            type: 'Pack',
           };
         }
-
-        const s3_image_url_cleaned = beat.s3_image_url?.startsWith('s3://')
-          ? beat.s3_image_url.replace(`s3://${process.env.AWS_S3_BUCKET}/`, '')
-          : beat.s3_image_url;
-
-        return {
-          title: item.title,
-          artist: item.artist,
-          downloadUrl: item.s3_file_url, // Assuming this is already a direct URL or handled elsewhere
-          s3_image_url: s3_image_url_cleaned,
-          bpm: beat.bpm,
-          key: beat.key,
-          licenseType: item.licenseType, // Get item's license type
-        };
       })
     );
 
@@ -1517,6 +1552,7 @@ app.get('/download', async (req, res) => {
         bpm: item.bpm,
         key: item.key,
         licenseType: item.licenseType, // Included
+        type: item.type,
       })),
     });
   } catch (err) {
@@ -1726,7 +1762,9 @@ app.get('/api/packs', async (req, res) => {
       pack.s3_image_url = imageKey
         ? await getPresignedUrl(imageKey, 3600 * 24 * 7)
         : null;
-      pack.s3_file_url = null; // Hide download URL
+      for (const license of pack.licenses) {
+        license.s3_file_url = null; // Hide download URLs
+      }
     }
 
     const totalPacks = await Pack.countDocuments(query);
@@ -1748,7 +1786,6 @@ app.get('/pack', async (req, res) => {
     // We've renamed the retrieved document to 'retrievedPack' to avoid the naming conflict.
     // The model 'pack' (which we assume is defined elsewhere) is now correctly accessed.
     const retrievedPack = await Pack.findById(packId).lean();
-    const allPackCount = await Pack.countDocuments();
     if (!retrievedPack) {
       return res.status(404).json({ error: 'pack not found' });
     }
@@ -1772,6 +1809,10 @@ app.get('/pack', async (req, res) => {
     retrievedPack.s3_image_url = imageKey
       ? await getPresignedUrl(imageKey, 3600 * 24 * 7) // 7 days
       : null;
+
+    for (const license of retrievedPack.licenses) {
+      license.s3_file_url = null; // Hide download URLs
+    }
 
     // Send the updated document back in the response
     res.json(retrievedPack);

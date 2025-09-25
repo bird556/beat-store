@@ -20,7 +20,7 @@ const MusicPlayer = () => {
   const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack } =
     usePlayer();
   const { theme } = useTheme();
-  const { items: cartItems, addToCart } = useCart();
+  const { items: cartItems, addToCart, removeFromCart } = useCart();
   const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
 
@@ -181,14 +181,13 @@ const MusicPlayer = () => {
   };
 
   const handleBuyClick = (track: Track) => {
-    console.log(track, 'handle buy click');
     if (track.type === 'Pack') {
       const updatedItem = {
         id: track.id,
         title: track.title,
         artist: track.artist,
         price: track.price,
-        license: 'Pack',
+        license: track.licenses[0].type,
         image: track.image || track.s3_image_url,
         key: track.key,
         bpm: track.bpm,
@@ -222,6 +221,7 @@ const MusicPlayer = () => {
   };
   const handleEditLicenseClick = (track: Track) => {
     if (track.type === 'Pack') {
+      removeFromCart(track.id);
       return;
     } else {
       setSelectedTrack(track);
@@ -259,7 +259,7 @@ const MusicPlayer = () => {
                     <div className=" sm:block dark:text-gray-400 text-sm truncate">
                       {currentTrack.type === 'Beat'
                         ? `${currentTrack.artist} Type Beat`
-                        : 'Sample Pack'}
+                        : `${currentTrack.artist}`}
                     </div>
                     <div className=" sm:block dark:text-gray-500 text-xs">
                       {currentTrack.type === 'Beat'

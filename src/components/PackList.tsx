@@ -89,7 +89,7 @@ const PackList = () => {
     const track: Track = {
       id: pack.id,
       title: pack.title,
-      artist: pack.features[0],
+      artist: pack.licenses[0].type,
       bpm: 0,
       key: '',
       dateAdded: '',
@@ -97,7 +97,7 @@ const PackList = () => {
       price: pack.price,
       image: pack.s3_image_url || '',
       audioUrl: pack.s3_mp3_url,
-      licenses: [],
+      licenses: pack.licenses,
       s3_mp3_url: pack.s3_mp3_url,
       s3_image_url: pack.s3_image_url || '',
       tags: pack.tags,
@@ -131,7 +131,7 @@ const PackList = () => {
       title: track.title,
       artist: track.artist,
       price: track.price,
-      license: 'Pack',
+      license: track.licenses[0].type,
       image: track.image || track.s3_image_url,
       key: track.key,
       bpm: track.bpm,
@@ -240,17 +240,24 @@ const PackList = () => {
                       <CardContent>
                         <div className="flex flex-col gap-4">
                           <p className="text-muted-foreground">
-                            {pack.description
+                            {pack.licenses[0].description
                               .split(' ')
                               .slice(0, 25)
                               .join(' ') + '...'}
                           </p>
                           <ul className="flex flex-wrap gap-2 items-center justify-center">
-                            {pack.features.slice(0, 4).map((feature, index) => (
-                              <Badge variant={'outline'} key={index}>
-                                {feature}
-                              </Badge>
-                            ))}
+                            {pack.licenses.map((license, index) =>
+                              license.features
+                                .slice(0, 4)
+                                .map((feature, featureIndex) => (
+                                  <Badge
+                                    variant={'outline'}
+                                    key={`${index}-${featureIndex}`}
+                                  >
+                                    {feature}
+                                  </Badge>
+                                ))
+                            )}
                           </ul>
                         </div>
                       </CardContent>
@@ -270,7 +277,7 @@ const PackList = () => {
                           >
                             <ShoppingCart className="w-4 h-4" />
                             <span className="hidden sm:block">
-                              ${pack.price}
+                              ${pack.licenses[0].price}
                             </span>
                           </button>
                         )}

@@ -31,16 +31,15 @@ export interface Track {
 export interface Pack {
   id: string;
   title: string;
-  description: string;
   price: number;
   tags: string[];
   s3_image_url: string | null;
   s3_mp3_url: string;
-  s3_file_url: string | null;
+  s3_free_url: string;
   created_at: string;
-  features: string[];
   available: boolean;
   type: string;
+  licenses: License[];
 }
 
 export interface CustomerInfo {

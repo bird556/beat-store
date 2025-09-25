@@ -91,11 +91,13 @@ export default function SinglePack() {
   }, [location.search]); // Depend on id to re-fetch if URL param changes
 
   const packToTrack = (pack: Pack): Track => {
+    const artistFeature =
+      pack.licenses.length > 0 ? pack.licenses[0].features[0] : '';
     // Create a new Track object from the Pack object
     const track: Track = {
       id: pack.id,
       title: pack.title,
-      artist: pack.features[0],
+      artist: artistFeature,
       bpm: 0,
       key: '',
       dateAdded: '',
@@ -103,7 +105,7 @@ export default function SinglePack() {
       price: pack.price,
       image: pack.s3_image_url || '',
       audioUrl: pack.s3_mp3_url,
-      licenses: [],
+      licenses: pack.licenses,
       s3_mp3_url: pack.s3_mp3_url,
       s3_image_url: pack.s3_image_url || '',
       tags: pack.tags,
@@ -137,7 +139,7 @@ export default function SinglePack() {
       title: track.title,
       artist: track.artist,
       price: track.price,
-      license: 'Pack',
+      license: track.licenses[0].type,
       image: track.image || track.s3_image_url,
       key: track.key,
       bpm: track.bpm,
@@ -171,7 +173,7 @@ export default function SinglePack() {
         <Card className="max-w-md mx-auto bg-card text-card-foreground shadow-lg border-none">
           <CardHeader>
             <CardTitle className="text-red-500 text-3xl font-bold">
-              Error Loading Sample PAck!
+              Error Loading Sample Pack!
             </CardTitle>
             <CardDescription className="text-md mt-2">{error}</CardDescription>
           </CardHeader>
@@ -336,14 +338,20 @@ export default function SinglePack() {
                       {pack.title}
                     </h1>
                     <p className="text-start  dark:text-gray-300">
-                      {pack.description}
+                      {pack.licenses[0].description}
                     </p>
                     <ul className="flex flex-wrap mt-2 items-center justify-center space-x-2">
-                      {pack.features.map((feature, index) => (
-                        <Badge className="mb-2" variant="secondary" key={index}>
-                          {feature}
-                        </Badge>
-                      ))}
+                      {pack.licenses.map((license) =>
+                        license.features.slice(0, 4).map((feature, index) => (
+                          <Badge
+                            className="mb-2"
+                            variant="secondary"
+                            key={index}
+                          >
+                            {feature}
+                          </Badge>
+                        ))
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -365,7 +373,9 @@ export default function SinglePack() {
                       className="flex-1 lg:min-w-28 cursor-pointer !bg-foreground text-background px-4 py-2 rounded font-medium text-sm hover:!bg-white hover:!text-black dark:hover:!bg-gray-300 !transition-colors duration-300 flex items-center justify-center space-x-2"
                     >
                       <ShoppingCart className="w-4 h-4" />
-                      <span className="hidden sm:block">${pack.price}</span>
+                      <span className="hidden sm:block">
+                        ${pack.licenses[0].price}
+                      </span>
                     </button>
                   )}
 

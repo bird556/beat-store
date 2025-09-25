@@ -80,6 +80,7 @@ export const BeatPackProvider: React.FC<{ children: React.ReactNode }> = ({
         currentPage: response.data.page,
         timestamp: Date.now(),
       });
+      console.log('Fetched packs:', packsData);
     } catch (error) {
       console.error('Error fetching packs:', error);
       setTimeout(() => fetchPacks(page, limit, search), 5000);

@@ -39,6 +39,7 @@ const getPresignedUrl = async (key, expires = 3600, disposition = null) => {
 
 // Function to generate the purchase confirmation HTML email
 const generatePurchaseConfirmationEmail = (data) => {
+  // debugger;
   const {
     customerName,
     orderId,
@@ -214,7 +215,7 @@ const generatePurchaseConfirmationEmail = (data) => {
     </head>
  <body style="margin: 0 auto !important; padding: 0 !important;background-color: #000000;">
   <div role="article" aria-roledescription="email" aria-label="Order Complete" lang="en" dir="ltr" style="width: 100%;background-color: #000000;">
-   <div style="display:none;max-height:0;overflow:hidden">Your purchase is complete, Shaun. Your beats are ready for download 🎧</div>
+   <div style="display:none;max-height:0;overflow:hidden">Your purchase is complete, Shaun. Your files are ready for download 🎧</div>
           <div style="max-width: 680px; margin: 0 auto;">
            <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" style="width:680px; width:100% !important; max-width:680px;">
              <tr>
@@ -353,7 +354,7 @@ const generatePurchaseConfirmationEmail = (data) => {
                                          <td mc:edit="S1_CTA" style="background-color: #FFD700;font-family: Plaid, Arial, sans-serif;font-size: 16px;mso-line-height-rule: exactly;line-height: 16px;text-decoration: none;padding: 20px 40px;mso-padding-alt: 20px 0;color: #121212; font-weight: bold;border-radius: 50px; text-transform: uppercase">
                                            <a class="button-a button-a-primary" href="${downloadLink}" style="background-color: #FFD700;font-family: Plaid, Arial, sans-serif;font-size: 16px;mso-line-height-rule: exactly;line-height: 16px;text-decoration: none;
                                              color: #121212; font-weight: bold;display: block;
-                                             border-radius: 50px; text-transform: uppercase;">Download Your Beats
+                                             border-radius: 50px; text-transform: uppercase;">Download Your File(s)
                                            </a>
                                          </td>
                                        </tr>
@@ -405,6 +406,7 @@ const generatePurchaseConfirmationEmail = (data) => {
 
 // Function to generate the sales-focused email
 const generateSaleConfirmationEmail = (data) => {
+  // debugger;
   try {
     const {
       customerName,
@@ -665,6 +667,9 @@ const generateSaleConfirmationEmail = (data) => {
 
 // --- Your generateContractPdf function ---
 async function generateContractPdf(item, customerName) {
+  if (item.type !== 'Beat') {
+    return null;
+  }
   // 1. Extract and Format Dynamic Data
   const purchaseTimestamp = new Date(); // For testing, use current time. In production, use webhookData.payment.created_at
   const formattedDate = purchaseTimestamp.toLocaleDateString('en-US', {
@@ -798,6 +803,7 @@ async function generateContractPdf(item, customerName) {
 }
 
 router.post('/', async (req, res) => {
+  // debugger;
   try {
     const { email, subject, message, template, data } = req.body;
     console.log(data);
@@ -816,11 +822,13 @@ router.post('/', async (req, res) => {
     if (template === 'purchaseConfirmation' || subject.includes('Purchase')) {
       for (const item of data.orderItems) {
         try {
-          const pdfAttachment = await generateContractPdf(
-            item,
-            data.customerName
-          );
-          attachments.push(pdfAttachment);
+          if (item.type === 'Beat') {
+            const pdfAttachment = await generateContractPdf(
+              item,
+              data.customerName
+            );
+            attachments.push(pdfAttachment);
+          }
         } catch (pdfError) {
           console.error(
             `Error generating PDF for item ${item.description} (${item.leaseType}):`,
@@ -921,7 +929,7 @@ router.post('/', async (req, res) => {
       const mailOptionToSelf = {
         from: `"www.BirdieBands.com" <${process.env.GMAIL_EMAIL}>`,
         to: process.env.GMAIL_EMAIL,
-        subject: `Beat Sale 💸 (Order #${data.orderId.slice(0, 4)}...)`,
+        subject: `Birdie Bands Sale 💸 (Order #${data.orderId.slice(0, 4)}...)`,
         html: htmlSaleConfirmationContent,
         attachments: attachments,
       };

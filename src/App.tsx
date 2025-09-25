@@ -53,7 +53,7 @@ function AppContent() {
 
   // Use the useLocation hook to get the current URL path
   const location = useLocation();
-  const [isUnderMaintenance] = useState(true);
+  const [isUnderMaintenance] = useState(false);
   // Check if the current path is the dashboard
   const isDashboard = location.pathname.startsWith('/dashboard');
   const isAdminLogin = location.pathname.startsWith('/admin');
