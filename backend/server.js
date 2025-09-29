@@ -29,8 +29,8 @@ dotenv.config();
 const allowedOrigins = [
   'http://localhost:5173',
   'https://birdiebands.netlify.app',
-  'https://birdiebands.netlify.app/', // Add with trailing slash to match
-  'https://birdiebands.com/',
+  // 'https://birdiebands.netlify.app/', // Add with trailing slash to match
+  // 'https://birdiebands.com/',
   'https://birdiebands.com',
 ];
 const app = express();
@@ -41,6 +41,7 @@ const PORT = process.env.PORT || 3001; // Use Render's assigned port or fallback
 app.use(
   cors({
     origin: function (origin, callback) {
+      console.log('CORS Origin:', origin); // Debug incoming origin
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -50,7 +51,13 @@ app.use(
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    // allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Content-Length',
+      'X-Requested-With',
+    ],
   })
 );
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
