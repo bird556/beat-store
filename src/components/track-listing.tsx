@@ -37,6 +37,12 @@ import {
 import FadeContent from './ui/ReactBits/FadeContent';
 import SplitText from './ui/ReactBits/SplitText';
 import MailerLitePopUpDownload from './MailerLitePopUpDownload';
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
 /**
  * A track listing component that displays a list of tracks and allows the user to search
  * through them. It also allows the user to play, download, and share tracks.
@@ -137,6 +143,28 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+
+      // // --- GOOGLE ADS CONVERSION TRACKING START ---
+
+      // // ⚠️ Note: For free downloads, we DO NOT send 'value' or 'currency'.
+      // if (window.gtag) {
+      //   window.gtag('event', 'conversion', {
+      //     // You MUST replace 'FREE_DOWNLOAD_LABEL' with the label from Google Ads
+      //     send_to: 'AW-17606081379/FREE_DOWNLOAD_LABEL',
+
+      //     // Use an empty string for the transaction ID for a free lead.
+      //     transaction_id: '',
+      //     items: [
+      //       {
+      //         item_id: track.id.toString(), // e.g., '4567'
+      //         item_name: track.title, // e.g., 'Sunset Cruisin'
+      //         item_brand: track.artist, // e.g., 'The Beatles'
+      //       },
+      //     ],
+      //   });
+      // }
+
+      // // --- GOOGLE ADS CONVERSION TRACKING END ---
 
       toast.success(`Download started for ${track.title}`, { id: toastId });
     } catch (error) {
