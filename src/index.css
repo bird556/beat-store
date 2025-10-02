@@ -195,3 +195,50 @@ button:focus-visible {
     @apply bg-background text-foreground;
   }
 }
+
+/* GOOGLE TRANSLATE */
+.translate-widget {
+  position: relative;
+  z-index: 9999;
+  opacity: 0.9;
+}
+
+.goog-te-gadget-simple {
+  background: transparent !important;
+  border: none !important;
+}
+
+.goog-te-gadget-simple span {
+  color: var(--color-foreground) !important;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+}
+
+.goog-te-banner-frame.skiptranslate,
+.goog-te-gadget-icon {
+  display: none !important;
+}
+
+.VIpgJd-ZVi9od-xl07Ob-lTBxed img {
+  display: none !important;
+}
+
+/* Hide all spans that are preceded by another element (in this case, the first span) */
+.VIpgJd-ZVi9od-xl07Ob-lTBxed span ~ span {
+  display: none !important;
+}
+
+/* Ensure the first span remains visible (usually unnecessary, but good practice for clarity) */
+.VIpgJd-ZVi9od-xl07Ob-lTBxed span:first-child {
+  display: inline !important; /* or initial, or block, depending on the desired behavior */
+}
+
+/* dropdown menu */
+.VIpgJd-ZVi9od-vH1Gmf {
+  background: green !important;
+}
+
+.VIpgJd-ZVi9od-xl07Ob-OEVmcd .skiptranslate {
+  background-color: red !important;
+}

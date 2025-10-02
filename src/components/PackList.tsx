@@ -222,16 +222,11 @@ const PackList = () => {
                           </div>
                         </div>
                         <Tooltip>
-                          <TooltipTrigger>
+                          <TooltipTrigger
+                            onClick={() => navigate(`/pack?packId=${pack.id}`)}
+                          >
                             <h3 className="!text-2xl font-semibold hover:underline md:text-xl">
-                              <button
-                                onClick={() =>
-                                  navigate(`/pack?packId=${pack.id}`)
-                                }
-                                className="!p-0 !m-0 !font-bold hover:underline"
-                              >
-                                {pack.title}
-                              </button>
+                              {pack.title}
                             </h3>
                           </TooltipTrigger>
                           <TooltipContent>Open Pack</TooltipContent>

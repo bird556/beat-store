@@ -47,6 +47,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import SinglePack from '../pages/SinglePack';
 import Maintenance from '../pages/Maintenance';
+import FaqsPage from '../pages/FaqsPage';
 // Create a wrapper component that uses useLocation
 function AppContent() {
   const headerText = 'text-2xl';
@@ -114,6 +115,7 @@ function AppContent() {
                 <Route path="/beat" element={<SingleBeatPage />} />
                 <Route path="/pack" element={<SinglePack />} />
                 <Route path="/newsletter" element={<NewsLetterSignUp />} />
+                <Route path="/faqs" element={<FaqsPage />} />
                 {/* Login */}
                 <Route path="/admin" element={<Login />} />
               </>

@@ -101,7 +101,13 @@ const Home = ({ size }: { size: string }) => {
       <Artists size={size} />
       {/* <PackList /> */}
       <Licenses />
-      <FAQS size={size} />
+      {/* FAQS */}
+      <div className="flex flex-col justify-center self-center md:min-w-6xl">
+        <div className="z-50 flex flex-col gap-12">
+          <h2 className={`font-bold ${size}`}>FAQS</h2>
+          <FAQS />
+        </div>
+      </div>
       {/* <Contact fullscreen={false} /> */}
       {showButton && (
         <button

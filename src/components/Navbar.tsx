@@ -6,7 +6,7 @@ import Marquee from 'react-fast-marquee';
 import { NavLink, useNavigate } from 'react-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'; // Shadcn Avatar component
-
+// import GoogleTranslate from './GoogleTranslate';
 import BirdieLogo from '../../src/Images/logo.png';
 import BirdieLogo1 from '../../src/Images/1LOGO-CROP-NOSTARS.png';
 import BirdieAvatarLogo from '../../src/Images/cropped.png';
@@ -181,6 +181,7 @@ const Navbar = () => {
                 Contact
               </li>
             </NavLink>
+            {/* <GoogleTranslate /> */}
           </div>
 
           {/* Right side - Search, User, Cart, Hamburger */}

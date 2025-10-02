@@ -95,6 +95,7 @@ export default function LicenseModal({
   return (
     <>
       <Modal
+        translate="no"
         placement="center"
         backdrop="blur"
         classNames={{
@@ -249,6 +250,7 @@ export default function LicenseModal({
                   Cancel
                 </button>
                 <button
+                  translate="no"
                   onClick={handleAddToCart}
                   // disabled={!selectedLicense}
                   className="px-6 py-2 !bg-green-700 text-foreground font-medium rounded hover:!bg-green-600 transition-colors  disabled:cursor-not-allowed"

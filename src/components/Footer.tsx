@@ -58,6 +58,14 @@ const Footer = () => {
               </li>
               <li>
                 <NavLink
+                  to={'/faqs'}
+                  className="!text-foreground hover:!underline !transition-all !duration-300 me-4 md:me-6"
+                >
+                  FAQS
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
                   to={'/newsletter'}
                   className="!text-foreground hover:!underline !transition-all !duration-300 me-4 md:me-6"
                 >
