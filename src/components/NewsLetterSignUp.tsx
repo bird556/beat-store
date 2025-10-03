@@ -137,7 +137,7 @@ const NewsLetterSignUp = ({ fullscreen }: { fullscreen?: boolean }) => {
         transition={{ duration: 0.3, ease: 'easeOut' }}
         className={`z-50 relative my-16 !shadow-none mx-auto w-full max-w-md rounded-none bg-transparent px-4 md:rounded-2xl md:px-8 ${
           fullscreen ? '' : ''
-        } flex flex-col gap-4 justify-center`}
+        } flex flex-col gap-4 justify-center py-64`}
       >
         <h2 className="font-bold text-2xl">Join Our Newsletter</h2>
         <p className="mt-2 max-w-sm text-sm text-neutral-600 dark:text-neutral-300">

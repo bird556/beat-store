@@ -22,6 +22,7 @@ interface PurchasedItem {
   bpm: number | null; // Added bpm
   key: string | null; // Added key
   type: string;
+  beatId: string;
 }
 
 interface OrderData {
@@ -29,6 +30,13 @@ interface OrderData {
   customerName: string;
   customerEmail: string;
   items: PurchasedItem[];
+  totalPrice: number;
+}
+
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+  }
 }
 
 export default function DownloadPage() {
@@ -38,6 +46,7 @@ export default function DownloadPage() {
   const [order, setOrder] = useState<OrderData | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [hasTrackedConversion, setHasTrackedConversion] = useState(false); // New state to prevent double-firing
 
   useEffect(() => {
     const orderId = new URLSearchParams(location.search).get('orderId');
@@ -61,11 +70,15 @@ export default function DownloadPage() {
           }
         );
         const data = await response.json();
-        console.log('Order data:', data);
+        // console.log('Order data:', data);
         if (data.error) {
           setError(data.error);
         } else {
           setOrder(data);
+        }
+        if (data && !data.error) {
+          setOrder(data);
+          // We'll move the tracking logic to the separate useEffect below
         }
         clearCart();
       } catch (err) {
@@ -78,6 +91,43 @@ export default function DownloadPage() {
 
     fetchOrder();
   }, [location]);
+
+  // NEW useEffect for Google Ads Conversion Tracking
+  useEffect(() => {
+    // 1. Check if the order is valid AND the conversion hasn't fired yet
+    if (order && !isLoading && !error && !hasTrackedConversion) {
+      // Calculate the actual total value, which you have as order.totalPrice
+      const totalValue = order.totalPrice;
+
+      // Get the unique transaction ID
+      const transactionId = order.orderId;
+
+      if (window.gtag) {
+        // --- GOOGLE ADS PURCHASE CONVERSION START ---
+        window.gtag('event', 'conversion', {
+          // Replace YOUR_CONVERSION_LABEL with the label you got from Google Ads
+          send_to: 'AW-17606081379/rVyjCPn6jKYbEOP2nctB',
+
+          // Use the actual dynamic values
+          value: totalValue,
+          currency: 'USD', // Ensure this matches the currency used in your payment processor
+          transaction_id: transactionId,
+
+          // OPTIONAL: Enhanced E-commerce Data (Highly Recommended)
+          items: order.items.map((item) => ({
+            id: item.beatId, // Or item's unique DB ID
+            name: item.title,
+            category: item.licenseType,
+            quantity: 1, // Assuming one of each item is purchased
+          })),
+        });
+        // --- GOOGLE ADS PURCHASE CONVERSION END ---
+
+        // Prevent the conversion from being recorded again if the user refreshes
+        setHasTrackedConversion(true);
+      }
+    }
+  }, [order, isLoading, error, hasTrackedConversion]); // Dependencies: Re-run when order or state changes
 
   return (
     <div className="z-50 relative max-w-6xl mx-auto px-4 py-16 min-h-[60vh] flex flex-col justify-center items-center">
@@ -201,7 +251,7 @@ export default function DownloadPage() {
               </p>
 
               <h4 className="text-2xl font-semibold text-foreground mt-8 border-b pb-2">
-                Your Purchased Beats:
+                Your Purchased Items:
               </h4>
               <div className="space-y-6">
                 {order.items.map((item, index) => (

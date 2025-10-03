@@ -1436,11 +1436,12 @@ app.get('/download', async (req, res) => {
     // --- Extracting information from the 'order' object ---
     const customerName = order.customerInfo?.name; // Using optional chaining for safety
     const customerEmail = order.customerInfo?.email; // Using optional chaining for safety
-
+    const totalPrice = order.totalPrice;
     const orderItemsWithBeatDetails = await Promise.all(
       order.items.map(async (item) => {
         if (item.type === 'Beat') {
           const beat = await Beat.findById(item.beatId).lean();
+
           // Ensure beat exists before trying to access its properties
           if (!beat) {
             console.warn(
@@ -1560,7 +1561,9 @@ app.get('/download', async (req, res) => {
         key: item.key,
         licenseType: item.licenseType, // Included
         type: item.type,
+        price: item.price,
       })),
+      totalPrice,
     });
   } catch (err) {
     console.error('Download error:'.red, err);

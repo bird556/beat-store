@@ -49,6 +49,13 @@ interface Beat {
   image?: string;
 }
 
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
 // --- SingleBeatPage Component ---
 export default function SingleBeatPage() {
   //   const { id } = useParams<{ id: string }>();
@@ -114,6 +121,22 @@ export default function SingleBeatPage() {
             id: data._id,
           });
           document.title = `Birdie Bands - ${data.title}`;
+
+          // <!-- Event snippet for Single Beat View conversion page -->
+          if (window.gtag) {
+            window.gtag('event', 'conversion', {
+              send_to: 'AW-17606081379/BjgMCMXKl6YbEOP2nctB',
+              // OPTIONAL: Send beat details using Enhanced Conversions
+              items: [
+                {
+                  item_id: data._id.toString(),
+                  item_name: data.title,
+                  item_brand: data.artist,
+                },
+              ],
+            });
+          }
+
           // After fetching the main beat, fetch related beats using its tags
           if (data.tags && data.tags.length > 0) {
             fetchRelatedBeats(data.tags, data._id);

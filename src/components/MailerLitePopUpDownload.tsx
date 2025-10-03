@@ -19,6 +19,12 @@ interface MailerLitePopUpDownloadProps {
   onSuccess?: () => void;
 }
 
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+  }
+}
+
 const MailerLitePopUpDownload = ({
   open,
   onOpenChange,
@@ -55,6 +61,12 @@ const MailerLitePopUpDownload = ({
           setIsSubmitting(false);
           onOpenChange(false); // Close modal on success
           localStorage.setItem('mailerlite_subscribed_for_downloads', 'true');
+          if (window.gtag) {
+            // <!-- Event snippet for Newsletter Sign Up (1) conversion page -->
+            window.gtag('event', 'conversion', {
+              send_to: 'AW-17606081379/88KUCOq8m6YbEOP2nctB',
+            });
+          }
           onSuccess?.();
           return data;
         }),

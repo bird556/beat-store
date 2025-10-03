@@ -25,6 +25,13 @@ interface CustomerInfo {
   country: string;
 }
 
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
 const CartCheckOut = ({ size }: { size: string }) => {
   document.title = `Birdie Bands | Checkout`;
   // const { items, removeFromCart, totalPrice } = useCart();
@@ -41,6 +48,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
   } | null>(null); // Added for applied coupon details
   const [couponDiscount, setCouponDiscount] = useState(0); // Added for coupon discount amount
   const [finalTotal, setFinalTotal] = useState(0); // Added for final total after all discounts
+  const [isCartDataReady, setIsCartDataReady] = useState(false);
 
   const { theme } = useTheme();
 
@@ -53,6 +61,12 @@ const CartCheckOut = ({ size }: { size: string }) => {
         console.error('Error parsing customer info:', e);
       }
     }
+
+    const timer = setTimeout(() => {
+      setIsCartDataReady(true);
+    }, 50); // 50ms is usually enough to let derived state settle
+
+    return () => clearTimeout(timer); // Cleanup
   }, []);
 
   // Added: Update finalTotal when totalPrice or couponDiscount changes
@@ -68,6 +82,28 @@ const CartCheckOut = ({ size }: { size: string }) => {
       setCouponCode('');
     }
   }, [items]);
+
+  // 📢 NEW: GOOGLE ADS CONVERSION TRACKING: BEGIN_CHECKOUT
+  useEffect(() => {
+    if (isCartDataReady && finalTotal > 0 && window.gtag && items.length > 0) {
+      // <!-- Event snippet for Initiate Checkout conversion page -->
+      window.gtag('event', 'conversion', {
+        // ** REPLACE WITH YOUR ACTUAL LABEL FROM GOOGLE ADS **
+        send_to: 'AW-17606081379/WJuRCPacmKYbEOP2nctB',
+        value: finalTotal, // Use the final calculated cart total as the value
+        currency: 'USD', // Use your site's currency // Pass cart items for enhanced commerce tracking
+        items: items.map((item) => ({
+          item_id: item.id.toString(),
+          item_name: item.title,
+          item_brand: item.artist,
+          price: item.effectivePrice, // Use effectivePrice since discounts are applied
+          quantity: 1,
+          item_category: item.type,
+          item_variant: item.license,
+        })),
+      });
+    }
+  }, [finalTotal, items, isCartDataReady]); // Re-run if total changes (e.g., coupon applied) or items change
 
   const handleEditInfo = () => {
     navigate('/billing');

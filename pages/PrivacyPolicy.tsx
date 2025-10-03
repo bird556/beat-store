@@ -19,7 +19,7 @@ const PrivacyPolicy = () => {
           href="https://www.birdiebands.com/privacy-policy"
         />
       </Helmet>
-      <section className="relative z-50 max-w-4xl mx-auto py-16 px-6 dark:text-white flex flex-col items-center justify-center">
+      <section className="relative z-50 max-w-4xl mx-auto  py-64 px-6 dark:text-white flex flex-col items-center justify-center">
         <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
         <article className="whitespace-pre-wrap leading-relaxed text-lg">
           Birdie Bands respects your privacy. We collect personal information

@@ -6,6 +6,14 @@ import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Helmet } from 'react-helmet';
 import BirdieLogo from '../Images/birdie2025-logo.png'; // Adjust path as needed
+
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
 const Contact = ({ fullscreen }: { fullscreen?: boolean }) => {
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
@@ -56,6 +64,12 @@ const Contact = ({ fullscreen }: { fullscreen?: boolean }) => {
       setEmail('');
       setSubject('');
       setMessage('');
+      // <!-- Event snippet for Contact conversion page -->
+      if (window.gtag) {
+        window.gtag('event', 'conversion', {
+          send_to: 'AW-17606081379/EDq5CMbsm6YbEOP2nctB',
+        });
+      }
       setTimeout(() => setSent(false), 6000);
     } catch (err) {
       console.error('Error:', err);

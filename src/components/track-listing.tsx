@@ -144,27 +144,27 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
       link.click();
       document.body.removeChild(link);
 
-      // // --- GOOGLE ADS CONVERSION TRACKING START ---
+      // --- GOOGLE ADS CONVERSION TRACKING START ---
 
-      // // ⚠️ Note: For free downloads, we DO NOT send 'value' or 'currency'.
-      // if (window.gtag) {
-      //   window.gtag('event', 'conversion', {
-      //     // You MUST replace 'FREE_DOWNLOAD_LABEL' with the label from Google Ads
-      //     send_to: 'AW-17606081379/FREE_DOWNLOAD_LABEL',
+      // ⚠️ Note: For free downloads, we DO NOT send 'value' or 'currency'.
+      if (window.gtag) {
+        window.gtag('event', 'conversion', {
+          // You MUST replace 'FREE_DOWNLOAD_LABEL' with the label from Google Ads
+          send_to: 'AW-17606081379/9_R8CM_dm6YbEOP2nctB',
 
-      //     // Use an empty string for the transaction ID for a free lead.
-      //     transaction_id: '',
-      //     items: [
-      //       {
-      //         item_id: track.id.toString(), // e.g., '4567'
-      //         item_name: track.title, // e.g., 'Sunset Cruisin'
-      //         item_brand: track.artist, // e.g., 'The Beatles'
-      //       },
-      //     ],
-      //   });
-      // }
+          // Use an empty string for the transaction ID for a free lead.
+          transaction_id: '',
+          items: [
+            {
+              item_id: track.id.toString(), // e.g., '4567'
+              item_name: track.title, // e.g., 'Sunset Cruisin'
+              item_brand: track.artist, // e.g., 'The Beatles'
+            },
+          ],
+        });
+      }
 
-      // // --- GOOGLE ADS CONVERSION TRACKING END ---
+      // --- GOOGLE ADS CONVERSION TRACKING END ---
 
       toast.success(`Download started for ${track.title}`, { id: toastId });
     } catch (error) {

@@ -14,7 +14,12 @@ import {
 } from '@/components/ui/select';
 
 import type { CustomerInfo } from '../types';
-
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
 export default function BillingForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<CustomerInfo>({
@@ -208,6 +213,14 @@ export default function BillingForm() {
       // Save only necessary fields to sessionStorage (exclude emailConfirm)
       const { emailConfirm, ...dataToSave } = formData;
       sessionStorage.setItem('customerInfo', JSON.stringify(dataToSave));
+      if (window.gtag) {
+        // <!-- Event snippet for Begin Checkout (Billing Info) conversion page -->
+        window.gtag('event', 'conversion', {
+          send_to: 'AW-17606081379/mgE8CNXto6YbEOP2nctB',
+          value: 0.0,
+          currency: 'USD',
+        });
+      }
       // Redirect back to checkout
       navigate('/checkout');
     }

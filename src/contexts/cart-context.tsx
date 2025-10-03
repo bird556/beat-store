@@ -26,6 +26,13 @@ interface CartContextType {
   totalPrice: number; // Now represents total after BOGO
 }
 
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -56,6 +63,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...item }]; // No need to set effectivePrice here initially
     });
+    // 📢 GOOGLE ADS CONVERSION TRACKING HERE: ADD_TO_CART
+    if (window.gtag) {
+      window.gtag('event', 'conversion', {
+        // Use 'add_to_cart' event name
+        // ** REPLACE WITH YOUR ACTUAL LABEL FROM GOOGLE ADS **
+        send_to: 'AW-17606081379/e1X7CJ_Xk6YbEOP2nctB',
+
+        value: item.price, // Send the price of the item being added
+        currency: 'USD', // Use your site's currency
+
+        items: [
+          {
+            // Use the item details you have available in the CartItem
+            item_id: item.id.toString(),
+            item_name: item.title,
+            item_brand: item.artist,
+            price: item.price,
+            quantity: 1, // Always 1 for a beat license
+            item_category: item.type,
+            item_variant: item.license, // Use license as the variant
+          },
+        ],
+      });
+    }
   };
 
   const removeFromCart = (id: string) => {

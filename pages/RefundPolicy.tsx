@@ -53,7 +53,7 @@ const RefundPolicy: React.FC = () => {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <section className="relative z-50 max-w-4xl mx-auto py-16 px-6 dark:text-white flex flex-col items-center justify-center">
+        <section className="relative z-50 max-w-4xl mx-auto  py-64 px-6 dark:text-white flex flex-col items-center justify-center">
           <h1 className="text-3xl font-bold mb-12">Refund Policy</h1>
           <article className="text-lg flex flex-col gap-4">
             <p className="mb-4 dark:text-white">
