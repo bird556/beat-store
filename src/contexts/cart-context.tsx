@@ -65,7 +65,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
     // 📢 GOOGLE ADS CONVERSION TRACKING HERE: ADD_TO_CART
     if (window.gtag) {
-      window.gtag('event', 'conversion', {
+      window.gtag('event', 'Add_to_cart', {
         // Use 'add_to_cart' event name
         // ** REPLACE WITH YOUR ACTUAL LABEL FROM GOOGLE ADS **
         send_to: 'AW-17606081379/e1X7CJ_Xk6YbEOP2nctB',
