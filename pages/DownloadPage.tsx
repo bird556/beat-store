@@ -123,6 +123,23 @@ export default function DownloadPage() {
         });
         // --- GOOGLE ADS PURCHASE CONVERSION END ---
 
+        // --- GOOGLE ANALYTICS 4 (GA4) PURCHASE EVENT TRACKING START ---
+        window.gtag('event', 'purchase', {
+          send_to: 'G-K8ZTDYC2LD', // Your GA4 Measurement ID
+          transaction_id: transactionId,
+          currency: 'USD',
+          value: totalValue, // Total transaction value
+          // Optional: tax, shipping, and coupon codes can also be included here
+
+          items: order.items.map((item) => ({
+            item_id: item.beatId,
+            item_name: item.title,
+            item_category: item.licenseType, // Use licenseType as the category
+            quantity: 1,
+          })),
+        });
+        // --- GOOGLE ANALYTICS 4 (GA4) PURCHASE EVENT TRACKING END ---
+
         // Prevent the conversion from being recorded again if the user refreshes
         setHasTrackedConversion(true);
       }

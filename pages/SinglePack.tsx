@@ -23,6 +23,12 @@ import {
   CardFooter,
 } from '@/components/ui/card'; // Added CardFooter
 import { Download, Share2, ShoppingCart, Play, Pause } from 'lucide-react';
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
 
 export default function SinglePack() {
   const navigate = useNavigate();
@@ -78,6 +84,27 @@ export default function SinglePack() {
             id: data._id,
           });
           document.title = `Birdie Bands - ${data.title}`;
+          // --- GOOGLE ANALYTICS 4 (GA4) E-COMMERCE TRACKING START: view_item ---
+          if (window.gtag) {
+            window.gtag('event', 'view_item', {
+              send_to: 'G-K8ZTDYC2LD',
+              currency: 'USD',
+              // Assuming data.price contains the pack's price
+              value: data.price ? data.price : 0.0,
+              items: [
+                {
+                  item_id: data._id.toString(),
+                  item_name: data.title,
+                  item_brand: 'Birdie Bands', // Or your producer name
+                  // Add the price if available in the pack data
+                  price: data.price ? data.price : undefined,
+                  // Set category to clearly identify it as a Pack
+                  item_category: 'Pack',
+                },
+              ],
+            });
+          }
+          // --- GOOGLE ANALYTICS 4 (GA4) E-COMMERCE TRACKING END ---
         }
       } catch (err) {
         console.error('Fetch Pack error:', err);

@@ -29,6 +29,13 @@ interface PlayerContextType {
   previousTrack: () => void;
 }
 
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
 const PlayerContext = createContext<PlayerContextType>({
   currentTrack: null,
   isPlaying: false,
@@ -59,20 +66,73 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
   const playTrack = (track: Track) => {
     if (currentTrack?.id === track.id) {
       setIsPlaying(!isPlaying);
+
+      // --- GA4 Play/Pause Event Tracking ---
+      if (window.gtag) {
+        const eventName = isPlaying ? 'beat_pause' : 'beat_play';
+        window.gtag('event', eventName, {
+          beat_id: track.id.toString(),
+          beat_name: track.title,
+          artist_name: track.artist,
+          content_type: track.type,
+          send_to: 'G-K8ZTDYC2LD',
+        });
+      }
+      // --- END GA4 Tracking ---
     } else {
       setCurrentTrack(track);
       setIsPlaying(true);
+      // --- GA4 Play Event Tracking (New Track) ---
+      if (window.gtag) {
+        window.gtag('event', 'beat_play', {
+          beat_id: track.id.toString(),
+          beat_name: track.title,
+          artist_name: track.artist,
+          content_type: track.type,
+          send_to: 'G-K8ZTDYC2LD',
+        });
+      }
+      // --- END GA4 Tracking ---
     }
   };
 
   const pauseTrack = () => {
     setIsPlaying(false);
     console.log('pause from pauseTrack Player Context');
+    // --- GA4 Pause Event Tracking ---
+    if (window.gtag && currentTrack) {
+      window.gtag('event', 'beat_pause', {
+        beat_id: currentTrack.id.toString(),
+        beat_name: currentTrack.title,
+        artist_name: currentTrack.artist,
+        content_type: currentTrack.type,
+        send_to: 'G-K8ZTDYC2LD',
+      });
+    }
+    // --- END GA4 Tracking ---
   };
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
-    if (isPlaying) {
+    // Get the state *before* it was flipped
+    const wasPlaying = isPlaying;
+
+    // --- GA4 Play/Pause Event Tracking ---
+    if (window.gtag && currentTrack) {
+      const eventName = wasPlaying ? 'beat_pause' : 'beat_play';
+
+      window.gtag('event', eventName, {
+        beat_id: currentTrack.id.toString(),
+        beat_name: currentTrack.title,
+        artist_name: currentTrack.artist,
+        content_type: currentTrack.type,
+        send_to: 'G-K8ZTDYC2LD',
+      });
+    }
+    // --- END GA4 Tracking ---
+
+    // if (isPlaying) {
+    if (wasPlaying) {
       console.log('play');
     } else {
       console.log('pause');
@@ -95,6 +155,18 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
       nextIndex = 0;
     }
 
+    // --- GA4 Event Tracking: User clicked Next ---
+    if (window.gtag) {
+      window.gtag('event', 'player_next', {
+        previous_beat_id: currentTrack.id.toString(),
+        next_beat_name: queue[nextIndex].title,
+        next_artist_name: queue[nextIndex].artist,
+        next_content_type: queue[nextIndex].type,
+        send_to: 'G-K8ZTDYC2LD',
+      });
+    }
+    // --- END GA4 Tracking ---
+
     playTrack(queue[nextIndex]);
   };
 
@@ -110,6 +182,18 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
     if (prevIndex < 0) {
       prevIndex = queue.length - 1;
     }
+
+    // --- GA4 Event Tracking: User clicked Previous ---
+    if (window.gtag) {
+      window.gtag('event', 'player_previous', {
+        previous_beat_id: currentTrack.id.toString(),
+        next_beat_name: queue[prevIndex].title,
+        next_artist_name: queue[prevIndex].artist,
+        next_content_type: queue[prevIndex].type,
+        send_to: 'G-K8ZTDYC2LD',
+      });
+    }
+    // --- END GA4 Tracking ---
 
     playTrack(queue[prevIndex]);
   };

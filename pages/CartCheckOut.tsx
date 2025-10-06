@@ -176,6 +176,28 @@ const CartCheckOut = ({ size }: { size: string }) => {
     if (!customerInfo) return;
 
     setPaymentStatus('processing');
+
+    // --- GOOGLE ANALYTICS 4 (GA4) EVENT TRACKING START: add_payment_info (Stripe) ---
+    if (window.gtag) {
+      // You'll need to define the total cart value (final price) somewhere.
+
+      window.gtag('event', 'add_payment_info', {
+        send_to: 'G-K8ZTDYC2LD',
+        currency: 'USD',
+        value: finalTotal, // Total value of the cart
+        payment_type: 'Stripe', // Explicitly state the payment method
+        items: items.map((item) => ({
+          item_id: item.id.toString(),
+          item_name: item.title,
+          item_brand: item.artist,
+          price: item.price,
+          quantity: 1,
+          item_category: item.type,
+          item_variant: item.license,
+        })),
+      });
+    }
+    // --- GOOGLE ANALYTICS 4 (GA4) EVENT TRACKING END ---
     try {
       const cartItems = items.map((item) => ({
         beatId: item.id,
@@ -505,6 +527,25 @@ const CartCheckOut = ({ size }: { size: string }) => {
                         createOrder={() =>
                           toast.promise(
                             async () => {
+                              if (window.gtag) {
+                                window.gtag('event', 'add_payment_info', {
+                                  send_to: 'G-K8ZTDYC2LD',
+                                  currency: 'USD',
+                                  value: finalTotal,
+                                  payment_type: 'PayPal', // Explicitly state the payment method
+                                  items: items.map((item) => ({
+                                    item_id: item.id.toString(),
+                                    item_name: item.title,
+                                    item_brand: item.artist,
+                                    price: item.price,
+                                    quantity: 1,
+                                    item_category: item.type,
+                                    item_variant: item.license,
+                                  })),
+                                });
+                              }
+                              // --- GOOGLE ANALYTICS 4 (GA4) EVENT TRACKING END ---
+
                               try {
                                 const cartItems = items.map((item) => ({
                                   beatId: item.id,

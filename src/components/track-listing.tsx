@@ -166,6 +166,20 @@ const TrackListing = ({ limitTrackCount }: { limitTrackCount?: number }) => {
 
       // --- GOOGLE ADS CONVERSION TRACKING END ---
 
+      // --- GOOGLE ANALYTICS 4 (GA4) EVENT TRACKING START ---
+      // This is for your G-K8ZTDYC2LD property
+      if (window.gtag) {
+        window.gtag('event', 'beat_download', {
+          beat_id: track.id.toString(),
+          beat_name: track.title,
+          artist_name: track.artist,
+          content_type: track.type,
+          // Optional: Add the Measurement ID to ensure it sends to the correct stream
+          send_to: 'G-K8ZTDYC2LD',
+        });
+      }
+      // --- GOOGLE ANALYTICS 4 (GA4) EVENT TRACKING END ---
+
       toast.success(`Download started for ${track.title}`, { id: toastId });
     } catch (error) {
       console.error('Error initiating download:', error);

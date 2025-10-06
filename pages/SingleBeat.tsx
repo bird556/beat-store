@@ -136,6 +136,26 @@ export default function SingleBeatPage() {
               ],
             });
           }
+          // --- GOOGLE ANALYTICS 4 (GA4) E-COMMERCE TRACKING START: view_item ---
+          if (window.gtag) {
+            window.gtag('event', 'view_item', {
+              send_to: 'G-K8ZTDYC2LD',
+              currency: 'USD',
+              // It's highly recommended to send the item's price/value if available
+              // If data.price contains the price of the item, include it here:
+              value: data.price ? data.price : 0.0,
+              items: [
+                {
+                  item_id: data._id.toString(),
+                  item_name: data.title,
+                  item_brand: data.artist,
+                  price: data.price ? data.price : undefined,
+                  item_category: 'Beat',
+                },
+              ],
+            });
+          }
+          // --- GOOGLE ANALYTICS 4 (GA4) E-COMMERCE TRACKING END ---
 
           // After fetching the main beat, fetch related beats using its tags
           if (data.tags && data.tags.length > 0) {

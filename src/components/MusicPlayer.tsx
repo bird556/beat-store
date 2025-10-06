@@ -16,6 +16,12 @@ import {
 } from '@/components/ui/tooltip';
 import { useTheme } from '@/contexts/theme-provider';
 
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+  }
+}
+
 const MusicPlayer = () => {
   const { currentTrack, isPlaying, togglePlay, nextTrack, previousTrack } =
     usePlayer();
@@ -172,6 +178,17 @@ const MusicPlayer = () => {
   }, [currentTrack, isPlaying]); // Add isPlaying to dependencies
 
   const handleCardClick = (beat: Track) => {
+    // --- GOOGLE ANALYTICS 4 (GA4) EVENT TRACKING START: beat_viewed_card ---
+    if (window.gtag) {
+      window.gtag('event', 'beat_viewed_card', {
+        item_id: beat.id.toString(),
+        item_name: beat.title,
+        item_artist: beat.artist,
+        item_type: beat.type, // Will be 'Beat' or 'Pack'
+        send_to: 'G-K8ZTDYC2LD',
+      });
+    }
+    // --- GOOGLE ANALYTICS 4 (GA4) EVENT TRACKING END ---
     if (beat.type === 'Beat') navigate(`/beat?beatId=${beat.id}`);
     else navigate(`/pack?packId=${beat.id}`);
     // Re-fetch the main beat when a related beat is clicked to update the page

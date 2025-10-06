@@ -87,6 +87,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
         ],
       });
     }
+
+    // --- GOOGLE ANALYTICS 4 (GA4) E-COMMERCE TRACKING START ---
+    if (window.gtag) {
+      window.gtag('event', 'add_to_cart', {
+        // G-K8ZTDYC2LD is the default target, but we include it for clarity
+        send_to: 'G-K8ZTDYC2LD',
+        currency: 'USD',
+        value: item.price,
+        items: [
+          {
+            item_id: item.id.toString(),
+            item_name: item.title,
+            item_brand: item.artist,
+            price: item.price,
+            quantity: 1,
+            item_category: item.type,
+            item_variant: item.license, // e.g., 'Basic Lease'
+            // Add affiliation if needed, e.g., affiliation: 'BirdieBands'
+          },
+        ],
+      });
+    }
+    // --- GOOGLE ANALYTICS 4 (GA4) E-COMMERCE TRACKING END ---
   };
 
   const removeFromCart = (id: string) => {
