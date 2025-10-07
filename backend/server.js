@@ -28,6 +28,7 @@ import beatRoutes from './routes/beat.js';
 dotenv.config();
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:5173/',
   'https://birdiebands.netlify.app',
   // 'https://birdiebands.netlify.app/', // Add with trailing slash to match
   // 'https://birdiebands.com/',
@@ -82,14 +83,14 @@ const getPresignedUrl = async (key, expires = 3600, disposition = null) => {
 
 // PayPal setup
 const paypalClient = new paypal.core.PayPalHttpClient(
-  // new paypal.core.SandboxEnvironment(
-  //   process.env.PAYPAL_CLIENT_ID,
-  //   process.env.PAYPAL_CLIENT_SECRET
-  // )
-  new paypal.core.LiveEnvironment(
+  new paypal.core.SandboxEnvironment(
     process.env.PAYPAL_CLIENT_ID,
     process.env.PAYPAL_CLIENT_SECRET
   )
+  // new paypal.core.LiveEnvironment(
+  //   process.env.PAYPAL_CLIENT_ID,
+  //   process.env.PAYPAL_CLIENT_SECRET
+  // )
 );
 
 // Stripe: Webhook for Payment Confirmation
@@ -898,19 +899,20 @@ app.post('/api/paypal/create-order', async (req, res) => {
 
       0
     ); // Recompute for precision
+    finalTotal = Math.floor(finalTotal * 100) / 100; // Round to 2 decimal places
 
     // console.log('Validated Items:', validatedItems, 'Total Price:', totalPrice);
 
     const paypalClient = new paypal.core.PayPalHttpClient(
-      // new paypal.core.SandboxEnvironment(
-      //   process.env.PAYPAL_CLIENT_ID,
-      //   process.env.PAYPAL_CLIENT_SECRET
-      // )
-
-      new paypal.core.LiveEnvironment(
+      new paypal.core.SandboxEnvironment(
         process.env.PAYPAL_CLIENT_ID,
         process.env.PAYPAL_CLIENT_SECRET
       )
+
+      // new paypal.core.LiveEnvironment(
+      //   process.env.PAYPAL_CLIENT_ID,
+      //   process.env.PAYPAL_CLIENT_SECRET
+      // )
     );
 
     const request = new paypal.orders.OrdersCreateRequest();
@@ -924,7 +926,7 @@ app.post('/api/paypal/create-order', async (req, res) => {
         {
           amount: {
             currency_code: 'USD',
-            value: finalTotal.toFixed(2), // Updated to finalTotal // value: totalPrice,
+            value: finalTotal, // Updated to finalTotal // value: totalPrice,
             breakdown: {
               item_total: {
                 currency_code: 'USD',
@@ -1013,7 +1015,7 @@ app.post('/api/paypal/create-order', async (req, res) => {
 app.post('/api/paypal/capture-order', async (req, res) => {
   const { orderId, cartItems, customerInfo } = req.body;
 
-  // debugger;
+  debugger;
   try {
     // const { validatedItems, totalPrice } = await validateCartItems(cartItems);
     const { validatedItems, subtotal } = await validateCartItems(cartItems);
@@ -1066,12 +1068,13 @@ app.post('/api/paypal/capture-order', async (req, res) => {
           ? coupon.discountValue
           : (afterBogo * coupon.discountValue) / 100;
     }
-    const finalTotal = afterBogo - couponDisc;
+    // const finalTotal = afterBogo - couponDisc;
+    const finalTotal = Math.floor((afterBogo - couponDisc) * 100) / 100;
 
     if (
       order.result.status !== 'APPROVED' ||
       parseFloat(order.result.purchase_units[0].amount.value) !==
-        parseFloat(finalTotal.toFixed(2))
+        parseFloat(finalTotal)
       // parseFloat(totalPrice)
     ) {
       throw new Error('Invalid order or amount mismatch');
