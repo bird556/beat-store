@@ -48,7 +48,7 @@ const Artists = ({ size }: { size: string }) => {
           <div onClick={() => handleCardClick('Larry June')}>
             <TiltedCard
               // imageSrc="https://i.pinimg.com/736x/d4/bd/5c/d4bd5cc9eefe2ca4859d21345429bc90.jpg"
-              imageSrc="https://grungecake.com/wp-content/uploads/2021/09/larry-june-cardo-dont-try-it-grungecake-thumbnail.gif"
+              imageSrc="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMHJtd2VkbzdtaTQ2MHc3c3dpbnZya2Jtams3ZzN6MGlnNGoxMXI2dSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qzaKCwkr7Xkg0dtSAC/giphy.gif"
               altText="Larry June Type Beats"
               captionText="Larry June Type Beats"
               containerHeight="300px"

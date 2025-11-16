@@ -180,7 +180,7 @@ const AdminCreateBeat = () => {
           const licenses = [
             {
               type: 'Basic',
-              price: 39.99,
+              price: 29.99,
               currency: 'USD',
               description:
                 'Basic License includes MP3 format, non-exclusive rights, distribution up to 2,500 copies, 1 music video, and producer tag removal.',
@@ -197,7 +197,7 @@ const AdminCreateBeat = () => {
             },
             {
               type: 'Premium',
-              price: 59.99,
+              price: 39.99,
               currency: 'USD',
               description:
                 'Premium License includes WAV + MP3 format, expanded distribution rights, live performances, and limited radio rights.',
@@ -215,7 +215,7 @@ const AdminCreateBeat = () => {
             },
             {
               type: 'Professional',
-              price: 129.99,
+              price: 99.99,
               currency: 'USD',
               description:
                 'Professional License includes stems, large-scale streaming capacity, live and radio rights, and distribution up to 10,000 units.',
@@ -233,7 +233,7 @@ const AdminCreateBeat = () => {
             },
             {
               type: 'Legacy',
-              price: 199.99,
+              price: 149.99,
               currency: 'USD',
               description:
                 'Legacy License offers unrestricted use across all platforms and unlimited media coverage.',
@@ -251,7 +251,7 @@ const AdminCreateBeat = () => {
             },
             {
               type: 'Exclusive',
-              price: 1999.99,
+              price: 999.99,
               currency: 'USD',
               description:
                 'Exclusive License grants complete ownership, full monetization, and contractual rights for global usage.',
