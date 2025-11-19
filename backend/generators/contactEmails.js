@@ -197,7 +197,7 @@ export const generateContactEmails = (data) => {
     const mailToUser = {
       from: `"Birdie Bands" <${process.env.GMAIL_EMAIL}>`,
       to: email,
-      subject: 'Thanks For Contacting Birdie Bands ✨🎶',
+      subject: 'Thanks For Contacting Birdie Bands ✨',
       html: `<!DOCTYPE html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -339,7 +339,7 @@ export const generateContactEmails = (data) => {
                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                           <tr>
                             <td align="center" style="font-family: Plaid, Arial, sans-serif; font-size: 16px; mso-line-height-rule: exactly; line-height: 20px; color: #ffffff; text-align: left;">
-                              <p style="margin: 0 0 15px;">Thanks for reaching out! We've received your message and will get back to you as soon as possible. We're looking forward to connecting with you.</p>
+                              <p style="margin: 0 0 15px;">We've received your message and will get back to you as soon as possible. We're looking forward to connecting with you.</p>
                             </td>
                           </tr>
                         </table>

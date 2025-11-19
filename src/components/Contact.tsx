@@ -6,7 +6,8 @@ import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Helmet } from 'react-helmet';
 import BirdieLogo from '../Images/birdie2025-logo.png'; // Adjust path as needed
-
+import ReCAPTCHA from 'react-google-recaptcha';
+import { useTheme } from '@/contexts/theme-provider';
 declare global {
   interface Window {
     dataLayer: any[];
@@ -21,6 +22,13 @@ const Contact = ({ fullscreen }: { fullscreen?: boolean }) => {
   const [sent, setSent] = useState(false);
   const [truth] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null); // 👈 New state for token
+  const { theme } = useTheme();
+  // Function to handle reCAPTCHA change
+  const handleRecaptchaChange = (token: string | null) => {
+    setRecaptchaToken(token);
+  };
+
   document.title = `Birdie Bands | Contact`;
 
   const baseUrl = import.meta.env.VITE_APP_BASE_URL || window.location.origin;
@@ -35,8 +43,18 @@ const Contact = ({ fullscreen }: { fullscreen?: boolean }) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // 👈 Check if reCAPTCHA token is available
+    if (!recaptchaToken) {
+      toast.error('Please complete the reCAPTCHA verification.', {
+        style: {
+          background: theme === 'dark' ? '#333' : '#fff',
+          color: theme === 'dark' ? '#fff' : '#333',
+        },
+      });
+      return;
+    }
 
-    const payload = { email, subject, message };
+    const payload = { email, subject, message, recaptchaToken };
     console.log('Sending:', payload);
 
     const toastPromise = toast.promise(
@@ -64,6 +82,7 @@ const Contact = ({ fullscreen }: { fullscreen?: boolean }) => {
       setEmail('');
       setSubject('');
       setMessage('');
+      setRecaptchaToken(null);
       // <!-- Event snippet for Contact conversion page -->
       if (window.gtag) {
         window.gtag('event', 'conversion', {
@@ -184,7 +203,14 @@ const Contact = ({ fullscreen }: { fullscreen?: boolean }) => {
               required
             />
           </LabelInputContainer>
-
+          <div className="mb-4 mx-auto">
+            <ReCAPTCHA
+              sitekey={import.meta.env.VITE_RECAPTCHA_PUBLIC_KEY || ''}
+              onChange={handleRecaptchaChange}
+              onExpired={() => setRecaptchaToken(null)} // Reset token on expiry
+              onErrored={() => setRecaptchaToken(null)} // Reset token on error
+            />
+          </div>
           <button
             className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-zinc-800 dark:from-zinc-900 dark:to-zinc-900 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset]"
             type="submit"

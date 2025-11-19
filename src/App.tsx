@@ -1,13 +1,12 @@
 // src/App.tsx
 import './App.css';
-import { ThemeProvider } from '@/contexts/theme-provider';
+import { ThemeProvider, useTheme } from '@/contexts/theme-provider';
 import Home from '../pages/Home';
 import Beats from '../pages/Beats';
 import CartCheckOut from '../pages/CartCheckOut';
 // import About from '../pages/About';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
-import Particles from './components/ui/ReactBits/Particles';
 import Contact from './components/Contact';
 import MusicPlayer from './components/MusicPlayer';
 import {
@@ -48,6 +47,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import SinglePack from '../pages/SinglePack';
 import Maintenance from '../pages/Maintenance';
 import FaqsPage from '../pages/FaqsPage';
+import Galaxy from './components/ui/ReactBits/Galaxy';
 // Create a wrapper component that uses useLocation
 function AppContent() {
   const headerText = 'text-2xl';
@@ -58,22 +58,34 @@ function AppContent() {
   // Check if the current path is the dashboard
   const isDashboard = location.pathname.startsWith('/dashboard');
   const isAdminLogin = location.pathname.startsWith('/admin');
+  const { theme } = useTheme();
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (theme === 'dark') {
+      setIsDarkMode(true);
+    } else {
+      setIsDarkMode(false);
+    }
+    console.log('darkmode', isDarkMode);
+  }, [theme, isDarkMode]);
 
   return (
     <div className="dark:bg-black bg-background relative m-auto w-full">
       <div className="fixed h-full w-full top-0 left-0 z-0">
-        <Particles
-          particleColors={['#ffffff', '#ffffff']}
-          particleCount={50000}
-          particleSpread={70}
-          speed={0.1}
-          particleBaseSize={50}
-          moveParticlesOnHover={false}
-          alphaParticles={true}
-          disableRotation={true}
-        />
+        {isDarkMode && (
+          <Galaxy
+            mouseRepulsion={true}
+            mouseInteraction={false}
+            density={2.4}
+            glowIntensity={0.1}
+            saturation={1}
+            hueShift={140}
+            rotationSpeed={0}
+            starSpeed={0.1}
+            speed={1}
+          />
+        )}
       </div>
       <ScrollToTop />
       {!isDashboard && !isAdminLogin && !isUnderMaintenance && <Navbar />}

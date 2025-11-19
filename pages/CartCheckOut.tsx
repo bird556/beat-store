@@ -405,7 +405,12 @@ const CartCheckOut = ({ size }: { size: string }) => {
           </div>
         </div>
         {/* Checkout Card */}
-        <div className="mx-auto max-w-2xl lg:max-w-6xl flex flex-col gap-8 justify-between z-50 dark:!bg-zinc-900/85 rounded-sm outline-1 !outline-white/10 p-3">
+        <div
+          className="mx-auto max-w-2xl lg:max-w-6xl flex flex-col gap-6 justify-between 
+    z-50 bg-white dark:bg-zinc-900/80 rounded-lg shadow-md ring-1 ring-gray-200 dark:ring-zinc-700 
+    p-6 transition-transform  hover:shadow-lg"
+        >
+          {' '}
           <div className="flex flex-col gap-3">
             <div className="flex dark:text-green-400 justify-between w-full">
               <p className="text-2xl  text-default-500 font-bold">Item Total</p>
@@ -440,7 +445,6 @@ const CartCheckOut = ({ size }: { size: string }) => {
               </p>
             </div>
           </div>
-
           {/* <p className=" text-sm">
             Secure your license and download your files instantly after payment
             on this website.
@@ -480,7 +484,7 @@ const CartCheckOut = ({ size }: { size: string }) => {
                   <Button
                     onClick={applyCoupon}
                     disabled={items.length === 0}
-                    className="!bg-green-400 hover:!bg-green-700 w-full !shrink-16"
+                    className="!bg-emerald-500 hover:!bg-emerald-600 !font-semibold w-full !shrink-16"
                   >
                     Apply
                   </Button>
@@ -694,21 +698,27 @@ const CartCheckOut = ({ size }: { size: string }) => {
           <div>
             <div className="flex flex-col gap-3">
               <p className="font-bold text-sm">Important Notice</p>
-              <p className="text-sm ">
+              <p className="text-sm">
                 By clicking the button you accept the product(s){' '}
                 <Link to={'/licenses'}>
                   <b>License Agreement(s)</b>,{' '}
                 </Link>
                 <button className="!font-bold  !m-0 !p-0 !bg-transparent !border-none !outline-none hover:!outline-none hover:!border-none hover:!bg-transparent">
-                  <Link to={'/terms-of-service'}>Terms of Service</Link>
+                  <Link to={'/terms-of-service'}>
+                    <b>Terms of Service</b>
+                  </Link>
                 </button>
                 ,{' '}
-                <button className="!font-bold  !m-0 !p-0 !bg-transparent !border-none !outline-none hover:!outline-none hover:!border-none hover:!bg-transparent">
-                  <Link to={'/privacy-policy'}>Privacy Policy</Link>
+                <button className="!font-bold !m-0 !p-0 !bg-transparent !border-none !outline-none hover:!outline-none hover:!border-none hover:!bg-transparent">
+                  <Link to={'/privacy-policy'}>
+                    <b>Privacy Policy</b>
+                  </Link>
                 </button>{' '}
                 &{' '}
                 <button className="!font-bold !m-0 !p-0 !bg-transparent !border-none !outline-none hover:!outline-none hover:!border-none hover:!bg-transparent">
-                  <Link to={'/refund-policy'}>Refund Policy</Link>
+                  <Link to={'/refund-policy'}>
+                    <b>Refund Policy</b>
+                  </Link>
                 </button>
                 .
               </p>

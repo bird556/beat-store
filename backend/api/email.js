@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 import { generateContactEmails } from '../generators/contactEmails.js';
 dotenv.config();
 const router = Router();
-
+const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY; // MUST be secret and server-side
 const s3 = new S3Client({
   region: process.env.AWS_S3_REGION,
   credentials: {
@@ -805,7 +805,52 @@ async function generateContractPdf(item, customerName) {
 router.post('/', async (req, res) => {
   // debugger;
   try {
-    const { email, subject, message, template, data } = req.body;
+    const { email, subject, message, template, data, recaptchaToken } =
+      req.body;
+
+    // -------------------------------------------------------------------
+    // ✅ RECAPTCHA VERIFICATION BLOCK
+    // This should run first for non-purchase related emails (like contact form)
+    // Assuming 'purchaseConfirmation' or subject.includes('Purchase') is for server-side generated emails (webhooks)
+    // and the simple path is for the client-side contact form.
+
+    if (recaptchaToken) {
+      // Only attempt validation if the token exists
+      console.log('Validating reCAPTCHA...');
+
+      const verificationResponse = await fetch(
+        'https://www.google.com/recaptcha/api/siteverify',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            secret: RECAPTCHA_SECRET_KEY,
+            response: recaptchaToken,
+          }),
+        }
+      );
+      const verificationData = await verificationResponse.json();
+
+      if (!verificationData.success) {
+        console.error('reCAPTCHA failed:', verificationData['error-codes']);
+        return res.status(403).json({
+          error: 'reCAPTCHA verification failed. Submission blocked.',
+        });
+      }
+      console.log('reCAPTCHA verification successful.');
+    } else if (!template && !data) {
+      // If it's a standard contact form submission and NO token is present,
+      // you might want to reject it, depending on your setup.
+      // For now, we'll allow it if you have other checks, but generally,
+      // a contact form should require a token if it's sent from the frontend.
+      // If your frontend always sends a token for contact forms, uncomment this:
+      /*
+        return res.status(400).json({ 
+            error: 'Missing reCAPTCHA token.' 
+        });
+        */
+    }
+    // -------------------------------------------------------------------
     console.log(data);
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -819,7 +864,7 @@ router.post('/', async (req, res) => {
     let htmlSaleConfirmationContent;
     const attachments = [];
 
-    if (template === 'purchaseConfirmation' || subject.includes('Purchase')) {
+    if (template === 'purchaseConfirmation') {
       for (const item of data.orderItems) {
         try {
           if (item.type === 'Beat') {
@@ -840,68 +885,6 @@ router.post('/', async (req, res) => {
     if (template === 'purchaseConfirmation') {
       htmlContent = generatePurchaseConfirmationEmail(data);
       htmlSaleConfirmationContent = generateSaleConfirmationEmail(data);
-    } else if (subject.includes('Purchase')) {
-      // Fallback for older webhook requests (can remove this block once updated)
-      htmlContent = `
-        <div style="font-family:Arial,sans-serif; color:#333; line-height:1.6;">
-          <h2>Thank You for Your Purchase!</h2>
-          <p>Your order ID: ${
-            message.match(/Your order ID: ([^ \n]+)/)?.[1] || 'N/A'
-          }</p>
-          <h3>Purchased Beats:</h3>
-          <ul>
-            ${message
-              .split('\n')
-              .filter((line) => line.startsWith('- '))
-              .map((line) => `<li>${line.replace('- ', '')}</li>`)
-              .join('')}
-          </ul>
-          <p>Download your files here: <a href="${
-            message.match(/Download your files here: ([^\n]+)/)?.[1] || '#'
-          }">${
-        message.match(/Download your files here: ([^\n]+)/)?.[1] || 'Download'
-      }</a></p>
-          <p>This link is valid for 7 days.</p>
-          <hr style="margin: 24px 0; border: none; border-top: 1px solid #ccc;" />
-          <p style="font-size:15px;">
-            🔗 <strong>Quick Links:</strong><br/>
-            🎧 <a href="https://open.spotify.com/artist/44CuCf1NgVzB4fPiAgpNoQ" style="color:#1DB954;">Spotify Artist Page</a><br/>
-            📺 <a href="https://www.youtube.com/@BIRDIEBANDS" style="color:#FF0000;">YouTube Channel</a><br/>
-            🛒 <a href="https://www.birdiebands.com" style="color:#FFA500;">Beat Store</a><br/>
-            📸 <a href="https://instagram.com/birdiebands" style="color:#C13584;">Instagram</a>
-          </p>
-        </div>
-      `;
-      htmlSaleConfirmationContent = `
-        <div style="font-family:Arial,sans-serif; color:#333; line-height:1.6;">
-          <h2>Congratulations, you made a sale 💸</h2>
-          <p>Order ID: ${
-            message.match(/Your order ID: ([^ \n]+)/)?.[1] || 'N/A'
-          }</p>
-          <h3>Purchased Beats:</h3>
-          <ul>
-            ${message
-              .split('\n')
-              .filter((line) => line.startsWith('- '))
-              .map((line) => `<li>${line.replace('- ', '')}</li>`)
-              .join('')}
-          </ul>
-          <p>Download Link: <a href="${
-            message.match(/Download your files here: ([^\n]+)/)?.[1] || '#'
-          }">${
-        message.match(/Download your files here: ([^\n]+)/)?.[1] || 'Download'
-      }</a></p>
-          <p>This link is valid for 7 days.</p>
-          <hr style="margin: 24px 0; border: none; border-top: 1px solid #ccc;" />
-          <p style="font-size:15px;">
-            🔗 <strong>Quick Links:</strong><br/>
-            🎧 <a href="https://open.spotify.com/artist/44CuCf1NgVzB4fPiAgpNoQ" style="color:#1DB954;">Spotify Artist Page</a><br/>
-            📺 <a href="https://www.youtube.com/@BIRDIEBANDS" style="color:#FF0000;">YouTube Channel</a><br/>
-            🛒 <a href="https://www.birdiebands.com" style="color:#FFA500;">Beat Store</a><br/>
-            📸 <a href="https://instagram.com/birdiebands" style="color:#C13584;">Instagram</a>
-          </p>
-        </div>
-      `;
     } else {
       // Contact form emails using generateContactEmails
       const emails = generateContactEmails({ email, subject, message });
