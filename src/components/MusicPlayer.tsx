@@ -248,7 +248,7 @@ const MusicPlayer = () => {
 
   if (!currentTrack) return null;
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-black dark:border-t border-gray-800 px-4 py-3 [@media(max-height:745px)]:py-0 z-[500] w-full">
+    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t dark:border-gray-800 px-4 py-3 [@media(max-height:745px)]:py-0 z-[500] w-full">
       <div className="xl:w-6xl mx-auto z-50">
         <div className="flex items-center justify-between text-start ">
           {/* Current Track Info */}
