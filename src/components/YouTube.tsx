@@ -40,7 +40,7 @@ const YoutubeSection = () => {
             vibes straight from the channel.
           </p>
           <a
-            href="https://www.youtube.com/@BIRDIE-BANDS?sub_confirmation=1" // Replace with your actual channel link
+            href="https://www.youtube.com/@birdiebands?sub_confirmation=1" // Replace with your actual channel link
             // href="https://www.youtube.com/@BIRDIEBANDS" // Replace with your actual channel link
             target="_blank"
             rel="noopener noreferrer"
