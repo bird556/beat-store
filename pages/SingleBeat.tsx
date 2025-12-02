@@ -1,4 +1,18 @@
 // src/pages/SingleBeat.tsx
+import ReactPlayer from 'react-player';
+import {
+  MediaController,
+  MediaControlBar,
+  MediaTimeRange,
+  MediaTimeDisplay,
+  MediaVolumeRange,
+  MediaPlaybackRateButton,
+  MediaPlayButton,
+  MediaSeekBackwardButton,
+  MediaSeekForwardButton,
+  MediaMuteButton,
+  MediaFullscreenButton,
+} from 'media-chrome/react';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -784,6 +798,45 @@ export default function SingleBeatPage() {
               </p>
             )}
           </section>
+          {/* ➡️ NEW: YouTube Embedded Player Section */}
+          {beat.youtube_url ? (
+            <section className="mt-12 mb-16 max-w-4xl mx-auto">
+              <h2 className="!text-xl font-bold text-foreground mb-4 text-center">
+                Watch On YouTube 📺
+              </h2>
+              <MediaController
+                style={{
+                  width: '100%',
+                  aspectRatio: '16/9',
+                }}
+              >
+                <ReactPlayer
+                  slot="media"
+                  src={beat.youtube_url}
+                  muted={true}
+                  playing={true}
+                  controls={false}
+                  playsInline={true}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    // '--controls': 'none',
+                  }}
+                ></ReactPlayer>
+                <MediaControlBar>
+                  <MediaPlayButton />
+                  <MediaSeekBackwardButton seekOffset={10} />
+                  <MediaSeekForwardButton seekOffset={10} />
+                  <MediaTimeRange />
+                  <MediaTimeDisplay showDuration />
+                  <MediaMuteButton />
+                  <MediaVolumeRange />
+                  <MediaPlaybackRateButton />
+                  <MediaFullscreenButton />
+                </MediaControlBar>
+              </MediaController>
+            </section>
+          ) : null}
         </FadeContent>
       ) : null}
 

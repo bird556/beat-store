@@ -150,6 +150,7 @@ router.post('/beat', async (req, res) => {
       licenses,
       available,
       type,
+      youtube_url,
     } = req.body;
     //localhost:3001/api/beat
 
@@ -190,6 +191,14 @@ router.post('/beat', async (req, res) => {
     if (!hasValidLicenses) {
       return res.status(400).json({ error: 'Invalid license configuration.' });
     }
+    if (
+      youtube_url !== undefined &&
+      youtube_url !== null &&
+      typeof youtube_url !== 'string'
+    ) {
+      console.log('Validation failed: Invalid format for youtube_url');
+      return res.status(400).json({ error: 'Invalid format for youtube_url.' });
+    }
 
     // Create new beat
     const newBeat = new Beat({
@@ -204,6 +213,7 @@ router.post('/beat', async (req, res) => {
       licenses,
       available: available !== undefined ? available : true,
       type: type || 'Beat',
+      youtube_url: youtube_url || null,
       created_at: new Date(),
     });
 
@@ -246,6 +256,7 @@ router.put('/beat', async (req, res) => {
       licenses,
       available,
       type,
+      youtube_url,
     } = req.body;
 
     // Validate required fields
@@ -287,6 +298,12 @@ router.put('/beat', async (req, res) => {
       return res.status(400).json({ error: 'Invalid license configuration.' });
     }
 
+    // ➡️ 2. OPTIONAL VALIDATION for the link
+    // A simple check to ensure if a link is provided, it's a string.
+    if (youtube_url && typeof youtube_url !== 'string') {
+      return res.status(400).json({ error: 'Invalid format for youtube_url.' });
+    }
+
     // Update beat
     const updateData = {
       title,
@@ -300,6 +317,7 @@ router.put('/beat', async (req, res) => {
       licenses,
       available: available !== undefined ? available : true,
       type: type || 'Beat',
+      youtube_url: youtube_url,
       updated_at: new Date(),
     };
 
@@ -354,7 +372,7 @@ router.get('/beat', async (req, res) => {
     if (!beat) {
       return res.status(404).json({ error: 'Beat not found.' });
     }
-    console.log('Beat fetched successfully:', beat._id);
+    console.log('Beat fetched successfully:', beat);
 
     // Combine all data into a single object
     const responseData = {

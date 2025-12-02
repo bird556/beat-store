@@ -42,6 +42,7 @@ interface BeatFormData {
   s3_image_url?: string;
   licenses: License[];
   available: boolean;
+  youtube_url?: string | null;
 }
 
 const AdminSingleBeat = () => {
@@ -50,6 +51,7 @@ const AdminSingleBeat = () => {
   const beatId = new URLSearchParams(location.search).get('beatId');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [youtubeLinkError, setYoutubeLinkError] = useState<string | null>(null); // 👈 New state
   const [formData, setFormData] = useState<BeatFormData>({
     title: '',
     artist: '',
@@ -61,6 +63,7 @@ const AdminSingleBeat = () => {
     s3_image_url: '',
     licenses: [],
     available: true,
+    youtube_url: null,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [taggedFile, setTaggedFile] = useState<File | null>(null);
@@ -130,6 +133,7 @@ const AdminSingleBeat = () => {
           s3_image_url: beat.s3_image_url,
           licenses: beat.licenses || [],
           available: beat.available,
+          youtube_url: beat.youtube_url || null,
         });
         setTagsInput(beat.tags.join(', '));
         setImagePreview(imagePreview); // Use presigned URL if needed
@@ -142,6 +146,44 @@ const AdminSingleBeat = () => {
     };
     fetchBeat();
   }, [beatId]);
+
+  // Add this helper function within the AdminSingleBeat component or outside of it
+  const getYouTubeVideoId = (url: string | null | undefined): string | null => {
+    if (!url) return null;
+
+    // Regex to match various YouTube URL formats
+    const regex =
+      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+
+    const match = url.match(regex);
+
+    // Check if a match was found and it's the 11-character video ID
+    return match && match[1].length === 11 ? match[1] : null;
+  };
+  const handleYouTubeLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.trim();
+
+    // 1. Update the form data immediately
+    setFormData((prev) => ({
+      ...prev,
+      youtube_url: value || null, // Store the raw URL for display
+    }));
+
+    // 2. Perform validation if the input is not empty
+    if (value) {
+      const videoId = getYouTubeVideoId(value);
+
+      if (videoId) {
+        setYoutubeLinkError(null); // Clear error if valid
+      } else {
+        setYoutubeLinkError(
+          'Invalid YouTube URL. Please use a standard YouTube link format.'
+        ); // Set error if invalid
+      }
+    } else {
+      setYoutubeLinkError(null); // Clear error if field is empty
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -278,6 +320,13 @@ const AdminSingleBeat = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Check for the new YouTube link error
+    if (youtubeLinkError) {
+      toast.error('Cannot update beat: Please fix the invalid YouTube link.');
+      return; // 👈 STOP submission if link is invalid
+    }
+
     setUploading(true);
 
     toast
@@ -646,6 +695,24 @@ const AdminSingleBeat = () => {
                 Tags (comma-separated)
               </Label>
               <Input id="tags" value={tagsInput} onChange={handleTagsChange} />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-base" htmlFor="youtube_url">
+                YouTube Link
+              </Label>
+              <Input
+                id="youtube_url"
+                name="youtube_url"
+                value={formData.youtube_url || ''}
+                onChange={handleYouTubeLinkChange} // 👈 Use dedicated handler
+                placeholder="e.g., https://www.youtube.com/watch?v=..."
+                // Optional: Add a visual error state if your Input component supports it (e.g., 'aria-invalid')
+                className={youtubeLinkError ? 'border-red-500' : ''}
+              />
+              {youtubeLinkError && ( // 👈 Display the error message
+                <p className="text-sm text-red-500">{youtubeLinkError}</p>
+              )}
             </div>
 
             <div className="flex items-center space-x-2">

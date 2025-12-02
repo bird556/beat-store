@@ -81,6 +81,11 @@ const beatSchema = new mongoose.Schema({
   },
   licenses: [licenseSchema],
   available: { type: Boolean, required: true, default: true }, // ✅ Add this
+  youtube_url: {
+    type: String,
+    required: false, // It's optional
+    default: null, // Explicitly set the default for new documents
+  },
   type: { type: String, required: true, default: 'Beat' },
 });
 

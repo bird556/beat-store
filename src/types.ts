@@ -26,6 +26,7 @@ export interface Track {
   tags: string[];
   available: boolean;
   type: string;
+  youtube_url?: string | null;
 }
 
 export interface Pack {

@@ -30,6 +30,7 @@ interface BeatFormData {
   key: string;
   tags: string[];
   available: boolean;
+  youtube_url?: string | null;
 }
 const AdminCreateBeat = () => {
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ const AdminCreateBeat = () => {
     key: '',
     tags: [],
     available: true,
+    youtube_url: null,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | undefined>();
@@ -659,6 +661,20 @@ const AdminCreateBeat = () => {
                 Tags (comma-separated)
               </Label>
               <Input id="tags" value={tagsInput} onChange={handleTagsChange} />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-base" htmlFor="youtube_url">
+                YouTube Link (Optional)
+              </Label>
+              <Input
+                id="youtube_url"
+                name="youtube_url"
+                // Use || '' to ensure the input is controlled and handles null/undefined
+                value={formData.youtube_url || ''}
+                onChange={handleInputChange}
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
             </div>
 
             {/* Available */}
