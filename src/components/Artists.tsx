@@ -2,6 +2,9 @@
 import { motion } from 'framer-motion';
 import TiltedCard from './ui/ReactBits/TitledCard';
 import { useNavigate } from 'react-router-dom';
+import Gunna from '../../src/Images/artist/gunna1.gif';
+import Larry from '../../src/Images/artist/june.gif';
+import KeyGlock from '../../src/Images/artist/key.gif';
 const Artists = ({ size }: { size: string }) => {
   const navigate = useNavigate();
   const handleCardClick = (term: string) => {
@@ -26,7 +29,7 @@ const Artists = ({ size }: { size: string }) => {
             <TiltedCard
               // imageSrc="https://i.pinimg.com/736x/a2/3b/a7/a23ba7a9cdb5d504d7e847f6bcbada7b.jpg"
               // imageSrc="https://archive.illroots.com/uploads/articles/48213/image/1528414779/search_results.gif?1528416975"
-              imageSrc="https://i.imgur.com/sCUT5zd.gif"
+              imageSrc={KeyGlock}
               altText="Key Glock Type Beats"
               captionText="Key Glock Type Beats"
               containerHeight="300px"
@@ -48,7 +51,7 @@ const Artists = ({ size }: { size: string }) => {
           <div onClick={() => handleCardClick('Larry June')}>
             <TiltedCard
               // imageSrc="https://i.pinimg.com/736x/d4/bd/5c/d4bd5cc9eefe2ca4859d21345429bc90.jpg"
-              imageSrc="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMHJtd2VkbzdtaTQ2MHc3c3dpbnZya2Jtams3ZzN6MGlnNGoxMXI2dSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qzaKCwkr7Xkg0dtSAC/giphy.gif"
+              imageSrc={Larry}
               altText="Larry June Type Beats"
               captionText="Larry June Type Beats"
               containerHeight="300px"
@@ -71,7 +74,7 @@ const Artists = ({ size }: { size: string }) => {
           <div onClick={() => handleCardClick('Gunna')}>
             <TiltedCard
               // imageSrc="https://i.pinimg.com/736x/7f/05/ae/7f05ae439f3695ca4626c2d104d48e67.jpg"
-              imageSrc="https://i0.wp.com/grungecake.com/wp-content/uploads/2022/01/gunna-too-easy-remix-grungecake-thumbnail.gif?fit=520%2C293&ssl=1"
+              imageSrc={Gunna}
               altText="Gunna Type Beats"
               captionText="Gunna Type Beats"
               containerHeight="300px"

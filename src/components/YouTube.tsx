@@ -1,5 +1,6 @@
 import { FaYoutube } from 'react-icons/fa';
 import BirdieLogo from '../../src/Images/1LOGO-CROP-NOSTARS.png';
+
 const YoutubeSection = () => {
   return (
     <section className="bg-gradient-to-r from-zinc-950/0 via-zinc-900/0 to-zinc-950/0 text-white px-6">
